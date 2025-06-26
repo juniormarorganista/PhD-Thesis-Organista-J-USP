@@ -1,0 +1,159 @@
+% ----------------------------------------------------------
+%% Capitulo2-Formulacao.tex
+% ----------------------------------------------------------
+% Formulacao Matematica 
+% ----------------------------------------------------------
+\chapter[Formulação]{Formulação Matemática}
+\label{Cap_FormulacaoMatematica}
+
+Neste capítulo, são apresentadas as formulações matemáticas que governam os escoamentos incompressíveis e isotérmicos de fluidos viscoelásticos e dependentes do tempo. Para esse tipo de escoamento, utiliza-se uma combinação das equações de conservação de massa, quantidade de movimento, além de uma equação constitutiva que descreve o comportamento não newtoniano do fluido. Também são apresentadas as adimensionalizações das equações.
+
+\section{Equações Governantes}\label{Sec:EquacoesGovernantes}
+Escoamentos incompressíveis e isotérmicos são governados pela equação de continuidade, que assegura a conservação da massa:
+\begin{equation}\label{eq_conservacao_massa}
+    \nabla\cdot\mathbf{u} = 0,
+\end{equation}
+e pela equação de quantidade de movimento, que representa a conservação de momentum:
+\begin{equation}\label{eq_conservacao_momentum}
+    \rho \left( \frac{\partial \mathbf{u}}{\partial t} + \nabla \cdot (\mathbf{u} \mathbf{u}) \right) = \nabla \cdot \sigma,
+\end{equation}
+onde $\rho$\simbolo{\rho}{densidade} é a massa específica do fluido (densidade), $\mathbf{u}$\simbolo{\mathbf{u}}{vetor de velocidade} é o vetor de velocidade, $t$\simbolo{t}{tempo} é o tempo e o operador $\nabla = \left(\frac{\partial}{\partial x_{1}},\frac{\partial}{\partial x_{2}},\cdots,\frac{\partial}{\partial x_{n}}\right)$. A variável $\sigma$\simbolo{\sigma}{tensor de tensões totais} é o tensor de tensões totais, definido por:
+\begin{equation}\label{eq_tensoes_totais}
+    \sigma = \tau - p \mathbf{I},
+\end{equation}
+onde $p$\simbolo{p}{pressão} é a pressão, $\mathbf{I}$\simbolo{\mathbf{I}}{tensor identidade} é o tensor identidade, e $\tau$\simbolo{\tau}{tensor de tensões extra-simétrico} é o tensor de tensões extra-simétrico, definido pela equação constitutiva do fluido considerado. A tensão interna do fluido depende da natureza do fluido e pode ser descrita por diferentes modelos constitutivos, dependendo se o fluido é newtoniano ou não. 
+
+Para fluidos newtonianos, o tensor de tensões $\tau$ é proporcional ao tensor taxa de deformação $\mathbf{D}$\simbolo{\mathbf{D}}{tensor taxa de deformação}, conforme a relação linear:
+\begin{equation}\label{eq_tensoes_totais_newtoniano}
+    \tau = 2 \mu_s \mathbf{D},
+\end{equation}
+onde $\mu_s$ é a viscosidade dinâmica do fluido e $\mathbf{D}$ é o tensor taxa de deformação, dado por:
+\begin{equation}\label{eq_taxa_deformacao_newtoniano}
+    \mathbf{D} = \frac{1}{2}(\nabla \mathbf{u} + \nabla\mathbf{u}^{T} ).
+\end{equation}
+
+Em contrapartida, para fluidos não newtonianos, como os fluidos viscoelásticos, a relação entre as tensões e a deformação é mais complexa. O comportamento das tensões em função da deformação pode incluir efeitos elásticos e de afinamento por cisalhamento. Para fluidos não newtonianos, o tensor de tensões $\tau$ não exibe linearidade entre a taxa de deformação e a tensão de cisalhamento. O valor da viscosidade dinâmica não é constante, ou seja, varia com a taxa de deformação aplicada \cite{tanner1988}. Para fluidos não newtonianos, o tensor extra-tensões simétrico é definido como a soma da contribuição newtoniana (viscosa) e da contribuição não newtoniana (elástica) \cite{RAJAGOPALAN1990}, que é dado por:
+\begin{equation}\label{eq_tensoes_totais_nao_newtoniano}
+    \tau=2 \mu_s D+T,
+\end{equation}
+onde $\mu_s$ é a viscosidade do solvente newtoniano, $D$ é o tensor taxa de deformação definido pela Equação \eqref{eq_taxa_deformacao_newtoniano} e $T$ é o tensor extra-tensão (simétrico) que representa a contribuição não newtoniana do fluido.
+
+Portanto, ao calcular a divergência do tensor de tensões totais $(\sigma)$ da Equação \eqref{eq_tensoes_totais_nao_newtoniano}, a equação de quantidade de movimento para um fluido viscoelástico obtida é dada por:
+\begin{equation}
+    \begin{split}
+        \rho \left( \frac{\partial \mathbf{u}}{\partial t} + \nabla \cdot (\mathbf{uu}) \right) = -\nabla p + \mu_s \nabla^2 \mathbf{u} + \nabla \cdot \mathbf{T}.
+    \end{split}\label{eq_conservacao_momentum_nao_newtoniano}
+\end{equation}
+
+Neste trabalho, a equação constitutiva $LPOG$ foi adotada para a modelagem do comportamento de fluidos viscoelásticos. Essa formulação é originalmente apresentada por \citeonline{furlan2022linear}, onde é construída como uma síntese das contribuições de diversos trabalhos relevantes na área, incluindo os estudos de \citeonline{beris1987spectral}, \citeonline{brasseur1998time}, \citeonline{phan-thien77} e \citeonline{giesekus1982}. A equação LPOG se destaca por combinar os efeitos de deformação viscosa e elástica em um único modelo. De forma geral, a equação é expressa como:
+\begin{equation}
+    \begin{split}
+        \left( 1 + \frac{\epsilon \lambda}{\mu_p} \textbf{tr}(\mathbf{T}) \right) \mathbf{T} + \lambda \left(\frac{\partial \mathbf{T}}{\partial t} + \mathbf{u} \cdot \nabla \mathbf{T} - \mathbf{T} \cdot\nabla \mathbf{u} - \nabla \mathbf{u}^T \cdot \mathbf{T} \right) + \frac{\alpha_G \lambda}{\mu_p} (\mathbf{T} \cdot \mathbf{T}) + \\ + \xi\lambda (\mathbf{D} \cdot \mathbf{T} + \mathbf{T} \cdot \mathbf{D}) = 2 \mu_p \mathbf{D},
+    \end{split}\label{eq_tensores_lpog}
+\end{equation}
+onde $\mu_p$\simbolo{\mu_p}{coeficiente de viscosidade polimérica} é o coeficiente de viscosidade polimérica, $\lambda$\simbolo{\lambda}{tempo de relaxação do fluido} representa o tempo de relaxação do fluido, e $\alpha_G$\simbolo{\alpha_G}{parâmetro de mobilidade } é o parâmetro de mobilidade que regula o comportamento de afinamento por cisalhamento do fluido ($0 \leq \alpha_G \leq 0,5$), sendo este um parâmetro característico do modelo de Giesekus. A origem do termo relacionado a $\alpha_G$  pode ser associada ao arrasto hidrodinâmico anisotrópico sobre as moléculas poliméricas constituintes \cite{bird_v1_1987}. O parâmetro $\xi$ é uma constante positiva do modelo PTT e está relacionado às diferenças nas tensões normais. Já o parâmetro $\epsilon$ está vinculado ao comportamento elongacional do fluido, impedindo a ocorrência de uma viscosidade elongacional infinita em um fluxo de estiramento simples, como aconteceria em um modelo de Maxwell (UCM ou Oldroyd-B) quando $\epsilon = 0$ \cite{pinho2000axial}. Esse parâmetro $\epsilon$ descreve as propriedades extensionais do fluido, onde, quanto maior a oposição ao alongamento axial de um filamento fluido, menor será o valor de $\epsilon$. O termo $\textbf{tr}(\mathbf{T})$ representa o traço do tensor $T$, enquanto $T\cdot T$ denota o produto tensorial.
+
+Assim na equação constitutiva denominada LPOG \eqref{eq_tensores_lpog}, é possível derivar quatro modelos viscoelásticos distintos. Para cada modelo, basta realizar as seguintes substituições:
+\begin{itemize}
+    \item Modelo UCM: $\alpha_G = \xi = \epsilon = 0$ ($\mu_s = 0$); 
+    \item Modelo Oldroyd-B: $\alpha_G = \xi = \epsilon = 0$;
+    \item Modelo de Giesekus: $\xi = \epsilon = 0$;
+    \item Modelo LPTT: $\alpha_G = 0$.
+\end{itemize}
+
+\section{Equações Adimensionais}\label{Sec:Adimensionalizacao}
+As equações \eqref{eq_conservacao_massa} - \eqref{eq_conservacao_momentum_nao_newtoniano} descrevem o comportamento de escoamentos viscoelásticos incompressíveis e isotérmicos, tendo sido inicialmente apresentadas em sua forma dimensional. Entretanto, é mais vantajoso resolvê-las na forma adimensional, pois isso facilita a compreensão dos efeitos físicos envolvidos, além de permitir que o modelo seja independente do sistema de unidades adotado. Esse procedimento também impõe restrições adequadas aos valores de variáveis e parâmetros. O aspecto mais relevante é que essa abordagem possibilita a obtenção de condições que permitem a comparação entre situações geometricamente similares. Para tal, são necessárias as seguintes mudanças de variáveis:
+\begin{align*}
+    \mathbf{x}^*=\frac{\mathbf{x}}{L},\quad \mathbf{u}^*=\frac{\mathbf{u}}{U},\quad \mathbf{t}^*=\frac{t U}{L},\quad \rho^*=\frac{\rho}{p U^2},\quad \tau^*=\frac{\tau}{\rho U^2},\quad \mathbf{T}^*=\frac{\mathbf{T}}{\rho U^2},
+\end{align*}
+onde $L$ representa a metade da largura do canal e $U$ a escala de velocidade. Após essas substituições nas equações \eqref{eq_conservacao_massa}, \eqref{eq_conservacao_momentum_nao_newtoniano} e \eqref{eq_tensores_lpog}, obtêm-se as equações governantes na forma adimensional (omitindo-se o $\cdot^{*}$ para simplificação da notação):
+\begin{equation}
+    \begin{split}
+        \nabla \cdot \mathbf{u} = 0,
+    \end{split}\label{eq_conservacao_massa_admensional}
+\end{equation}
+\begin{equation}
+    \begin{split}
+        \frac{\partial \mathbf{u}}{\partial t} + \nabla \cdot (\mathbf{uu}) = -\nabla p + \frac{\beta_{nn}}{Re} \nabla^2 \mathbf{u} + \nabla \cdot \mathbf{T},
+\end{split}\label{eq_conservacao_momentum_nao_newtoniano_admensional}
+\end{equation}
+\begin{equation}
+    \begin{split}
+        f(\mathbf{T})\mathbf{T} + \operatorname{Wi} \left( \frac{\partial \mathbf{T}}{\partial t} + \nabla \cdot (\mathbf{u T}) - \nabla \mathbf{u} \cdot \mathbf{T} - \mathbf{T} \cdot \nabla \mathbf{u}^T \right) + \frac{\alpha_{G} \operatorname{Re} \operatorname{Wi}}{(1 - \beta_{nn})} (\mathbf{T} \cdot \mathbf{T}) + \\ + \xi \operatorname{Wi} \left( \mathbf{D} \cdot \mathbf{T} + \mathbf{T} \cdot\mathbf{D}\right) = 2 \frac{1 - \beta_{nn}}{\operatorname{Re}} \mathbf{D},
+    \end{split}\label{eq_tensores_lpog_admensional}
+\end{equation}
+onde
+\begin{equation}
+    \begin{split}
+        f(\mathbf{T}) = 1+\frac{\epsilon \operatorname{Wi} \operatorname{Re}}{(1 - \beta_{nn})}\textbf{tr}(\mathbf{T}).
+    \end{split}\label{eq_funcao_traco_tensor}
+\end{equation}
+
+Essas mudanças de variáveis introduzem parâmetros adimensionais importantes nas equações. Entre eles, o número de Reynolds é definido por:
+\begin{equation}
+    \begin{split}
+        \operatorname{Re} = \frac{\rho U L}{\mu_0}
+    \end{split}\label{eq_ReynoldsNumber}
+\end{equation}
+e o número de Weissenberg:
+\begin{equation}
+    \begin{split}
+        \operatorname{Wi} = \frac{\lambda U}{L}
+    \end{split}\label{eq_WeissenbergNumber}
+\end{equation}
+
+No estudo de escoamentos viscoelásticos, o número de Weissenberg quantifica a relação entre as forças elásticas e viscosas presentes no fluido. A constante $\beta_{nn} = \frac{\mu_s}{\mu_0}$\simbolo{\beta_{nn}}{fração da viscosidade do solvente newtoniano em relação à viscosidade total}\simbolo{\mu_0}{viscosidade total} representa a fração da viscosidade do solvente newtoniano em relação à viscosidade total. À medida que o valor de $\beta_{nn}$ diminui, o comportamento não newtoniano do fluido se torna mais evidente, chegando ao ponto em que, quando $\beta{nn} = 0$, o fluido é considerado completamente polimérico. A viscosidade total $\mu_0$ é dada pela soma das viscosidades do solvente $\mu_s$ e do polímero $\mu_p$\simbolo{\mu_p}{coeficiente de viscosidades do polímero}.
+
+No caso bidimensional, as equações \eqref{eq_conservacao_massa_admensional}, \eqref{eq_conservacao_momentum_nao_newtoniano_admensional} e \eqref{eq_tensores_lpog_admensional} podem ser escritas na forma de componentes da seguinte forma:
+\begin{align}
+    \frac{\partial u}{\partial x}+\frac{\partial v}{\partial y}&=0,\label{eq_cont_bidime}
+\end{align}
+\begin{subequations}
+\begin{align}
+    \frac{\partial u}{\partial t}+\frac{\partial(u u)}{\partial x}+\frac{\partial(u v)}{\partial y} &= -\frac{\partial p}{\partial x}+\frac{\beta_{nn}}{\operatorname{Re}}\left(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}\right)+\frac{\partial T_{x x}}{\partial x}+\frac{\partial T_{x y}}{\partial y},\label{eq_movi_x_bidime} \\[7mm]
+    \frac{\partial v}{\partial t} + \frac{\partial(u v)}{\partial x} + \frac{\partial(v v)}{\partial y} &= -\frac{\partial p}{\partial y}+\frac{\beta_{nn}}{\operatorname{Re}}\left(\frac{\partial^2 v}{\partial x^2}+\frac{\partial^2 v}{\partial y^2}\right)+\frac{\partial T_{x y}}{\partial x}+\frac{\partial T_{yy}}{\partial y},\label{eq_movi_y_bidime}
+\end{align}
+\end{subequations}
+\begin{subequations}
+\begin{align}
+    f(\mathbf{T}) T_{xx} & + \operatorname{Wi}\left[\frac{\partial T_{xx}}{\partial t} + \frac{\partial (uT_{xx})}{\partial x} + \frac{\partial (vT_{xx})}{\partial y} - 2T_{xx}\frac{\partial u}{\partial x} - 2T_{xy}\frac{\partial u}{\partial y}\right] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1 - \beta_{nn}}\left(T_{xx}^{2} + T_{xy}^{2}\right) + \nonumber \\ & + \xi\operatorname{Wi}\left(2T_{xx}\frac{\partial u}{\partial x} + T_{xy}\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right)\right) = 2 \frac{1 - \beta_{nn}}{\operatorname{Re}}\frac{\partial u}{\partial x}, \label{eq_lpog_txx}\\[7mm]
+    f(\mathbf{T}) T_{xy} & + \operatorname{Wi}\left[\frac{\partial T_{xy}}{\partial t} + \frac{\partial (uT_{xy})} {\partial x} + \frac{\partial (vT_{xy})}{\partial y} - T_{xx}\frac{\partial v}{\partial x} - T_{yy}\frac{\partial u}{\partial y}\right] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1 - \beta_{nn}}\left[T_{xy}\left(T_{xx} + T_{yy}\right)\right] + \nonumber \\ & + \frac{\xi\operatorname{Wi}}{2}\left(T_{xx} + T_{yy}\right)\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right) = \frac{1 - \beta_{nn}}{\operatorname{Re}}\left(\frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\right), \label{eq_lpog_txy}\\[7mm]
+    f(\mathbf{T})T_{yy} & + \operatorname{Wi}\left[\frac{\partial T_{yy}}{\partial t} + \frac{\partial (uT_{yy})}{\partial x} + \frac{\partial (vT_{yy})}{\partial y} - 2T_{xy}\frac{\partial v}{\partial x} - 2T_{yy}\frac{\partial v}{\partial y}\right] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1 - \beta_{nn}}\left(T_{xy}^{2} + T_{yy}^{2}\right) + \nonumber \\ & + \xi\operatorname{Wi}\left(2T_{yy}\frac{\partial v}{\partial y} + T_{xy}\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right)\right) = 2\frac{1 - \beta_{nn}}{\operatorname{Re}}\frac{\partial v}{\partial y},\label{eq_lpog_tyy}
+\end{align}
+\end{subequations}
+onde $u$ e $v$ representam os componentes de velocidade nas direções $x$ e $y$, respectivamente, $T_{xx}$ e $T_{yy}$ são os componentes normais do tensor extra-tensão, $T_{xy}$ é o componente de cisalhamento do tensor extra-tensão e 
+\begin{equation}
+    \begin{split}
+        f(\mathbf{T}) = 1+\frac{\epsilon \operatorname{Wi} \operatorname{Re}}{(1 - \beta_{nm})}\left(T_{xx} + T_{yy}\right).
+    \end{split}\label{eq_funcao_traco_tensor_bidime}
+\end{equation}
+
+\section{Formulação Vorticidade-Função de Corrente}\label{Sec:Formulacao_Vorticidade_FuncaoCorrente}
+
+A formulação vorticidade-função de corrente é amplamente utilizada para resolver as equações de movimento em problemas de dinâmica dos fluidos. Uma de suas vantagens é a eliminação do termo de pressão das equações de movimento, resultando na redução do número de variáveis envolvidas e simplificando a solução do sistema de equações que envolvem as equações governantes. Além disso, essa formulação é compatível com o uso de malhas colocalizadas, nas quais todas as variáveis são armazenadas no mesmo ponto do nó da malha, o que pode facilitar a implementação numérica e reduzir problemas associados à interpolação de variáveis em malhas deslocadas. Assim, em vez de trabalhar diretamente com as componentes de velocidade e pressão, essa formulação substitui essas variáveis por vorticidade e função de corrente, resultando em um conjunto de equações mais simples e adequadas para os métodos numéricos utilizados. A vorticidade na componente da direção $z$, representada por $\omega_{z}$\simbolo{\omega_{z}}{vorticidade na componente da direção $z$}, é dada por:
+\begin{equation}
+    \omega_{z} = \dfrac{\partial u}{\partial y} - \dfrac{\partial v}{\partial x}.
+\end{equation}
+
+Para eliminar o termo de pressão, toma-se o rotacional da \autoref{eq_conservacao_momentum_nao_newtoniano_admensional}, que no caso bidimensional resume-se a calcular a derivada com respeito a $y$ da \autoref{eq_movi_x_bidime} e subtrair da derivada com respeito a $x$ da \autoref{eq_movi_y_bidime}, obtém-se assim a equação de transporte da vorticidade $\omega_z$, que é expressa por:
+\begin{equation}
+    \dfrac{\partial \omega_{z}}{\partial t}+\dfrac{\partial(u\omega_{z})}{\partial x}+\dfrac{\partial(v\omega_{z})}{\partial y} = \dfrac{\beta_{nn}}{\operatorname{Re}}\left( \dfrac{\partial^{2}\omega_{z}}{\partial x^{2}} + \dfrac{\partial^{2}\omega_{z}}{\partial y^{2}} \right)+\dfrac{\partial^{2}T_{xx}}{\partial x\partial y}+\dfrac{\partial^{2}T_{xy}}{\partial y^{2}}-\dfrac{\partial^{2}T_{xy}}{\partial x^{2}}-\dfrac{\partial^{2}T_{yy}}{\partial x\partial y}.\label{eq_vorticity_wz}
+\end{equation}
+Vale ressaltar que o rotacional de um gradiente é sempre zero e assim $$\nabla \times \nabla p = \frac{\partial^2 p}{\partial x \partial y} - \frac{\partial^2 p}{\partial y \partial x} = \frac{\partial^2 p}{\partial x \partial y} - \frac{\partial^2 p}{\partial x \partial y} = 0,$$ portanto o termo de pressão é eliminado do sistema de equações.
+
+Para garantir que a equação de continuidade seja satisfeita automaticamente, introduz-se a Função de Corrente $\Psi$\simbolo{\Psi}{função de Corrente}. As componentes de velocidade $u$ e $v$ estão relacionadas à função corrente pelas seguintes expressões:
+\begin{align}\label{eq_Psiy_u_Psix_v}
+    u = \dfrac{\partial \Psi}{\partial y} \qquad \textrm{e} \qquad v = - \dfrac{\partial \Psi}{\partial x}.
+\end{align}
+Essas relações garantem que a equação de continuidade seja satisfeita automaticamente, dado que:
+\begin{equation}
+    \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} = \frac{\partial}{\partial x} \left( \frac{\partial \Psi}{\partial y} \right) + \frac{\partial}{\partial y} \left(-\frac{\partial \Psi}{\partial x} \right) = \frac{\partial}{\partial x} \left( \frac{\partial \Psi}{\partial y} \right) - \frac{\partial}{\partial x} \left( \frac{\partial \Psi}{\partial y} \right) = 0
+\end{equation}
+
+Substituindo \autoref{eq_Psiy_u_Psix_v}  na definição de vorticidade \(\omega_z\), obtemos a seguinte equação de Poisson para a função corrente \(\Psi\):
+\begin{align}\label{eq_psi_vortic_corrent}
+    \frac{\partial^2 \Psi}{\partial x^2}+\frac{\partial^2 \Psi}{\partial y^2}= \omega_z,
+\end{align}
+onde a função corrente $\Psi$ assegura a conservação da massa no escoamento. As componentes de velocidade podem ser obtidas utilizando a relação dada pela \autoref{eq_Psiy_u_Psix_v}. Observe que a equação de Poisson \ref{eq_psi_vortic_corrent} e a equação de transporte da vorticidade \ref{eq_vorticity_wz} formam um sistema acoplado que descreve o escoamento do fluido.
+
+Embora a formulação vorticidade-função de corrente seja amplamente utilizada em problemas bidimensionais, ela apresenta desafios em escoamentos tridimensionais devido a necessidade de adicionar as demais equações de vorticidade em 3D \cite{zhu2024}. Apesar desses desafios, a formulação continua sendo uma ferramenta poderosa para a simulação de escoamentos bidimensionais e é amplamente empregada em diversas áreas, como simulações de fluidos, meteorologia e análise de escoamentos de fluidos incompressíveis \cite{huang2015}.

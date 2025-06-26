@@ -1,0 +1,151 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\newcounter{question}
+\newcommand{\name}{00}
+
+\renewcommand{\thefigure}{R\arabic{figure}}
+\renewcommand{\thetable}{R\arabic{table}}
+
+\newcommand{\question}[1]{\stepcounter{question} \noindent \textbf{Comment \name.\thequestion} \emph{#1} }
+
+\newcommand{\answer}[1]{\noindent \textbf{Answer to \name.\thequestion} #1 \mbox{}\\}
+
+\newcommand{\newperson}[2]{\renewcommand{\name}{#2} \setcounter{question}{0} \newpage \noindent \textbf{\Large Answers to #1} \\}
+
+\begin{document}
+
+{\large \textbf{Response letter to the manuscript
+-- \emph{Development of a High-Order Numerical Method for Solving Incompressible Viscoelastic Fluid Flows and Verification using the Method of Manufactured Solutions}}}
+
+\vspace{0.8cm}
+We thank the reviewer \#3 for his/her constructive comments. We have addressed all of them and modified the paper accordingly. Our detailed answers follow. Please note that reviewers' comments are in italics while our answers are not.
+\vspace{0.8cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it The manuscript under review proposes a fourth-order compact finite-difference scheme for the numerical simulation of the two-dimensional Oldroyd-B and Giesekus models. The accuracy of the scheme is assessed by using the method of manufactured solutions, which consists in “forcing” the evolution equations with a term that imposes a prescribed solution and then measuring the convergence to such solution. The performance of the code is tested in the lid-driven cavity configuration, by using both the Oldroyd-B model and the Giesekus model with two different values of the mobility parameter. The tests consider various values of the Reynolds number and of the coupling parameter $\beta$, while the Weissenberg number is kept equal to unity. The mesh size is also varied.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+We appreciate the reviewer's summary of our study. This accurately encapsulates the scope and methodology employed in our research.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it My main concern is about the novelty of the study. In the Introduction, the authors write: “To the best of our knowledge, a high-order numerical scheme applied to viscoelastic fluid flow calculations is not yet
+available in the scientific literature”. High-order schemes have been used in viscoelastic simulations for several years. I am aware, for instance, of the following studies:
+
+– P. Perlekar, D. Mitra \& R. Pandit, “Manifestations of Drag Reduction by Polymer Additives in Decaying, Homogeneous, Isotropic Turbulence”, Phys. Rev. Lett. 97, 264501 (2006)
+
+– L. Thais, A.E. Tejada-Mart inez, T.B. Gatski \& G. Mompean, “A massively parallel hybrid scheme for direct numerical simulation of turbulent viscoelastic channel flow”, Computers \& Fluids 43, 134 (2011)
+
+– A. Gupta, P. Perlekar \& R. Pandit, “Two-dimensional homogeneous isotropic fluid turbulence with polymer additives”, Phys. Rev E 91, 033013 (2015)
+
+– V. Dzanic, C.S. From \& E. Saureta, “A hybrid lattice Boltzmann model for simulating viscoelastic instabilities”, Computers \& Fluids 235, 105280 (2022)
+
+– J.R.C. King \& S.J. Lind, “A mesh-free framework for high-order simulations of viscoelastic flows in complex geometries”, J. Non-Newtonian Fluid Mech. 330, 105278 (2024) 
+
+It is unclear, therefore, what is the contribution of the manuscript under review to the simulation of viscoelastic flows. Unless the authors explain the novelty and merits of their approach compared to previous studies, their
+contribution seems to be just another high-order finite-difference scheme. I think it is essential that the authors clarify this point before the manuscript can be considered for publication..}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+We thank the reviewer for the insightful and well-founded observation concerning the novelty of our study. We recognize that high-order numerical schemes have been extensively utilized in simulations of viscoelastic flows across a variety of formulations, as correctly noted in the cited literature.
+
+In light of this, we have revised our original claim to emphasize that the contribution of the present work does not stem from the general adoption of high-order methods. Rather, it lies in the implementation of a high-order compact finite difference scheme within the streamfunction–vorticity formulation, in conjunction with a rigorous verification procedure based on the Method of Manufactured Solutions (MMS) applied to both the Oldroyd-B and Giesekus constitutive models.
+
+To the best of our knowledge, this particular combination—especially the systematic use of MMS for verifying the numerical implementation across a wide range of physical and numerical parameters—remains insufficiently explored in the existing literature. The manuscript has been accordingly revised to more clearly reflect this specific aspect of the contribution.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it The introduction essentially consists of a long list of numerical studies considering different numerical methods and flow configurations. I am not sure such an introduction is useful. The topic is obviously too broad to be covered in the introduction of a manuscript, and the criterion used by the authors to select some specific references is unclear. For each article, there is indeed a quick mention of the numerical method and the physical application, but the connection with the study presented in the manuscript is
+not discussed. The introduction should be shortened and should focus only on those aspects that are relevant to this manuscript.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it I do not think it is necessary to discuss the merits of the Fortran language and of Mathematica; these tools are routinely used in the scientific community.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+We thank the reviewer for this observation and agree that a detailed discussion of widely used computational tools is not essential to the manuscript. Accordingly, we have removed the commentary on the merits of Fortran and Mathematica, and have retained only the relevant information regarding their roles within our computational framework.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it p. 9, 4th step: I think $\Phi z$ should be $\Phi$.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+We thank the reviewer for identifying this typographical error. We have corrected $\Phi_z$ to $\Phi$ in the specified section of the manuscript.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it p. 11, first line: the notation is unclear. What are E and G?} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+In the revised manuscript, these variables were removed to avoid confusion.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it A spatial filtering is used in the code. An excessive smoothening of the polymer-stress field may smear the polymer stress out, which in turn may lead to artefacts comparable to those observed when an artificially large polymer-stress diffusivity is used. Such an effect may be negligible in the setting considered in this manuscript (in particular, the Weissenberg number is relatively small). However, it would be worth examining the impact of the filtering as the parameter $\alpha$ is varied in simulations of complex flows at large Weissenberg numbers. This is probably beyond the scope of this manuscript, but the authors should at least discuss this point.} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+When the filtering parameter \(\alpha\) in the scheme is set to 0.5, no filtering is applied to the components. Values of \(\alpha\) close to 0.5 result in the selective removal of high-frequency components, typically associated with spurious oscillations. To preserve physical frequencies while mitigating numerical artifacts, a value of \(\alpha = 0.48\) was adopted. This rationale has been incorporated into the revised manuscript. Higher Weissenberg number results are shown in the revised version.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it The notation for the space step changes between h, dy, and $\Delta y$. The authors should use a uniform notation.} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+The manuscript has been revised to standardize the notation for spatial discretization, with $\Delta x$ and $\Delta y$ now used consistently throughout the text to enhance clarity and coherence.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it p. 14, “...or until the predefined criterion $Er\Phi >= Er\infty$ is met”: I think “until” should be replaced with “as long as”.} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+Fixed!
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it Figures 6, 7, 12, 13, 14, 15: it is not clear why the authors plot the lines corresponding to the 2nd, 4th, and 6th orders instead of plotting only the line that fits the data and corresponds to the correct order.} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+The reference lines indicating 2nd-, 4th-, and 6th-order slopes were included to facilitate evaluation of the computed convergence rates, which vary between approximately 3rd- and 5th-order in our analysis. 
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it The authors write that “As the mesh is refined, errors consistently decrease, with the convergence order approaching 4.5”. This is correct for the components of the polymer stress, but does not seem to hold for the vorticity. Except for the lowest Reynolds number, indeed, the order of convergence for the vorticity seems closer to 4 than to 4.5. Furthermore, the order of convergence of the vorticity systematically decreases for the finest mesh. The authors should be more precise in their conclusions and, if possible, explain the behaviour of the order with the mesh. .} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+We appreciate the reviewer's careful attention to the discrepancies between our textual statements and numerical results. Upon re-examination, we confirm that the convergence order for vorticity ($\omega_z$) decreases slightly below fourth-order for Reynolds numbers exceeding $Re = 100$, as documented in Table 1. In response, we have modified the Summary and Results sections to more precisely characterize these observations. Specifically, we now report that while most variables approach 4.5-order convergence, the vorticity field exhibits marginally reduced convergence rates at elevated Reynolds numbers.
+
+This behavior stems from the increased sensitivity of vorticity to numerical diffusion, particularly as convective effects grow dominant at higher Reynolds numbers. Although our compact scheme maintains excellent accuracy overall, the vorticity calculation demonstrates greater susceptibility to accumulated numerical error compared to stress components (e.g., $T_{xx}$). The latter benefit from smoother gradients and the stabilizing influence of elastic relaxation terms. We have expanded the discussion in the Results section to provide a more nuanced interpretation of these convergence characteristics.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it Finally, the results section contains a large number of tables and plots. Since the results for the Oldroyd-B and the two Giesekus simulations are similar, I am wondering whether it is worth reporting all of them. Moreover, the authors do not make any specific comparison between the different models. I think the readability of the manuscript would improve if the authors could reduce the number of plots and tables. For instance, the plots of the manufactured solutions are probably not essential, and the results for one value of $\alpha_G$ are sufficient. The authors could simply mention that simulations for a second value of $\alpha_G$ have also been performed with similar results. This is, however, only a suggestion.} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+We thank the reviewer for the thoughtful suggestion regarding the number of tables and figures presented in the results section. While we agree that there are similarities among the simulations for the Oldroyd-B and Giesekus models, we believe that presenting the full set of results provides a clearer and more complete view of the behavior of the numerical scheme across different constitutive models and parameter values.
+
+In particular, the inclusion of multiple values of $\alpha_G$ and the plots of the manufactured solutions help to demonstrate the robustness and accuracy of the method under a range of conditions. We also feel that maintaining this level of detail supports the reproducibility and transparency of the study, which we consider important, especially for verification-focused research.
+
+Nonetheless, we have carefully reviewed the figures and tables to ensure they are as concise and informative as possible, and we hope the current presentation remains acceptable to the reviewer.
+\vspace{3mm}
+
+\end{document}

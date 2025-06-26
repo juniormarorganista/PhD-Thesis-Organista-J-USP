@@ -1,0 +1,13 @@
+#PBS -N Case_0__CC___P__PP___G__GG___Re__RR___W__WW__
+#PBS -l select=1:ncpus=2
+#PBS -l walltime=335:59:59
+#PBS -M juniormarorganista@usp.br
+
+module load gcc/4.9.2 mpich/3.1.4
+
+cd /home/juniormr/4Order_LPOG_Euler/Case_0__CC___PTS__PP___Wi__WW___Re__RR___AlphaG__GG__
+
+chmod +x cas_0__CC___PTS__PP___Wi__WW___Re__RR___AlphaG__GG__.sh
+
+./cas_0__CC___PTS__PP___Wi__WW___Re__RR___AlphaG__GG__.sh
+

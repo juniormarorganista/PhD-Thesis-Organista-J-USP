@@ -1,0 +1,223 @@
+\definecolor{mafunction}{RGB}{153,51,255}    % Roxo para funções
+\definecolor{macomment}{RGB}{63,127,95}      % Verde para comentários
+\definecolor{mastring}{RGB}{186,33,33}       % Vermelho para strings
+\definecolor{makeyword}{RGB}{0,0,255}        % Azul para palavras-chave
+
+\lstdefinelanguage{Mathematica}{
+  morecomment=[s]{(*}{*)},                   % Comentários em bloco
+  morestring=[b]"",                          % Strings entre aspas
+  morekeywords={                             % Funções built-in
+    Plot, ListPlot, ContourPlot, Integrate, DSolve, NDSolve, 
+    Simplify, Expand, Factor, Solve, NSolve, FindRoot, Table,
+    Do, For, While, If, Switch, Module, With, Block, Apply, Map,
+    Reduce, Series, Limit, Derivative, Integrate, Sum, Product,
+    ReplaceAll, Set, SetDelayed, Rule, RuleDelayed, Pattern,
+    Options, MessageName, Quiet, Check, Abort, Return, Break,
+    Continue, Throw, Catch, Element, Variables, Coefficients,
+    Numerator, Denominator, Apart, Together, Cancel, Collect,
+    CoefficientList, PolynomialGCD, PolynomialLCM, Exponent,
+    TrigExpand, TrigReduce, TrigFactor, TrigToExp, ExpToTrig,
+    FullSimplify, FunctionExpand, PowerExpand, ComplexExpand,
+    Assuming, Refine, Residue, FourierTransform, InverseFourierTransform,
+    LaplaceTransform, InverseLaplaceTransform, ZTransform, 
+    InverseZTransform, DiscretePlot, Manipulate, Dynamic, Slider,
+    Animate, Export, Import, Image, Graphics, Line, Circle, Point,
+    Polygon, Text, Style, RGBColor, Hue, Opacity, Arrow, BezierCurve,
+    ParametricPlot, PolarPlot, LogPlot, LogLogPlot, LogLinearPlot,
+    RegionPlot, VectorPlot, StreamPlot, DensityPlot, ArrayPlot,
+    MatrixPlot, Histogram, BarChart, PieChart, BoxWhiskerChart,
+    DateListPlot, FinancialChart, GeoGraphics, ReliefPlot,
+    SphericalPlot3D, RevolutionPlot3D, ListLinePlot, ListPointPlot3D,
+    ListContourPlot, ListSurfacePlot3D, ListVectorPlot,
+    ListStreamPlot, ListDensityPlot, ListPlot3D, ListPolarPlot,
+    ListLogPlot, ListLogLogPlot, ListLogLinearPlot, ListAnimate
+  },
+  morekeywords=[2]{                          % Operadores especiais
+    ->, :=, =, ==, ===, !=, =!=, <=, >=, <, >, +, -, *, /, ^, 
+    &&, ||, !, ++, --, +=, -=, *=, /=, ^=, &, |, \[CirclePlus], 
+    \[CircleTimes], \[CircleDot], \[Wedge], \[Vee], \[Cross], 
+    \[Star], \[Diamond], \[Square], \[Bullet], \[RightArrow], 
+    \[LeftArrow], \[UpArrow], \[DownArrow], \[RightTeeArrow], 
+    \[LeftTeeArrow], \[UpTeeArrow], \[DownTeeArrow], \[Rule], 
+    \[RightVector], \[LeftVector], \[DoubleRightArrow], 
+    \[DoubleLeftArrow], \[DoubleUpArrow], \[DoubleDownArrow]
+  },
+  morekeywords=[3]{                          % Símbolos especiais
+    \[Pi], \[Infinity], \[Degree], \[ExponentialE], \[ImaginaryI], 
+    \[ImaginaryJ], \[CapitalDifferentialD], \[Delta], \[CurlyEpsilon], 
+    \[Zeta], \[Eta], \[CurlyTheta], \[Iota], \[Kappa], \[Lambda], 
+    \[Mu], \[Nu], \[Xi], \[Omicron], \[Rho], \[FinalSigma], \[Sigma], 
+    \[Tau], \[Upsilon], \[Phi], \[Chi], \[Psi], \[Omega], \[Alpha], 
+    \[Beta], \[Gamma], \[Epsilon], \[Theta], \[CurlyPhi], \[CurlyCapitalUpsilon]
+  },
+  sensitive=true,                            % Case-sensitive
+  keywordstyle=\color{makeyword},           % Estilo das palavras-chave
+  keywordstyle=[2]\color{mafunction},       % Estilo dos operadores
+  keywordstyle=[3]\color{magenta},          % Estilo dos símbolos
+  commentstyle=\color{macomment},           % Estilo dos comentários
+  stringstyle=\color{mastring},             % Estilo das strings
+  tabsize=4,                                % Tamanho do tab
+  showspaces=false,                         % Mostrar espaços?
+  showstringspaces=false,                   % Espaços em strings?
+  breaklines=true,                          % Quebra de linhas
+  breakatwhitespace=true,                   % Quebra apenas em espaços
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, % Símbolo de continuação
+  basicstyle=\ttfamily\small,               % Fonte monoespaçada pequena
+  numbers=left,                             % Numeração à esquerda
+  numberstyle=\tiny\color{gray},            % Estilo da numeração
+  frame=single,                             % Moldura ao redor do código
+  rulecolor=\color{lightgray},              % Cor da moldura
+  xleftmargin=15pt,                         % Margem esquerda
+  xrightmargin=5pt                          % Margem direita
+}
+
+\lstnewenvironment{mathematicacode}[1][]{
+  \lstset{language=Mathematica, #1}
+}{}
+
+Neste apêndice, são apresentados os códigos desenvolvidos na linguagem \textit{Mathematica}, utilizados para a geração das Soluções Manufaturadas aplicadas no processo de verificação do código numérico proposto. A elaboração dessas expressões analíticas foi essencial para a construção de campos de referência que permitem testar rigorosamente a implementação computacional dos modelos reológicos utilizados.
+
+As funções definidas incluem os campos primários de interesse nos escoamentos viscoelásticos, como as componentes de velocidade e os tensores de tensão extra. Esses campos analíticos foram construídos de forma simbólica, assegurando regularidade, derivabilidade e controle paramétrico sobre o comportamento da solução, o que viabiliza a dedução de termos fonte exatos para uso nas simulações numéricas.
+
+O Código~\ref{codigo:mathematica_1} exemplifica a configuração das variáveis envolvidas e a definição de expressões manufaturadas para o campo de velocidade $u(x,y,t)$ e os componentes do tensor de tensão extra $T_{xx}$, $T_{xy}$ e $T_{yy}$.
+
+\begin{mathematicacode}[caption={Configurando as Soluções Manufaturadas}, label={codigo:mathematica_1}]
+(*--- Parameters and Functions ---*)
+SetOptions[$Output, PageWidth -> 65];
+SetAttributes[{pii, epsylon, Wi, xi, Rey, betann, alphaG, at, a1xx, a2xx, a3xx, b1xx, b2xx, b3xx, a1xy, a2xy, a3xy, b1xy, b2xy, b3xy, a1yy, a2yy, a3yy, b1yy, b2yy, b3yy}, Constant];
+(*--- Settings "a" and "b"  ---*)
+a1xx = 1; a2xx = 1; a3xx = 1; 
+b1xx = 1; b2xx = 1; b3xx = 1; 
+a1xy = 1; a2xy = -1; a3xy = 1; 
+b1xy = 1; b2xy = -1; b3xy = 1; 
+a1yy = -1; a2yy = 1; a3yy = -1; 
+b1yy = -1; b2yy = 1; b3yy = -1;
+(*--- U ---*)
+u[x_, y_, t_] = Exp[-at*t]*(-1 + x)*x*Sin[Pi*x] (Pi*y*Cos[Pi*y] + Sin[Pi*y]);
+(*--- Txx, Txy, Tyy ---*)
+Txx[x_, y_, t_] =  Exp[-at*t]*(a3xx*Cos[Pi*x] + a2xx*Sin[Pi*x] + a1xx)*(b3xx*Cos[Pi*y] + b2xx*Sin[Pi*y] + b1xx)*(1 - betann); 
+Txy[x_, y_, t_] = Exp[-at*t]*(a3xy*Cos[Pi*x] + a2xy*Sin[Pi*x] + a1xy)*(b3xy*Cos[Pi*y] + b2xy*Sin[Pi*y] + b1xy)*(1 - betann);
+Tyy[x_, y_, t_] = Exp[-at*t]*(a3yy*Cos[Pi*x] + a2yy*Sin[Pi*x] + a1yy)*(b3yy*Cos[Pi*y] + b2yy*Sin[Pi*y] + b1yy)*(1 - betann]);
+\end{mathematicacode}
+
+O Código \ref{codigo:mathematica_2} foca na obtenção de variáveis derivadas do campo de velocidade e na verificação da equação de conservação da massa.
+\begin{mathematicacode}[caption={Cálculo da velocidade $v$, da vorticidade $\omega_{z}$ e função corrente $\psi$}, label={codigo:mathematica_2}]
+(*--- Calculation of Velocity ---*)
+v[x_, y_, t_] = -Integrate[D[u[x, y, t], x], y]
+(*--- Testing the Mass Conservation Equation ---*)
+Print["Verification the Mass Conservation Equation:"]
+FullSimplify[dudx[x, y, t] + dvdy[x, y, t]]
+(*--- Vorticity Transport Equation ---*)
+wz[x_, y_, t_] =  dudy[x, y, t] - dvdx[x, y, t];
+psi[x_, y_, t_] =  Integrate[u[x, y, t], y];
+\end{mathematicacode}
+
+\begin{mathematicacode}[caption={Cálculo das derivadas para os termos fontes}, label={codigo:mathematica_3}]
+(*--- Calculation of Velocity ---*)
+dudx[x_, y_, t_] = D[u[x, y, t], x];
+dudy[x_, y_, t_] = D[u[x, y, t], y];
+dudt[x_, y_, t_] = D[u[x, y, t], t];
+d2udx2[x_, y_, t_] = D[u[x, y, t], {x, 2}];
+d2udy2[x_, y_, t_] = D[u[x, y, t], {y, 2}];
+dvdx[x_, y_, t_] = D[v[x, y, t], x];
+dvdy[x_, y_, t_] = D[v[x, y, t], y];
+dvdt[x_, y_, t_] = D[v[x, y, t], t];
+d2vdx2[x_, y_, t_] = D[v[x, y, t], {x, 2}];
+d2vdy2[x_, y_, t_] = D[v[x, y, t], {y, 2}];
+duudx[x_, y_, t_] = D[u[x, y, t]*u[x, y, t], x];
+duvdx[x_, y_, t_] = D[u[x, y, t]*v[x, y, t], x];
+duvdy[x_, y_, t_] = D[u[x, y, t]*v[x, y, t], y];
+dvvdy[x_, y_, t_] = D[v[x, y, t]*v[x, y, t], y];
+(*--- Terms Txx ---*) 
+dTxxdt[x_, y_, t_] = D[Txx[x, y, t], t];
+dTxxdx[x_, y_, t_] = D[Txx[x, y, t], x];
+duTxxdx[x_, y_, t_] = D[u[x, y, t]*Txx[x, y, t], x];
+dvTxxdy[x_, y_, t_] = D[v[x, y, t]*Txx[x, y, t], y];
+Txxdudx[x_, y_, t_] = Txx[x, y, t]*dudx[x, y, t];
+Txxdvdx[x_, y_, t_] = Txx[x, y, t]*dvdx[x, y, t];
+Txxdudy[x_, y_, t_] = Txx[x, y, t]*dudy[x, y, t];
+d2Txxdxdy[x_, y_, t_] = D[Txx[x, y, t], x, y];
+(*--- Terms Txy ---*)
+dTxydt[x_, y_, t_] = D[Txy[x, y, t], t];
+dTxydx[x_, y_, t_] = D[Txy[x, y, t], x];
+dTxydy[x_, y_, t_] = D[Txy[x, y, t], y];
+duTxydx[x_, y_, t_] = D[u[x, y, t]*Txy[x, y, t], x];
+dvTxydy[x_, y_, t_] = D[v[x, y, t]*Txy[x, y, t], y];
+Txydudy[x_, y_, t_] = Txy[x, y, t]*dudy[x, y, t];
+Txydvdx[x_, y_, t_] = Txy[x, y, t]*dvdx[x, y, t];
+Txydvdy[x_, y_, t_] = Txy[x, y, t]*dvdy[x, y, t];
+Txydudx[x_, y_, t_] = Txy[x, y, t]*dudx[x, y, t] ;
+d2Txydx2[x_, y_, t_] = D[Txy[x, y, t], {x, 2}];
+d2Txydy2[x_, y_, t_] = D[Txy[x, y, t], {y, 2}];
+(*--- Terms Tyy ---*)
+dTyydt[x_, y_, t_] = D[Tyy[x, y, t], t];
+dTyydy[x_, y_, t_] = D[Tyy[x, y, t], y];
+duTyydx[x_, y_, t_] = D[u[x, y, t]*Tyy[x, y, t], x];
+dvTyydy[x_, y_, t_] = D[v[x, y, t]*Tyy[x, y, t], y];
+Tyydudy[x_, y_, t_] = Tyy[x, y, t]*dudy[x, y, t];
+Tyydvdy[x_, y_, t_] = Tyy[x, y, t]*dvdy[x, y, t];
+Tyydvdx[x_, y_, t_] = Tyy[x, y, t]*dvdx[x, y, t];
+d2Tyydxdy[x_, y_, t_] = D[Tyy[x, y, t], x, y];
+(*--- Vorticity Transport Equation ---*)
+dwzdt[x_, y_, t_] = D[wz[x, y, t], t];
+duwzdx[x_, y_, t_] = D[u[x, y, t]*wz[x, y, t], x];
+dvwzdy[x_, y_, t_] = D[v[x, y, t]*wz[x, y, t], y];
+d2wzdx2[x_, y_, t_] = D[wz[x, y, t], {x, 2}];
+d2wzdy2[x_, y_, t_] = D[wz[x, y, t], {y, 2}];
+\end{mathematicacode}
+
+\begin{mathematicacode}[caption={Cálculo dos termos fontes}, label={codigo:mathematica_4}]
+(*------ Source Term ------*)
+(*------  Terms Txx ------*)
+tfTxx[x_, y_, t_] = (1 + (epsylon*Rey*Wi)/(1 - betann)*(Txx[x, y, t] + Tyy[x, y, t]) )*Txx[x, y, t] +  Wi*(dTxxdt[x, y, t] + duTxxdx [x, y, t] + dvTxxdy[x, y, t] - 2*Txxdudx[x, y, t] - 2*Txydudy[x, y, t] + xi*(2*Txxdudx[x, y, t] + Txydudy[x, y, t] + Txydvdx[x, y, t])) + (alphaG*Rey*Wi)/(1 - betann)*(Txx[x, y, t]*Txx[x, y, t] + Txy[x, y, t]*Txy[x, y, t]) - (2*(1 - betann))/Rey*dudx[x, y, t];
+(*------  Terms Txy ------*)
+tfTxy[x_, y_, t_] = (1 + (epsylon*Rey*Wi)/(1 - betann)*(Txx[x, y, t] + Tyy[x, y, t]) )*Txy[x, y, t] + Wi*(dTxydt[x, y, t] + duTxydx [x, y, t] + dvTxydy[x, y, t] - Txxdvdx[x, y, t] - Txydvdy[x, y, t] - Txydudx[x, y, t] - Tyydudy[x, y, t] + xi*(Txydudx[x, y, t] + Tyydudy[x, y, t]/2 + Tyydvdx[x, y, t]/2 + Txxdudy[x, y, t]/2 + Txxdvdx[x, y, t]/2 + Txydvdy[x, y, t])) + (alphaG*Rey*Wi)/(1 - betann)*(Txx[x, y, t]*Txy[x, y, t] + Txy[x, y, t]*Tyy[x, y, t]) - (1 - betann)/Rey*(dudy[x, y, t] + dvdx[x, y, t]);
+(*------  Terms Tyy ------*)
+tfTyy[x_, y_, t_] = (1 + (epsylon*Rey*Wi)/(1 - betann)*(Txx[x, y, t] + Tyy[x, y, t]) )*Tyy[x, y, t] + Wi*(dTyydt[x, y, t] + duTyydx [x, y, t] + dvTyydy[x, y, t] - 2*Txydvdx[x, y, t] - 2*Tyydvdy[x, y, t] + xi*(Txydvdx[x, y, t] + Txydudy[x, y, t] + 2*Tyydvdy[x, y, t])) + (alphaG*Rey*Wi)/(1 - betann)*(Txy[x, y, t]*Txy[x, y, t] + Tyy[x, y, t]*Tyy[x, y, t]) - (2*(1 - betann))/Rey*dvdy[x, y, t];
+(*--- Vorticity Transport Equation ---*)
+tfwz[x_, y_, t_] = -dwzdt[x, y, t] -  duwzdx[x, y, t] - dvwzdy[x, y, t] + betann*(d2wzdx2[x, y, t] + d2wzdy2[x, y, t] )/Rey + d2Txxdxdy[x, y, t] + d2Txydy2[x, y, t] - d2Txydx2[x, y, t] - d2Tyydxdy[x, y, t];
+\end{mathematicacode}
+
+\begin{mathematicacode}[caption={Transformando os resultados em códigos para \textit{Fortran}}, label={codigo:mathematica_5}]
+(*---Fortran Form---*)
+Print["u     ..."]
+usimplify = FullSimplify[u[x, y, t]];
+FortFormU = FortranForm[usimplify]
+Print["v     ..."]
+vsimplify = FullSimplify[v[x, y, t]];
+FortFormV = FortranForm[vsimplify]
+Print["wz    ..."]
+wzsimplify = FullSimplify[wz[x, y, t]];
+FortFormWZ = FortranForm[wzsimplify]
+Print["psi   ..."]
+psisimplify = FullSimplify[psi[x, y, t]];
+FortFormPSI = FortranForm[psisimplify]
+Print["Txx   ..."]
+txxsimplify = FullSimplify[Txx[x, y, t]];
+FortFormTXX = FortranForm[txxsimplify]
+Print["Txy   ..."]
+txysimplify = FullSimplify[Txy[x, y, t]];
+FortFormTXY = FortranForm[txysimplify]
+Print["Tyy   ..."]
+tyysimplify = FullSimplify[Tyy[x, y, t]];
+FortFormTYY = FortranForm[tyysimplify]
+Print["tfwz  ..."]
+tfwzsimplify = FullSimplify[tfwz[x, y, t]];
+FortFormTFWZ = FortranForm[tfwzsimplify]
+Print["tfTxx ..."]
+tftxxsimplify = FullSimplify[tfTxx[x, y, t]];
+FortFormTFTXX = FortranForm[tftxxsimplify]
+Print["tfTxy ..."]
+tftxysimplify = FullSimplify[tfTxy[x, y, t]];
+FortFormTFTXY = FortranForm[tftxysimplify]
+Print["tfTyy ..."]
+tftyysimplify = FullSimplify[tfTyy[x, y, t]];
+FortFormTFTYY = FortranForm[tftyysimplify]
+Print["End"]
+\end{mathematicacode}
+
+Para mais detalhes e acesso aos códigos em \textit{Mathematica}, consulte o endereço eletrônico:
+\begin{center}
+    \url{https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J.git}
+\end{center}
+O repositório inclui scripts organizados, instruções de uso e exemplos de aplicação, com o objetivo de facilitar a reprodutibilidade e reutilização das soluções manufaturadas desenvolvidas neste estudo, assim como outros exemplos de soluções e seus termos fontes.

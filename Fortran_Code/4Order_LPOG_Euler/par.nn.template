@@ -1,0 +1,64 @@
+      integer imax, jmax, tt, dimen, msh, ty_sim, ty_mms
+      real*8 Rey, xi, Wi, betann, dx, dxx, dyy, dy, dt, cfl, visc, 
+     &       dyypdxx, alphaf, af, bf, cf, df, alphaG, etap, etapinv,
+     &       x0, y0,pii, timef, at, c1, c2, c3, epsylon,
+     &       a3xx, a2xx, a1xx, b3xx, b2xx, b1xx,
+     &       a3xy, a2xy, a1xy, b3xy, b2xy, b1xy,
+     &       a3yy, a2yy, a1yy, b3yy, b2yy, b1yy
+
+      parameter (x0 = 0.d0, y0 = 0.d0)
+
+      parameter (pii = 3.141592653589793)
+
+!     Set the dimension of the code (dimen = 2 for 2D or dimen = 3 for 3D code)
+      parameter ( dimen = 2 )
+
+!     Set the formulation that will be used (normal = 1 or log-conformation = 2)
+      parameter ( ty_sim = __TSIM__ )
+!     Set the case MMS that will be used
+      parameter ( ty_mms = __CASO__ )
+
+      parameter ( at = __AT__ )
+      parameter ( c1 = 1.0d0 )
+      parameter ( c2 = 2.0d0 )
+      parameter ( c3 = 3.0d0 )
+
+      parameter ( a3xx = 1.0d0 , a2xx = 1.0d0 , a1xx = 1.0d0 )
+      parameter ( b3xx = 1.0d0 , b2xx = 1.0d0 , b1xx = 1.0d0 )
+      parameter ( a3xy = 1.0d0 , a2xy = 1.0d0 , a1xy = 1.0d0 )
+      parameter ( b3xy = 1.0d0 , b2xy = 1.0d0 , b1xy = 1.0d0 )
+      parameter ( a3yy = 1.0d0 , a2yy = 1.0d0 , a1yy = 1.0d0 )
+      parameter ( b3yy = 1.0d0 , b2yy = 1.0d0 , b1yy = 1.0d0 )
+
+!     Reynolds number, and Non-Newtonian parameters (beta, alpha_Giesekus and Weisenberg)
+      parameter ( Rey     =  __RE__ , betann =  __BETA__ )
+      parameter ( epsylon = __EPSYLON__ , xi =  __XI__ )
+      parameter ( alphaG  = __ALPHAG__ ,  Wi =  __WI__ )
+      parameter ( etap    = (1.d0 - betann) / (Rey * Wi) )
+      parameter ( etapinv = 1.d0 / etap )
+
+!     Number of points in y direction
+      parameter ( jmax = __PTSXY__ , dy = 1.d0/dble(jmax-1), dyy = dy * dy )
+
+!     Number of points in x direction and delta x 
+      parameter ( imax = __PTSXY__ , dx = 1.d0/dble(imax-1), dxx = dx * dx )
+
+!     Steps per period, number of time steps and time step(2*pi/omega/stpp)
+      parameter (timef = 50.d0)
+      parameter (cfl = dx, visc = 0.5 * Rey * dxx)
+!     parameter (dt = (1.0d-1) * min(cfl,visc))
+!     parameter (dt = 0.1d0 * min(cfl,visc))
+      parameter (dt =  __DT__ )
+      
+!     Number of meshes used in the multigrid solver
+      parameter (msh = 4)
+
+!     Parameter used in poisson subroutines
+      parameter (dyypdxx = dyy / dxx)
+
+      ! filter constants (Lele C.2.5)
+      parameter ( alphaf = 0.48d0 )
+      parameter ( af = (   11.d0 + 10.d0 * alphaf) / 16.d0 )
+      parameter ( bf = (   15.d0 + 34.d0 * alphaf) / 64.d0 ) !/2
+      parameter ( cf = ( -  3.d0 +  6.d0 * alphaf) / 32.d0 ) !/2
+      parameter ( df = (    1.d0 -  2.d0 * alphaf) / 64.d0 ) !/2 

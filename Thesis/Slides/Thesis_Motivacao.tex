@@ -1,0 +1,134 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivação}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Aplicações Industriais dos Fluidos Viscoelásticos}
+\begin{itemize}
+    \item CFD ferramenta essencial para simulações confiáveis;
+    \item Fluidos viscoelásticos desempenham papel crucial em processos industriais;
+    \item Aplicações incluem processamento de polímeros, injeção de plásticos e extração de petróleo;
+    \item Desafios na modelagem devido à resposta não linear ao estresse e deformação;
+    \item Métodos numéricos avançados garantem previsões precisas do comportamento dos fluidos;
+    \item Permite análises detalhadas em vista da experimentação física;
+    \item Necessidade de Verificação e Validação rigorosas;
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Motivação}
+\begin{center}
+    \begin{tikzpicture}[node distance=2cm]
+        % Nó principal
+        \node (fluido) [caixa] {Fluidos};
+        % Divisão: Newtonianos e Não Newtonianos
+        \node (newtoniano) [processo, below left=1cm and 1cm of fluido] {Newtonianos};
+        \node (naonewtoniano) [processo, below right=1cm and 1cm of fluido] {Não Newtonianos};
+        % Conexões principais
+        \draw [seta] (fluido.south) -- ++(-1,-0.5) -| (newtoniano.north);
+        \draw [seta] (fluido.south) -- ++(1,-0.5) -| (naonewtoniano.north);
+        % Subdivisões dos fluidos não newtonianos
+        \node (pseudoplasticos) [processo, below left=1cm and 0.5cm of naonewtoniano] {Pseudoplásticos};
+        \node (dilatantes) [processo, below right=1cm and 0.5cm of naonewtoniano] {Dilatantes};
+        \node (viscoelasticos) [processo, below=2.5cm of naonewtoniano] {\textcolor{red}{Viscoelásticos}};
+        % Conexões das subclasses
+        \draw [seta] (naonewtoniano.south) -- ++(-0.5,-0.5) -| (pseudoplasticos.north);
+        \draw [seta] (naonewtoniano.south) -- ++(0.5,-0.5) -| (dilatantes.north);
+        \draw [seta] (naonewtoniano.south) -- (viscoelasticos.north);
+    \end{tikzpicture}
+\end{center}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Modelos Reológicos para Fluidos Viscoelásticos}
+\begin{itemize}
+    \item \textbf{UCM (Upper Convected Maxwell)}: \cite{beris1987spectral}
+    \begin{itemize}
+        \item Modelo mais simples para fluidos viscoelásticos;
+        \item Útil para escoamentos com baixa taxa de cisalhamento;
+    \end{itemize}
+    \item \textbf{Oldroyd-B}: \cite{brasseur1998time}
+    \begin{itemize}
+        \item Generalização do modelo UCM;
+        \item Aplicável a soluções poliméricas diluídas;
+    \end{itemize}
+    \item \textbf{Giesekus}: \cite{giesekus1962}
+    \begin{itemize}
+        \item Baseado em sistemas de esferas e molas;
+        \item Considera efeito de anisotropia na força de arrasto;
+        \item Adiciona termos não lineares ao tensor de tensões;
+    \end{itemize}
+    \item \textbf{LPTT (Linear Phan-Thien-Tanner)}: \cite{phan-thien77}
+    \begin{itemize}
+        \item Baseado na teoria de redes de polímeros fundidos;
+        \item Aplica-se a materiais com altas taxas de cisalhamento;
+    \end{itemize}
+    \item \textbf{Maxwell}: \cite{Kaye62}
+    \begin{itemize}
+        \item Modelo integral clássico para a descrição de fluidez em materiais viscoelásticos;
+    \end{itemize}
+    \item \textbf{K-BKZ (Kaye-Bernstein-Kearsley-Zapas)}: \cite{luo88}
+    \begin{itemize}
+        \item Modelo integral que estende a formulação de Maxwell para materiais com efeitos não lineares;
+        \item Aplicável a simulações avançadas de fluxo de polímeros.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Desafios na Simulação de Fluidos Viscoelásticos}
+\begin{itemize}
+    \item Equações constitutivas complexas dificultam a modelagem;
+    \item Métodos numéricos permitem redução de custos e maior precisão;
+    \item Principais desafios computacionais:
+    \begin{itemize}
+        \item Implementação de equações não lineares;
+        \item Convergência e estabilidade numérica;
+        \item Tratamento adequado de condições de contorno;
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Motivação}
+\begin{itemize}
+    \item Confiabilidade e precisão são essenciais na modelagem computacional;
+    \item Importância da Verificação e Validação (VV) na simulação numérica;
+    \item Diferentes perspectivas sobre VV: \cite{oberkampftech} e \cite{Roache2002};
+    \item Métodos de Verificação de Código, incluindo o Método das Soluções Manufaturadas (MMS);
+    \item Aplicação da MMS em trabalhos como \cite{shih1989effects} e \cite{oberkampftech};
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Verificação x Validação}
+\begin{itemize}
+    \item \textbf{Verificação}: Avalia se o código computacional está correto
+    \begin{itemize}
+        \item Testes com soluções analíticas e casos de referência;
+        \item Identificação de erros e inconsistências numéricas;
+    \end{itemize}
+    \item \textbf{Validação}: Compara resultados numéricos com dados experimentais
+    \begin{itemize}
+        \item Mede a precisão da simulação em relação ao mundo real;
+    \end{itemize}
+    \item Técnica essencial para Verificação e Validação de códigos numéricos;
+    \item Simulações de fluidos viscoelásticos exigem abordagens robustas;
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Objetivo do Trabalho}
+\begin{itemize}
+    \item Desenvolver uma \textbf{Solução Manufaturada} para verificação de código numérico para escoamentos viscoelásticos.
+    \item Foco nos modelos constitutivos:
+    \begin{itemize}
+        \item UCM (Upper Convected Maxwell);
+        \item Oldroyd-B;
+        \item Giesekus;
+        \item LPTT (Linear Phan-Thien-Tanner);
+    \end{itemize}
+    \item Avaliação da precisão do código e correção de possíveis inconsistências.
+    \item Contribuição para a confiabilidade e robustez de códigos aplicados a fluidos viscoelásticos.
+\end{itemize}
+\end{frame}

@@ -1,0 +1,11 @@
+      real*8 ux(imax,jmax),    uy(imax,jmax),    wz(imax,jmax),
+     &      Txx(imax,jmax),   Txy(imax,jmax),   Tyy(imax,jmax),
+     &    Psixx(imax,jmax), Psixy(imax,jmax), Psiyy(imax,jmax),
+     &      psi(imax,jmax)
+      real*8 tfwz(imax,jmax),   tfTxx(imax,jmax),   tfTxy(imax,jmax),
+     &      tfTyy(imax,jmax), tfpsixx(imax,jmax), tfpsixy(imax,jmax),
+     &    tfpsiyy(imax,jmax)
+
+      common/var/ ux, uy, wz, Txx, Txy, Tyy, Psixx, Psixy, Psiyy, psi
+
+      common/tfs/ tfwz, tfTxx, tfTxy, tfTyy, tfpsixx, tfpsixy, tfpsiyy

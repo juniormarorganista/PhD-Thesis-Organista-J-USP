@@ -1,0 +1,30 @@
+% ----------------------------------------------------------
+%% Capitulo6-Conclusao.tex
+% ----------------------------------------------------------
+% Conclusao
+% ----------------------------------------------------------
+\chapter[Conclusão]{Conclusão}
+\label{Cap_Conclusao}
+
+Em conclusão, este estudo reforça a eficácia da aplicação do Método da Solução Manufaturada (MMS) como uma ferramenta central para a verificação de um código numérico de alta ordem voltado à simulação de escoamentos de fluidos viscoelásticos. A estratégia adotada permitiu avaliar a consistência e a precisão da implementação computacional, independentemente da complexidade dos modelos constitutivos empregados.
+
+Foram manufaturadas soluções analíticas artificiais compatíveis com os modelos UCM, LPTT, Oldroyd-B e Giesekus, abrangendo diferentes regimes de escoamento por meio da variação dos números de Reynolds ($Re$), números de Weissenberg ($Wi$), e parâmetros característicos de cada modelo, como $\beta_{nn}$, $\epsilon$ e $\alpha_G$. Essa abordagem possibilitou a imposição controlada de condições de contorno e a construção de termos fonte coerentes com os perfis desejados, criando um ambiente robusto para a verificação do código.
+
+Os resultados demonstraram que o esquema numérico implementado alcançou taxas de convergência compatíveis com a ordem esperada (cerca de 4.5) para as principais variáveis simuladas — incluindo velocidade, vorticidade e tensores de tensão —, evidenciando a exatidão dos métodos de discretização e a integridade da implementação. Casos representativos foram analisados em detalhe, enquanto outros, com comportamento similar, foram omitidos por concisão. No caso dos fluidos Newtonianos ($\beta_{nn}=1$), os erros se aproximaram dos níveis de precisão de máquina, validando a capacidade dos esquemas numéricos em lidar com simplificações do modelo de fluido. O modelo Oldroyd-B apresentou comportamento robusto e preciso, enquanto o modelo Giesekus, com $\alpha_G$ variando de 0.1 a 0.5, demonstrou-se estável e confiável em toda a gama de valores analisada, sendo adequado para uma ampla gama de regimes de viscosidade e elasticidade.
+
+Importante ressaltar que o foco deste estudo não foi a validação dos modelos reológicos frente a dados experimentais, mas sim a verificação matemática e computacional do código desenvolvido, por meio de soluções manufaturadas cuidadosamente elaboradas. A aplicação do MMS mostrou-se essencial para identificar potenciais inconsistências algorítmicas e confirmar a fidelidade do esquema numérico às equações diferenciais que o fundamentam.
+
+Portanto, este trabalho valida não apenas a precisão dos esquemas numéricos adotados, mas também destaca a importância do Método das Soluções Manufaturadas como uma ferramenta crucial para a verificação de códigos que simulam escoamentos de fluidos viscoelásticos. Os resultados fornecem uma base sólida para a aplicação dos modelos UCM, LPTT, Oldroyd-B e Giesekus em cenários complexos de escoamento, contribuindo para o desenvolvimento e refinamento de simulações numéricas de fluidos não newtonianos.
+
+Como perspectivas futuras, destaca-se a ampliação da técnica de manufatura para malhas não estruturadas, problemas tridimensionais e a inclusão de fenômenos acoplados, como efeitos térmicos ou variações de densidade. A metodologia apresentada aqui oferece uma base sólida para o desenvolvimento confiável de simuladores numéricos em reologia computacional, com potencial de aplicação em estudos industriais e acadêmicos mais complexos.
+
+
+% Em conclusão, este estudo reforça a eficácia dos métodos numéricos aplicados à simulação de fluidos viscoelásticos utilizando os modelos constitutivos UCM, LPTT, Oldroyd-B e Giesekus. As simulações realizadas para diversos números de Reynolds ($Re$) e números de Weissenberg ($Wi$), assim como para diferentes razões de viscosidade do solvente ($\beta_{nn}$), e parâmetros específicos de cada modelo, como $\alpha_G$ no Giesekus e $\epsilon$ no LPTT, demonstraram a robustez e precisão dos esquemas numéricos adotados. As análises de erro e as taxas de convergência indicaram uma ordem de convergência estável, próxima de 4.5, para todas as variáveis estudadas, incluindo os componentes do campo de velocidades, vorticidade e tensores de tensões extras.
+
+% Para o modelo UCM, que é um dos mais simples entre os modelos viscoelásticos, os resultados confirmaram a capacidade do método em lidar com fenômenos complexos de elasticidade, garantindo uma alta precisão com malhas refinadas. Já o modelo LPTT, utilizado para representar fluidos com comportamento elástico mais complexo, também apresentou excelente estabilidade e precisão em diferentes condições de fluxo, com variações no parâmetro $\epsilon$, mostrando que o esquema numérico é capaz de capturar adequadamente as características viscoelásticas do escoamento.
+
+% No caso dos fluidos Newtonianos ($\beta_{nn}=1$), os erros se aproximaram dos níveis de precisão de máquina, validando a capacidade dos esquemas numéricos em lidar com simplificações do modelo de fluido. O modelo Oldroyd-B apresentou comportamento robusto e preciso, enquanto o modelo Giesekus, com $\alpha_G$ variando de 0.1 a 0.5, demonstrou-se estável e confiável em toda a gama de valores analisada, sendo adequado para uma ampla gama de regimes de viscosidade e elasticidade.
+
+% Portanto, este trabalho valida não apenas a precisão dos esquemas numéricos adotados, mas também destaca a importância do Método das Soluções Manufaturadas como uma ferramenta crucial para a verificação de códigos que simulam escoamentos de fluidos viscoelásticos. Os resultados fornecem uma base sólida para a aplicação dos modelos UCM, LPTT, Oldroyd-B e Giesekus em cenários complexos de escoamento, contribuindo para o desenvolvimento e refinamento de simulações numéricas de fluidos não newtonianos.
+
+\pagebreak

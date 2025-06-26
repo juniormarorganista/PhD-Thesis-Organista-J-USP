@@ -1,0 +1,81 @@
+#!/bin/bash
+for caso in __CC__ ; do
+for tsim in __TSTS__ ; do
+
+for a3xx in '1.0d0' ; do
+for a2xx in '1.0d0' ; do
+for a1xx in '1.0d0' ; do
+for b3xx in '1.0d0' ; do
+for b2xx in '1.0d0' ; do
+for b1xx in '1.0d0' ; do
+
+for a3xy in '1.0d0' ; do
+for a2xy in '-1.0d0' ; do
+for a1xy in '1.0d0' ; do
+for b3xy in '1.0d0' ; do
+for b2xy in '-1.0d0' ; do
+for b1xy in '1.0d0' ; do
+
+for a3yy in '-1.0d0' ; do
+for a2yy in '1.0d0' ; do
+for a1yy in '-1.0d0' ; do
+for b3yy in '-1.0d0' ; do
+for b2yy in '1.0d0' ; do
+for b1yy in '-1.0d0' ; do
+
+for at in __ATAT__ ; do
+for wi in __WWWW__ ; do
+for re in __RRRR__ ; do
+for alphag in __AAAA__ ; do
+for ptsxy in __PPPP__ ; do
+for xi in __XXXX__ ; do
+for epsilon in __EPEP__ ; do
+for beta in __BBBB__ ; do
+for dt in __DTDT__ ; do
+
+   echo '*****************************************************************************************************'
+   sleep 1
+   pwd
+
+   echo 'Tsim_'$tsim'_Caso_'$caso'_At_'$at'_Re_'$re'_Beta_'$beta'_Alphag_'$alphag'_Wi_'$wi'_Xi_'$xi'_Epsilon_'$epsilon'_Ptsxy_'$ptsxy'_Dt_'$dt
+
+   cat par.nn.template.part | sed -e "s/__A3XX__/$a3xx/" | sed -e "s/__A2XX__/$a2xx/" | sed -e "s/__A1XX__/$a1xx/" | sed -e "s/__B3XX__/$b3xx/" | sed -e "s/__B2XX__/$b2xx/" | sed -e "s/__B1XX__/$b1xx/" | sed -e "s/__A3XY__/$a3xy/" | sed -e "s/__A2XY__/$a2xy/" | sed -e "s/__A1XY__/$a1xy/" | sed -e "s/__B3XY__/$b3xy/" | sed -e "s/__B2XY__/$b2xy/" | sed -e "s/__B1XY__/$b1xy/" | sed -e "s/__A3YY__/$a3yy/" | sed -e "s/__A2YY__/$a2yy/" | sed -e "s/__A1YY__/$a1yy/" | sed -e "s/__B3YY__/$b3yy/" | sed -e "s/__B2YY__/$b2yy/" | sed -e "s/__B1YY__/$b1yy/" > par.nn.template
+
+   cat par.nn.template | sed -e "s/__TSIM__/$tsim/" | sed -e "s/__CASO__/$caso/" | sed -e "s/__AT__/$at/" | sed -e "s/__RE__/$re/" | sed -e "s/__BETA__/$beta/" | sed -e "s/__ALPHAG__/$alphag/" | sed -e "s/__WI__/$wi/" | sed -e "s/__XI__/$xi/" | sed -e "s/__EPSYLON__/$epsilon/" | sed -e "s/__PTSXY__/$ptsxy/" | sed -e "s/__DT__/$dt/" > par.nn
+
+   make clean ; make
+   sleep 0.51
+   make run
+   #make run >> 'Tsim_'$tsim'_Caso_'$caso'_At_'$at'_Re_'$re'_Beta_'$beta'_Alphag_'$alphag'_Wi_'$wi'_Xi_'$xi'_Epsilon_'$epsilon'_Ptsxy_'$ptsxy'_Dt_'$dt.txt
+   echo '*****************************************************************************************************'
+   #rm 'Tsim_'$tsim'_Caso_'$caso'_At_'$at'_Re_'$re'_Beta_'$beta'_Alphag_'$alphag'_Wi_'$wi'_Xi_'$xi'_Epsilon_'$epsilon'_Ptsxy_'$ptsxy'_Dt_'$dt.txt
+
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done
+done

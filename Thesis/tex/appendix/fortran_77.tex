@@ -1,0 +1,393 @@
+% O classe \textit{icmc} contém alguns comandos auxiliares definidos com o objetivo de tornar o processo de escrita mais eficiente. Os principais comandos são apresentados a seguir:
+% \begin{description}  
+%     \item[\comando{aspas\{CONTENT\}}]
+%     \item[\comando{fadaptada\[CONTENT\]\{REF\}}]
+%     \item[\comando{fautor}]
+%     \item[\comando{fdadospesquisa}]
+%     \item[\comando{fdireta\[CONTENT\]\{REF\}}]
+%     \item[\comando{newword\{WORD\}\{DESC\}}]
+%     \item[\comando{rev\{CONTENT\}}]
+%     \item[\comando{sigla\{ABBR\}\{DESC\}}]
+%     \item[\comando{sigla*\{ABBR\}\{DESC\}}]
+%     \item[\comando{simbolo\{SYM\}\{DESC\}}]
+% \end{description}
+
+\definecolor{fortfunction}{RGB}{153,51,255}    % Roxo para funções intrínsecas  
+\definecolor{fortcomment}{RGB}{63,127,95}      % Verde para comentários  
+\definecolor{fortstring}{RGB}{186,33,33}       % Vermelho para strings  
+\definecolor{fortkeyword}{RGB}{0,0,255}        % Azul para palavras-chave  
+\definecolor{fortoperator}{RGB}{255,69,0}      % Laranja para operadores  
+
+\lstdefinelanguage{Fortran77}{  
+  morecomment=[l]{!},                          % Comentários com '!'  
+  morestring=[b]',                             % Strings entre '  
+  morekeywords={                               % Palavras-chave principais  
+    PROGRAM, SUBROUTINE, FUNCTION, END, INTEGER, REAL, DOUBLE\ PRECISION,  
+    COMPLEX, CHARACTER, LOGICAL, DIMENSION, PARAMETER, DATA, COMMON,  
+    EQUIVALENCE, EXTERNAL, INTRINSIC, IMPLICIT, SAVE, BLOCK\ DATA,  
+    IF, THEN, ELSE, ELSEIF, ENDIF, DO, WHILE, CONTINUE, STOP, PAUSE,  
+    GOTO, CALL, RETURN, READ, WRITE, PRINT, OPEN, CLOSE, INQUIRE,  
+    FORMAT, BACKSPACE, ENDFILE, REWIND  
+  },  
+  morekeywords=[2]{                            % Funções intrínsecas  
+    ABS, ACOS, AINT, ANINT, ASIN, ATAN, ATAN2, CHAR, COS, COSH,  
+    DBLE, DIM, EXP, INT, LOG, LOG10, MAX, MIN, MOD, NINT, REAL,  
+    SIGN, SIN, SINH, SQRT, TAN, TANH, LEN, TRIM, ADJUSTL, ADJUSTR  
+  },  
+  morekeywords=[3]{                            % Operadores lógicos  
+    .EQ., .NE., .GT., .GE., .LT., .LE., .AND., .OR., .NOT.,  
+    .TRUE., .FALSE.  
+  },  
+  sensitive=false,                             % Fortran é case-insensitive  
+  keywordstyle=\color{fortkeyword},            % Palavras-chave em azul  
+  keywordstyle=[2]\color{fortfunction},        % Funções em roxo  
+  keywordstyle=[3]\color{fortoperator},        % Operadores em laranja  
+  commentstyle=\color{fortcomment},            % Comentários em verde  
+  stringstyle=\color{fortstring},              % Strings em vermelho  
+  tabsize=2,                                   % Tamanho do tab  
+  showspaces=false,                            % Não mostrar espaços  
+  showstringspaces=false,                      % Espaços em strings  
+  breaklines=true,                             % Quebra de linhas  
+  breakatwhitespace=true,                      % Quebra em espaços  
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, % Símbolo de continuação  
+  basicstyle=\ttfamily\small,                  % Fonte monoespaçada  
+  numbers=left,                                % Numeração à esquerda  
+  numberstyle=\tiny\color{gray},               % Estilo da numeração  
+  frame=single,                                % Moldura  
+  rulecolor=\color{lightgray},                 % Cor da moldura  
+  xleftmargin=15pt,                            % Margem esquerda  
+  xrightmargin=5pt,                            % Margem direita  
+  columns=fixed,                               % Formatação fixa  
+  keepspaces=true                              % Preserva espaços  
+}  
+
+\lstnewenvironment{fortrancode}[1][]{  
+  \lstset{language=Fortran77, #1}  
+}{}
+
+O código apresentado neste apêndice corresponde à rotina utilizada para calcular os termos fonte do Método da Solução Manufaturada (MMS), empregados na verificação numérica dos esquemas desenvolvidos ao longo deste trabalho. A implementação está escrita em linguagem \textit{Fortran 77} e foi adaptada para garantir compatibilidade com a estrutura geral do código de simulação.
+
+Essas rotinas são responsáveis por computar, ponto a ponto, os valores dos termos fonte correspondentes às equações diferenciais governantes dos modelos reológicos considerados. Para cada ponto da malha, os valores de posição $(x, y)$ são calculados, e em seguida aplicam-se as expressões analíticas derivadas simbolicamente, que dependem dos parâmetros físicos do problema, incluindo o número de Reynolds ($Re$), o tempo $t$, e derivadas espaciais complexas da solução manufaturada.
+
+A seguir, apresenta-se um as sub-rotinas \texttt{source\_term\_case\_12}, que calcula os termos fontes para o caso da solução manufaturados:
+
+\begin{fortrancode}[caption={Termos fontes}, label={cod:fortran-diffeq_2}]
+      subroutine source_term_case_12(t)
+      implicit none
+      include 'par.nn'
+      include 'comm.var'
+      integer i, j
+      real*8 x, y, t
+
+      do j = 1, jmax
+         y    = y0 + dble(j-1)*dy
+         do i = 1, imax
+            x    = x0 + dble(i-1)*dx
+
+        !!! Velocitys 
+        tfwz(i,j) = (-(Rey*y) + 2.0d0*Rey*x*y + 
+     & Rey*y*dcos(2.0d0*pii*x) - 
+     & 2.0d0*Rey*x*y*dcos(2.0d0*pii*x) + 
+     & 2.0d0*pii**2.0d0*Rey*x*y*dcos(2.0d0*pii*x) - 
+     & 6*pii**2.0d0*Rey*x**2.0d0*y*dcos(2.0d0*pii*x) + 
+     & 4*pii**2.0d0*Rey*x**3*y*dcos(2.0d0*pii*x) + 
+     & pii*Rey*y*dsin(2.0d0*pii*x) - 
+     & 2.0d0*pii*Rey*x*y*dsin(2.0d0*pii*x) + 
+     & 2.0d0*pii*Rey*x**2.0d0*y*dsin(2.0d0*pii*x) - 
+     & 2.0d0*pii**3*Rey*x**2.0d0*y*dsin(2.0d0*pii*x) + 
+     & 4*pii**3*Rey*x**3*y*dsin(2.0d0*pii*x) - 
+     & 2.0d0*pii**3*Rey*x**4*y*dsin(2.0d0*pii*x) + 
+     & Rey*y*dcos(2.0d0*pii*y)*
+     & (-((-1.0d0 + 2.0d0*x)*
+     & (1.0d0 + 2.0d0*pii**2.0d0*(-1.0d0 + x)*x - dcos(2.0d0*pii*x))) + 
+     & pii*(-1.0d0 - 2.0d0*(-1.0d0 + x)*x)*dsin(2.0d0*pii*x)) + 
+     & 2.0d0*dexp(at*t)*pii*dcos(pii*x)*
+     & (-(a3xy*b1xy*(-1.0d0 + betann)*pii*Rey) + 
+     & pii*((a2xx*b2xx - a2yy*b2yy)*Rey + 
+     & betann*(-8 - a2xx*b2xx*Rey + 
+     & a2yy*b2yy*Rey + 16*x))*dcos(pii*y) + 
+     & ((a2xx*b3xx - a2yy*b3yy)*(-1.0d0 + betann)*pii*
+     & Rey - 2.0d0*(4*betann*pii**2.0d0 - at*Rey)*
+     &        (-1.0d0 + 2.0d0*x)*y)*dsin(pii*y)) + 
+     & dexp(at*t)*(-2.0d0*a2xy*b1xy*(-1.0d0 + betann)*pii**2*Rey*
+     &     dsin(pii*x) + 
+     &    2.0d0*pii*dcos(pii*y)*
+     &     (a1xy*b3xy*(-1.0d0 + betann)*pii*Rey + 
+     &       (Rey*(-(a3xx*b2xx*pii) + a3yy*b2yy*pii + 
+     &             2.0d0*at*(-1.0d0 + x)*x) + 
+     &          betann*
+     &           (8 + a3xx*b2xx*pii*Rey - 
+     &             pii*(a3yy*b2yy*Rey + 8*pii*(-1.0d0 + x)*x)
+     &             ))*dsin(pii*x)) + 
+     &    2.0d0*(a1xy*b2xy*(-1.0d0 + betann)*pii**2*Rey + 
+     &       (-((a3xx*b3xx - a3yy*b3yy)*(-1.0d0 + betann)*
+     &             pii**2.0d0*Rey) + 
+     &          2.0d0*(at*Rey + 
+     &             pii**2*
+     &              (-(at*Rey*(-1.0d0 + x)*x) + 
+     &                2*betann*(-4 + pii**2*(-1.0d0 + x)*x)))
+     &            *y)*dsin(pii*x))*dsin(pii*y)) + 
+     & pii*Rey*((-1.0d0 + 2*x)*
+     &     (y**2 + (-1.0d0 + x)*x*(-1.0d0 + 2*pii**2*y**2)) + 
+     &    (-1.0d0 + 2*x)*((-1.0d0 + x)*x - y**2)*dcos(2*pii*x) - 
+     &    pii*((-1.0d0 + x)**2*x**2 + 
+     &       (-1.0d0 - 2*(-1.0d0 + x)*x)*y**2)*dsin(2*pii*x))*
+     &  dsin(2*pii*y))/(2.*dexp(2*at*t)*Rey)
+
+       !!! Tensors
+       tfTxx(i,j) =  ((2*(-1.0d0 + betann)*dexp(at*t)*
+     &    (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &      (-1.0d0 + 2*x)*dsin(pii*x))*
+     &    (pii*y*dcos(pii*y) + dsin(pii*y)))/Rey + 
+     & alphaG*(1.0d0 - betann)*Rey*Wi*
+     &  ((a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))**2*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y))**2
+     &     + (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))**
+     &      2*(b1xy + b3xy*dcos(pii*y) + 
+     &        b2xy*dsin(pii*y))**2) + 
+     & (1.0d0 - betann)*dexp(at*t)*
+     &  (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &  (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y))*
+     &  (1.0d0 + (epsylon*Rey*Wi*
+     &       (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &       (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)))/
+     &     dexp(at*t) + 
+     &    (epsylon*Rey*Wi*
+     &       (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &       (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)))/
+     &     dexp(at*t)) + 
+     & Wi*(at*(-1.0d0 + betann)*dexp(at*t)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*pii*y*dcos(pii*y)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*dsin(pii*y)*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) - 
+     &    (-1.0d0 + betann)*pii*(-1.0d0 + x)*x*dcos(pii*x)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) - 
+     &    (-1.0d0 + betann)*(-1.0d0 + x)*dsin(pii*x)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) - 
+     &    (-1.0d0 + betann)*x*dsin(pii*x)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &     (-(a2xx*dcos(pii*x)) + a3xx*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    2*(-1.0d0 + betann)*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*pii*y*
+     &     (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*dsin(pii*y)*
+     &     (b2xx*dcos(pii*y) - b3xx*dsin(pii*y)) - 
+     &    2*(-1.0d0 + betann)*pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))*
+     &     (-2*dcos(pii*y) + pii*y*dsin(pii*y)) + 
+     &    (1.0d0 - betann)*xi*
+     &     (2*(a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &        (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &          (-1.0d0 + 2*x)*dsin(pii*x))*
+     &        (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &        (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y))
+     &        + y*(a1xy + a3xy*dcos(pii*x) + 
+     &          a2xy*dsin(pii*x))*
+     &        (2*pii*(1.0d0 - 2*x)*dcos(pii*x) + 
+     &          (-2 + pii**2*(-1.0d0 + x)*x)*dsin(pii*x))*
+     &        dsin(pii*y)*
+     &        (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))
+     &        - pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &        (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &        (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))*
+     &        (-2*dcos(pii*y) + pii*y*dsin(pii*y)))))/
+     &  dexp(2*at*t)
+     
+       tfTxy(i,j) = ((2*(-1.0d0 + betann)*dexp(at*t)*
+     &    (pii*(-1.0d0 + x)*x*dcos(pii*y)*dsin(pii*x) - 
+     &      y*(pii*(-1.0d0 + 2*x)*dcos(pii*x) + dsin(pii*x))*
+     &       dsin(pii*y)))/Rey + 
+     & alphaG*(1.0d0 - betann)*Rey*Wi*
+     &  (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &  (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))*
+     &  ((a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y))) + 
+     & (1.0d0 - betann)*dexp(at*t)*
+     &  (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &  (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))*
+     &  (1.0d0 + (epsylon*Rey*Wi*
+     &       (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &       (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)))/
+     &     dexp(at*t) + 
+     &    (epsylon*Rey*Wi*
+     &       (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &       (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)))/
+     &     dexp(at*t)) + 
+     & (-1.0d0 + betann)*Wi*
+     &  (y*(a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &     (2*pii*(1.0d0 - 2*x)*dcos(pii*x) + 
+     &       (-2 + pii**2*(-1.0d0 + x)*x)*dsin(pii*x))*
+     &     dsin(pii*y)*
+     &     (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)) + 
+     &    at*dexp(at*t)*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) + 
+     &    pii*y*dcos(pii*y)*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) + 
+     &    (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*dsin(pii*y)*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) - 
+     &    pii*(-1.0d0 + x)*x*dcos(pii*x)*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) - 
+     &    (-1.0d0 + x)*dsin(pii*x)*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) - 
+     &    x*dsin(pii*x)*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) + 
+     &    pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &     (-(a2xy*dcos(pii*x)) + a3xy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) + 
+     &    pii*y*(a1xy + a3xy*dcos(pii*x) + 
+     &       a2xy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*dsin(pii*y)*
+     &     (b2xy*dcos(pii*y) - b3xy*dsin(pii*y)) + 
+     &    pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y))*
+     &     (2*dcos(pii*y) - pii*y*dsin(pii*y)) + 
+     &    xi*(-(pii*(-1.0d0 + x)*x*dcos(pii*y)*dsin(pii*x)) + 
+     &       y*(pii*(-1.0d0 + 2*x)*dcos(pii*x) + dsin(pii*x))*
+     &        dsin(pii*y))*
+     &     (a1xx*b1xx + a1yy*b1yy + 
+     &       dcos(pii*y)*
+     &        (a1xx*b3xx + a1yy*b3yy + 
+     &          (a2xx*b3xx + a2yy*b3yy)*dsin(pii*x)) + 
+     &       (a1xx*b2xx + a1yy*b2yy)*dsin(pii*y) + 
+     &       dsin(pii*x)*
+     &        (a2xx*b1xx + a2yy*b1yy + 
+     &          (a2xx*b2xx + a2yy*b2yy)*dsin(pii*y)) + 
+     &       dcos(pii*x)*
+     &        (a3xx*b1xx + a3yy*b1yy + 
+     &          (a3xx*b3xx + a3yy*b3yy)*dcos(pii*y) + 
+     &          (a3xx*b2xx + a3yy*b2yy)*dsin(pii*y)))))/
+     &  dexp(2*at*t)
+     
+       tfTyy(i,j) = ((-2*(-1.0d0 + betann)*dexp(at*t)*
+     &    (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &      (-1.0d0 + 2*x)*dsin(pii*x))*
+     &    (pii*y*dcos(pii*y) + dsin(pii*y)))/Rey + 
+     & (1.0d0 - betann)*dexp(at*t)*
+     &  (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &  (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y))*
+     &  (1.0d0 + (epsylon*Rey*Wi*
+     &       (a1xx + a3xx*dcos(pii*x) + a2xx*dsin(pii*x))*
+     &       (b1xx + b3xx*dcos(pii*y) + b2xx*dsin(pii*y)))/
+     &     dexp(at*t) + 
+     &    (epsylon*Rey*Wi*
+     &       (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &       (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)))/
+     &     dexp(at*t)) + 
+     & alphaG*(1.0d0 - betann)*Rey*Wi*
+     &  ((a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))**2*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))**2 
+     &     + (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))**
+     &      2*(b1yy + b3yy*dcos(pii*y) + 
+     &        b2yy*dsin(pii*y))**2) + 
+     & Wi*(2*(-1.0d0 + betann)*y*
+     &     (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &     (2*pii*(1.0d0 - 2*x)*dcos(pii*x) + 
+     &       (-2 + pii**2*(-1.0d0 + x)*x)*dsin(pii*x))*
+     &     dsin(pii*y)*
+     &     (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) + 
+     &    at*(-1.0d0 + betann)*dexp(at*t)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*pii*y*dcos(pii*y)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*dsin(pii*y)*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) - 
+     &    (-1.0d0 + betann)*pii*(-1.0d0 + x)*x*dcos(pii*x)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) - 
+     &    (-1.0d0 + betann)*(-1.0d0 + x)*dsin(pii*x)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) - 
+     &    (-1.0d0 + betann)*x*dsin(pii*x)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &     (-(a2yy*dcos(pii*x)) + a3yy*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) - 
+     &    2*(-1.0d0 + betann)*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*
+     &     (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &     (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) + 
+     &    (-1.0d0 + betann)*pii*y*
+     &     (a1yy + a3yy*dcos(pii*x) + a2yy*dsin(pii*x))*
+     &     (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &       (-1.0d0 + 2*x)*dsin(pii*x))*dsin(pii*y)*
+     &     (b2yy*dcos(pii*y) - b3yy*dsin(pii*y)) + 
+     &    (1.0d0 - betann)*xi*
+     &     (y*(a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &        (2*pii*(1.0d0 - 2*x)*dcos(pii*x) + 
+     &          (-2 + pii**2*(-1.0d0 + x)*x)*dsin(pii*x))*
+     &        dsin(pii*y)*
+     &        (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y)) 
+     &        - 2*(a1yy + a3yy*dcos(pii*x) + 
+     &          a2yy*dsin(pii*x))*
+     &        (pii*(-1.0d0 + x)*x*dcos(pii*x) + 
+     &          (-1.0d0 + 2*x)*dsin(pii*x))*
+     &        (pii*y*dcos(pii*y) + dsin(pii*y))*
+     &        (b1yy + b3yy*dcos(pii*y) + b2yy*dsin(pii*y)) 
+     &        - pii*(-1.0d0 + x)*x*dsin(pii*x)*
+     &        (a1xy + a3xy*dcos(pii*x) + a2xy*dsin(pii*x))*
+     &        (b1xy + b3xy*dcos(pii*y) + b2xy*dsin(pii*y))*
+     &        (-2*dcos(pii*y) + pii*y*dsin(pii*y)))))/
+     &  dexp(2*at*t)
+     
+
+        end do  
+      end do  
+      return
+      end
+\end{fortrancode}

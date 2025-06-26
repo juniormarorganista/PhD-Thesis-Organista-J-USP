@@ -1,0 +1,184 @@
+% ------------------------------------------------------------------------
+% ------------------------------------------------------------------------
+% ICMC: Modelo de Trabalho Acadêmico (tese de doutorado, dissertação de
+% mestrado e trabalhos monográficos em geral) em conformidade com 
+% ABNT NBR 14724:2011: Informação e documentação - Trabalhos acadêmicos -
+% Apresentação
+% ------------------------------------------------------------------------
+% ------------------------------------------------------------------------
+% Opções:
+%   Qualificação          = qualificacao 
+%   Curso                 = doutorado/mestrado
+%   Situação do trabalho  = pre-defesa/pos-defesa (exceto para qualificação)
+%   Versão para impressão = impressao
+\documentclass[doutorado, pos-defesa]{packages/icmc}
+% ---------------------------------------------------------------------------
+% Pacotes Opcionais
+% ---------------------------------------------------------------------------
+\usepackage{rotating}           % Usado para rotacionar o texto
+\usepackage[all,knot,arc,import,poly]{xy}   % Pacote para desenhos gráficos
+% Este pacote pode conflitar com outros pacotes gráficos como o ``pictex''
+% Então é necessário usar apenas um dos pacotes conflitantes
+\newcommand{\VerbL}{0.52\textwidth}
+\newcommand{\LatL}{0.42\textwidth}
+% ---------------------------------------------------------------------------
+%%%%%%%% Novos pacotes adicionados
+\usepackage{tikz}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{threeparttablex}
+\usepackage{array}
+\usepackage{subcaption}
+\usepackage{comment}
+% ---------------------------------------------------------------------------
+% Informações de dados para CAPA e FOLHA DE ROSTO
+% ---------------------------------------------------------------------------
+% Tanto na capa quanto nas folhas de rosto apenas a primeira letra da primeira palavra (ou nomes próprios) devem estar em letra maiúscula, todas as demais devem ser em letra minúscula.
+\tituloPT{Verificação de Código de Simulação Numérica de Escoamentos de Fluidos Viscoelásticos Através do Método de Soluções Manufaturadas}
+
+\tituloEN{Verification of Numerical Simulation Code for Viscoelastic Fluid Flows Using the Manufactured Solution Method}
+
+\autor[Organista, J.]{Juniormar Organista}
+\genero{M} % Gênero do autor (M = Masculino / F = Feminino)
+\orientador[Orientador]{Prof. Dr.}{Leandro Franco de Souza}
+%\coorientador{Prof. Dr.}{Fulano de Tal}
+\curso{CCMC}
+\data{27}{03}{2025} % Data do depósito
+\idioma{PT} % Idioma principal do documento (PT = português / EN = inglês)
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Verificação de Código de Simulação Numérica de Escoamentos de Fluidos Viscoelásticos Através do Método de Soluções Manufaturadas
+% Aplicação do Método das Soluções Manufaturadas para Escoamento Viscoelástico Incompressível
+% RESUMOS
+% ---------------------------------------------------------------------------
+% Resumo em PORTUGUÊS
+% conter no máximo 500 palavras
+% conter no mínimo 1 e no máximo 5 palavras-chave
+\textoresumo[brazil]{
+    Este trabalho apresenta uma abordagem utilizando um método de discretização de alta ordem, baseado em esquemas compactos de diferenças finitas, para a solução das equações bidimensionais de escoamento viscoelástico incompressível na formulação vorticidade-função de corrente. A verificação da precisão e robustez dos esquemas numéricos foi realizada por meio do Método das Soluções Manufaturadas (MMS), utilizando como caso de referência o escoamento em cavidade com tampa móvel. O MMS, amplamente utilizado para validação de códigos numéricos, permite a criação de soluções analíticas artificiais que compartilham as mesmas equações e condições de contorno do problema simulado, sendo uma ferramenta eficaz para avaliar a precisão, convergência e estabilidade de códigos numéricos. Este método foi aplicado a quatro modelos constitutivos amplamente usados na modelagem de fluidos viscoelásticos: UCM (Upper Convected Maxwell), LPTT (Linear Phan-Thien-Tanner), Oldroyd-B e Giesekus. Para os modelos Oldroyd-B e Giesekus, as simulações consideraram números de Reynolds ($Re$) variando de 1 a 1000, diferentes razões de viscosidade do solvente ($\beta_{nn} = 0.1,\ 0.5,\ 0.9$ e $1.0$), com o número de Weissenberg variando entre $1$, $5$ e $10$. No caso do modelo Giesekus, o parâmetro de anisotropia do tensor de tensões, $\alpha_G$, foi variado entre 0.1 e 0.5, enquanto no modelo LPTT o parâmetro $\epsilon$ foi analisado para diferentes cenários de elasticidade. As simulações realizadas com o modelo UCM, que se caracteriza pela simplicidade de seu tratamento da elasticidade, também foram avaliadas quanto à sua capacidade de capturar fenômenos viscoelásticos em escoamentos complexos. Os resultados indicam que o código numérico desenvolvido apresenta uma ordem de convergência próxima de 4.5, em linha com as previsões teóricas para métodos de alta ordem. A precisão e robustez dos métodos foram validadas pela consistente redução dos erros à medida que a malha foi refinada, independente do modelo constitutivo, número de Reynolds, ou razão de viscosidade do solvente. Para fluidos newtonianos ($\beta_{nn} = 1$), os erros se aproximaram dos níveis de precisão de máquina, confirmando que os esquemas numéricos lidam corretamente com simplificações do modelo. Além disso, o modelo Giesekus demonstrou ser estável e preciso para toda a faixa de valores de $\alpha_G$, e o modelo LPTT, com diferentes valores de $\epsilon$, também mostrou boa adaptação a regimes variados de elasticidade. O modelo UCM, mesmo sendo mais simples, foi capaz de lidar com os desafios numéricos dos escoamentos viscoelásticos simulados. Em conclusão, o uso do MMS comprovou ser uma ferramenta poderosa na verificação e validação de códigos numéricos aplicados à simulação de escoamentos viscoelásticos. O desempenho consistente dos esquemas numéricos implementados, aliado à validação por meio de soluções manufaturadas, assegura a confiabilidade dos resultados obtidos, tornando esses métodos adequados para a modelagem de fluidos não newtonianos em cenários complexos. Além disso, os dados e as tabelas de erros apresentados garantem a reprodutibilidade dos experimentos e a aplicabilidade dos métodos desenvolvidos em futuras pesquisas acadêmicas.
+    }{Fluidos Viscoelásticos, Método das Soluções Manufaturadas, Discretização de Alta Ordem, Simulação Numérica, Modelos Constitutivos Viscoelásticos}
+% ---------------------------------------------------------------------------
+% resumo em INGLÊS
+% conter no máximo 500 palavras
+% conter no mínimo 1 e no máximo 5 palavras-chave
+\textoresumo[english]{
+    This work presents an approach utilizing a high-order discretization method based on compact finite difference schemes for solving the two-dimensional incompressible viscoelastic flow equations in the vorticity-stream function formulation. The accuracy and robustness of the numerical schemes were verified using the Method of Manufactured Solutions (MMS), with the lid-driven cavity flow as the reference case. MMS, widely used for validating numerical codes, allows for the creation of artificial analytical solutions that share the same governing equations and boundary conditions as the simulated problem, making it an effective tool for evaluating the accuracy, convergence, and stability of numerical codes. This method was applied to four constitutive models commonly used in viscoelastic fluid modeling: UCM (Upper Convected Maxwell), LPTT (Linear Phan-Thien-Tanner), Oldroyd-B, and Giesekus. For the Oldroyd-B and Giesekus models, simulations considered Reynolds numbers ($Re$) ranging from 1 to 1000 and different solvent viscosity ratios ($\beta_{nn} = 0.0,\ 0.1,\ 0.5,\ 0.9$, and $1.0$), with the Weissenberg ranging from 1, 5 and 10. In the Giesekus model, the anisotropy parameter of the stress tensor, $\alpha_G$, was varied between 0.1 and 0.5, while in the LPTT model, the parameter $\epsilon$ was analyzed across different elasticity scenarios. Simulations performed with the UCM model, known for its simplicity in handling elasticity, were also evaluated for their ability to capture viscoelastic phenomena in complex flows. The results indicate that the developed numerical code exhibits a convergence order close to 4.5, consistent with theoretical predictions for high-order methods. The accuracy and robustness of the methods were validated by the consistent reduction of errors as the mesh was refined, regardless of the constitutive model, Reynolds number, or solvent viscosity ratio. For Newtonian fluids ($\beta_{nn} = 1$), the errors approached machine precision levels, confirming that the numerical schemes correctly handle model simplifications. Additionally, the Giesekus model proved to be stable and accurate across the entire range of $\alpha_G$ values, and the LPTT model, with different values of $\epsilon$, also showed good adaptability to various elasticity regimes. The UCM model, despite being simpler, effectively managed the numerical challenges posed by the simulated viscoelastic flows. In conclusion, the use of MMS proved to be a powerful tool for verifying and validating numerical codes applied to viscoelastic flow simulations. The consistent performance of the implemented numerical schemes, coupled with validation through manufactured solutions, ensures the reliability of the results obtained, making these methods suitable for modeling non-Newtonian fluids in complex flow scenarios. Furthermore, the provided data and error tables ensure the reproducibility of the experiments and the applicability of the developed methods in future academic research.
+    }{Viscoelastic Fluids, Method of Manufactured Solutions, High-Order Discretization, Numerical Simulation, Viscoelastic Constitutive Models}
+% ---------------------------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS
+% ---------------------------------------------------------------------------
+% Inserir a ficha catalográfica
+\incluifichacatalografica{tex/pre-textual/ficha-catalografica.pdf}
+% DEDICATÓRIA / AGRADECIMENTO / EPÍGRAFE
+\textodedicatoria*{tex/pre-textual/dedicatoria}
+\textoagradecimentos*{tex/pre-textual/agradecimentos}
+\textoepigrafe*{tex/pre-textual/epigrafe}
+% ---------------------------------------------------------------------------
+% Inclui a lista de figuras
+\incluilistadefiguras
+% ---------------------------------------------------------------------------
+% Inclui a lista de tabelas
+\incluilistadetabelas
+% ---------------------------------------------------------------------------
+% Inclui a lista de quadros
+% \incluilistadequadros
+% ---------------------------------------------------------------------------
+% Inclui a lista de algoritmos
+\incluilistadealgoritmos
+% ---------------------------------------------------------------------------
+% Inclui a lista de códigos
+\incluilistadecodigos
+% ---------------------------------------------------------------------------
+% Inclui a lista de siglas e abreviaturas
+\incluilistadesiglas
+% ---------------------------------------------------------------------------
+% Inclui a lista de símbolos
+\incluilistadesimbolos
+% ---------------------------------------------------------------------------
+% Início do documento
+% ---------------------------------------------------------------------------
+\begin{document}
+% ---------------------------------------------------------------------------
+% ELEMENTOS TEXTUAIS
+% ---------------------------------------------------------------------------
+\textual
+% ---------------------------------------------------------------------------
+% Capítulo 1 - Introdução
+% ---------------------------------------------------------------------------
+\include{tex/Capitulo1-Introducao.tex}
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Capítulo 2 - Formulação
+% ---------------------------------------------------------------------------
+\include{tex/Capitulo2-Formulacao.tex}
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Capítulo 3 - Metodos Numericos
+% ---------------------------------------------------------------------------
+\include{tex/Capitulo3-MetodosNumericos.tex}
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Capítulo 4 - MMS
+% ---------------------------------------------------------------------------
+\include{tex/Capitulo4-MetodoSolucoesManufaturadas.tex}
+% ---------------------------------------------------------------------------
+% Capítulo 5 - Resultados
+% ---------------------------------------------------------------------------
+\include{tex/Capitulo5-Resultados.tex}
+% ---------------------------------------------------------------------------
+% Capítulo 6 - Conclusão
+% ---------------------------------------------------------------------------
+\include{tex/Capitulo6-Conclusao.tex}
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Finaliza a parte no bookmark do PDF, para que se inicie o bookmark na raiz
+% ---------------------------------------------------------------------------
+\bookmarksetup{startatroot}% 
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% ELEMENTOS PÓS-TEXTUAIS
+% ---------------------------------------------------------------------------
+\postextual
+% ---------------------------------------------------------------------------
+% Referências bibliográficas
+% ---------------------------------------------------------------------------
+\bibliography{references_OrganistaJ.bib}
+% ---------------------------------------------------------------------------
+% GLOSSÁRIO
+% ---------------------------------------------------------------------------
+%% Arquivo que contém as definições que vão aparecer no glossário
+%\input{tex/glossario}
+%% Comando para incluir todas as definições do arquivo glossario.tex
+%\glsaddall
+%% Impressão do glossário
+\printglossaries
+% ---------------------------------------------------------------------------
+% Apêndices
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Inicia os apêndices
+% ---------------------------------------------------------------------------
+\begin{apendicesenv}
+   \chapter{Código em Mathematica Wolfran para os cálculos dos termos fontes}\label{chapter:mathematica_wolfran}
+   \input{tex/appendix/mathematica_wolfran}
+   % -----------------------------------------------------------------------
+   \chapter{Termos fontes para as Soluções Manufaturadas implementadas em \textit{Fortran 77}}\label{chapter:fortran_77}
+   \input{tex/appendix/fortran_77}
+\end{apendicesenv}
+% --------------------------------------------------------------------------
+% --------------------------------------------------------------------------
+% Anexos
+% --------------------------------------------------------------------------
+% --------------------------------------------------------------------------
+% Inicia os anexos
+% --------------------------------------------------------------------------
+%\begin{anexosenv}
+%	% ----------------------------------------------------------------------
+%    \chapter{Páginas interessantes na Internet} 
+%    \label{chapter:paginas-interessantes}
+%    \input{tex/annex/paginas-interessantes}
+%\end{anexosenv}
+% --------------------------------------------------------------------------
+\end{document}

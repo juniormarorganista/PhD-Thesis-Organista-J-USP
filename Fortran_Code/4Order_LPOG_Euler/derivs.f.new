@@ -1,0 +1,573 @@
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c                                                       c
+c                 derivative calculations               c
+c                                                       c
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine derivs_4th
+
+      implicit none
+      include 'par.nn'
+      real*8  a1x(imax),  b1x(imax),  c1x(imax),
+     &        a2x(imax),  b2x(imax),  c2x(imax),
+     &        a1y(jmax),  b1y(jmax),  c1y(jmax),
+     &        a2y(jmax),  b2y(jmax),  c2y(jmax)
+      common/der1x/ a1x,b1x,c1x
+      common/der2x/ a2x,b2x,c2x
+      common/der1y/ a1y,b1y,c1y
+      common/der2y/ a2y,b2y,c2y
+
+      call coef_4th(a1x,b1x,c1x,imax)
+      call coeff_4th(a2x,b2x,c2x,imax)
+      call coef_4th(a1y,b1y,c1y,jmax)
+      call coeff_4th(a2y,b2y,c2y,jmax)
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine derx_4th(ddx,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a1x(imax), b1x(imax), c1x(imax)
+      real*8 fc(imax,jmax), ddx(imax,jmax)
+      common/der1x/ a1x,b1x,c1x
+
+      call rhsx_4th(ddx,fc)
+      call tridx(a1x,b1x,c1x,ddx)
+      
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine derxx_4th(d2dx2,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a2x(imax), b2x(imax), c2x(imax)
+      real*8 fc(imax,jmax), d2dx2(imax,jmax)
+      common/der2x/ a2x,b2x,c2x
+
+      call rhsxx_4th(d2dx2,fc)
+      call tridx(a2x,b2x,c2x,d2dx2)
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine dery_4th(ddy,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a1y(jmax), b1y(jmax), c1y(jmax)
+      real*8 fc(imax,jmax), ddy(imax,jmax)
+      common/der1y/ a1y,b1y,c1y
+
+      call rhsy_4th(ddy,fc)
+      call tridy(a1y,b1y,c1y,ddy)
+      
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine deryy_4th(d2dy2,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a2y(jmax), b2y(jmax), c2y(jmax)
+      real*8 fc(imax,jmax), d2dy2(imax,jmax)
+      common/der2y/ a2y,b2y,c2y
+
+      call rhsyy_4th(d2dy2,fc)
+      call tridy(a2y,b2y,c2y,d2dy2)
+      
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsx_4th(rhs,fc)
+      
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do j = 1, jmax
+        rhs(1,j)=(-17.d0*fc(1,j) +  9.d0*fc(2,j) +
+     &              9.d0*fc(3,j) -       fc(4,j) )/(6.d0*dx)
+        
+        do i = 2, imax - 1
+          rhs(i,j)=( 3.d0*(fc(i+1,j)-fc(i-1,j)) )/dx
+        end do
+        
+        rhs(imax,j)=(-17.d0*fc(imax,j)  +  9.d0*fc(imax-1,j) +
+     &                 9.d0*fc(imax-2,j)-       fc(imax-3,j) ) /
+     &               (-6.d0*dx)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsxx_4th(rhs,fc)
+      
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+      
+      !!! mais ou menos de 4
+      do j = 1, jmax
+        rhs(1,j)=( 39.d0*fc(1,j) - 81.d0*fc(2,j)+
+     &             45.d0*fc(3,j) -  3.d0*fc(4,j))/(3.d0*dxx)
+        
+        do i = 2, imax - 1
+          rhs(i,j)=( 12.d0*(fc(i+1,j)+fc(i-1,j))-
+     &               24.d0*fc(i,j))/dxx
+        end do
+        
+        rhs(imax,j)=( 39.d0*fc(imax,j)  - 81.d0*fc(imax-1,j)+
+     &                45.d0*fc(imax-2,j)-  3.d0*fc(imax-3,j))/
+     &                (3.d0*dxx)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsy_4th(rhs,fc)
+
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do i = 1, imax
+        rhs(i,1)      = ( -17.d0*fc(i,1) +  9.d0*fc(i,2) +
+     &                      9.d0*fc(i,3) -       fc(i,4) )/(6.d0*dy)
+        
+       do j = 2, jmax - 1
+         rhs(i,j) =     ( 3.d0*( fc(i,j+1) - fc(i,j-1) )  )/dy
+       end do
+       
+       rhs(i,jmax)   = (-17.d0*fc(i,jmax)  + 9.d0*fc(i,jmax-1)+
+     &                    9.d0*fc(i,jmax-2)-      fc(i,jmax-3) ) /
+     &                 (-6.d0*dy)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsyy_4th(rhs,fc)
+
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do i = 1, imax
+        rhs(i,1)      = (  39.d0*fc(i,1) - 81.d0*fc(i,2)+
+     &                     45.d0*fc(i,3) -  3.d0*fc(i,4) )/
+     &                    (3.d0*dyy)
+        
+        do j = 2, jmax - 1
+          rhs(i,j)    = ( 12.d0*( fc(i,j+1) + fc(i,j-1) ) -
+     &                    24.d0 * fc(i,j) )/dyy
+        end do
+        
+       rhs(i,jmax)=( 39.d0*fc(i,jmax)   - 81.d0*fc(i,jmax-1)+
+     &               45.d0*fc(i,jmax-2) -  3.d0*fc(i,jmax-3))/
+     &               (3.d0*dyy)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine coef_4th(a,b,c,lmax)
+
+      implicit none
+      integer l, lmax
+      real*8 a(lmax), b(lmax), c(lmax)
+
+      a(1)      = 0.d0
+      b(1)      = 1.d0
+      c(1)      = 3.d0
+
+      do l = 2, lmax - 1
+        a(l)    = 1.d0
+        b(l)    = 4.d0
+        c(l)    = 1.d0
+      end do
+
+      a(lmax)   = 3.d0
+      b(lmax)   = 1.d0
+      c(lmax)   = 0.d0
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine coeff_4th(a,b,c,lmax)
+
+      implicit none
+      integer l, lmax
+      real*8 a(lmax), b(lmax), c(lmax)
+
+      a(1)      =  0.d0
+      b(1)      =  1.d0
+      c(1)      = 11.d0
+
+      do l = 2, lmax - 1
+        a(l)    = 1.d0
+        b(l)    = 10.d0
+        c(l)    = 1.d0
+      end do
+
+      a(lmax)   = 11.d0
+      b(lmax)   =  1.d0
+      c(lmax)   =  0.d0
+
+      return
+      end
+
+c#######################################################################
+c#######################################################################
+c#######################################################################
+c#######################################################################
+c#######################################################################
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine derivs_6th
+
+      implicit none
+      include 'par.nn'
+      real*8  a1x(imax),  b1x(imax),  c1x(imax),
+     &        a2x(imax),  b2x(imax),  c2x(imax),
+     &        a1y(jmax),  b1y(jmax),  c1y(jmax),
+     &        a2y(jmax),  b2y(jmax),  c2y(jmax)
+      common/der1x/ a1x,b1x,c1x
+      common/der2x/ a2x,b2x,c2x
+      common/der1y/ a1y,b1y,c1y
+      common/der2y/ a2y,b2y,c2y
+
+      call coef_6th(a1x,b1x,c1x,imax)
+      call coeff_6th(a2x,b2x,c2x,imax)
+      call coef_6th(a1y,b1y,c1y,jmax)
+      call coeff_6th(a2y,b2y,c2y,jmax)
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine derx_6th(ddx,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a1x(imax), b1x(imax), c1x(imax)
+      real*8 fc(imax,jmax), ddx(imax,jmax)
+      common/der1x/ a1x,b1x,c1x
+
+      call rhsx_6th(ddx,fc)
+      call tridx(a1x,b1x,c1x,ddx)
+      
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine derxx_6th(d2dx2,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a2x(imax), b2x(imax), c2x(imax)
+      real*8 fc(imax,jmax), d2dx2(imax,jmax)
+      common/der2x/ a2x,b2x,c2x
+
+      call rhsxx_6th(d2dx2,fc)
+      call tridx(a2x,b2x,c2x,d2dx2)
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine dery_6th(ddy,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a1y(jmax), b1y(jmax), c1y(jmax)
+      real*8 fc(imax,jmax), ddy(imax,jmax)
+      common/der1y/ a1y,b1y,c1y
+
+      call rhsy_6th(ddy,fc)
+      call tridy(a1y,b1y,c1y,ddy)
+      
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine deryy_6th(d2dy2,fc)
+
+      implicit none
+      include 'par.nn'
+      real*8 a2y(jmax), b2y(jmax), c2y(jmax)
+      real*8 fc(imax,jmax), d2dy2(imax,jmax)
+      common/der2y/ a2y,b2y,c2y
+
+      call rhsyy_6th(d2dy2,fc)
+      call tridy(a2y,b2y,c2y,d2dy2)
+      
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsx_6th(rhs,fc)
+
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do j = 1, jmax
+        rhs(1,j)      = ( -74.d0*fc(1,j) + 16.d0*fc(2,j) +
+     &                     72.d0*fc(3,j) - 16.d0*fc(4,j) + 
+     &                      2.d0*fc(5,j) )/(24.d0*dx)
+        
+        rhs(2,j)      = ( -406.d0*fc(1,j) - 300.d0*fc(2,j) +
+     &                     760.d0*fc(3,j) -  80.d0*fc(4,j) +
+     &                      30.d0*fc(5,j) -   4.d0*fc(6,j) )
+     &                     /(120.d0*dx)
+        
+       do i = 3, imax - 2
+         rhs(i,j) =     ( fc(i+2,j) - fc(i-2,j) + 
+     &            28.d0*( fc(i+1,j) - fc(i-1,j) )  )/(12.d0*dx)
+       end do
+       
+       rhs(imax-1,j) =( -406.d0*fc(imax  ,j)-300.d0*fc(imax-1,j)+
+     &                   760.d0*fc(imax-2,j)- 80.d0*fc(imax-3,j)+
+     &                    30.d0*fc(imax-4,j)-  4.d0*fc(imax-5,j))
+     &                  /(-120.d0*dx)
+       
+       rhs(imax,j)   = (-74.d0*fc(imax  ,j)+16.d0*fc(imax-1,j)+
+     &                   72.d0*fc(imax-2,j)-16.d0*fc(imax-3,j)+
+     &                    2.d0*fc(imax-4,j) )/(-24.d0*dx)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsxx_6th(rhs,fc)
+      
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do j = 1, jmax
+        rhs(1,j)=( 9775.d0*fc(1,j)-20285.d0*fc(2,j)+
+     &            11170.d0*fc(3,j)-  550.d0*fc(4,j)-
+     &              145.d0*fc(5,j)+   35.d0*fc(6,j))/(60.d0*dxx)
+        
+        rhs(2,j)=(4834.d0*fc(1,j)-8424.d0*fc(2,j)+
+     &            1890.d0*fc(3,j)+2320.d0*fc(4,j)-
+     &             810.d0*fc(5,j)+ 216.d0*fc(6,j)-
+     &              26.d0*fc(7,j))/(360.d0*dxx)
+        
+        do i = 3, imax - 2
+          rhs(i,j)=(  3.d0*(fc(i+2,j)+fc(i-2,j))+
+     &               48.d0*(fc(i+1,j)+fc(i-1,j))-
+     &               102.d0*fc(i,j))/(4.d0*dxx)
+        end do
+        
+       rhs(imax-1,j)=(4834.d0*fc(imax,j)- 8424.d0*fc(imax-1,j)+
+     &                1890.d0*fc(imax-2,j)+2320.d0*fc(imax-3,j)-
+     &                 810.d0*fc(imax-4,j)+ 216.d0*fc(imax-5,j)-
+     &                  26.d0*fc(imax-6,j))/(360.d0*dxx)
+        
+        rhs(imax,j)=( 9775.d0*fc(imax,j)-20285.d0*fc(imax-1,j)+
+     &               11170.d0*fc(imax-2,j)-550.d0*fc(imax-3,j)-
+     &                 145.d0*fc(imax-4,j)+35.d0*fc(imax-5,j))/
+     &                (60.d0*dxx)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsy_6th(rhs,fc)
+
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do i = 1, imax
+        rhs(i,1)      = ( -74.d0*fc(i,1) + 16.d0*fc(i,2) +
+     &                     72.d0*fc(i,3) - 16.d0*fc(i,4) + 
+     &                      2.d0*fc(i,5) )/(24.d0*dy)
+        
+        rhs(i,2)      = ( -406.d0*fc(i,1) - 300.d0*fc(i,2) +
+     &                     760.d0*fc(i,3) -  80.d0*fc(i,4) +
+     &                      30.d0*fc(i,5) -   4.d0*fc(i,6) )
+     &                     /(120.d0*dy)
+        
+       do j = 3, jmax - 2
+         rhs(i,j) =     ( fc(i,j+2) - fc(i,j-2) + 
+     &            28.d0*( fc(i,j+1) - fc(i,j-1) )  )/(12.d0*dy)
+       end do
+       
+       rhs(i,jmax-1) =( -406.d0*fc(i,jmax)-300.d0*fc(i,jmax-1)+
+     &                   760.d0*fc(i,jmax-2)- 80.d0*fc(i,jmax-3)+
+     &                    30.d0*fc(i,jmax-4)-  4.d0*fc(i,jmax-5))
+     &                  /(-120.d0*dy)
+       
+       rhs(i,jmax)   = (-74.d0*fc(i,jmax)  +16.d0*fc(i,jmax-1)+
+     &                   72.d0*fc(i,jmax-2)-16.d0*fc(i,jmax-3)+
+     &                    2.d0*fc(i,jmax-4) )/(-24.d0*dy)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rhsyy_6th(rhs,fc)
+
+      implicit none
+      include 'par.nn'
+      integer i, j
+      real*8 rhs(imax,jmax), fc(imax,jmax)
+
+      do i = 1, imax
+        rhs(i,1)      = ( 9775.d0*fc(i,1)-20285.d0*fc(i,2)+
+     &                   11170.d0*fc(i,3)-  550.d0*fc(i,4)-
+     &                     145.d0*fc(i,5)+   35.d0*fc(i,6) )/
+     &                    (60.d0*dyy)
+        
+        rhs(i,2)      = ( 4834.d0*fc(i,1) - 8424.d0*fc(i,2) +
+     &                    1890.d0*fc(i,3) + 2320.d0*fc(i,4) - 
+     &                     810.d0*fc(i,5) +  216.d0*fc(i,6) -
+     &                      26.d0*fc(i,7) )/(360.d0*dyy)
+        
+        do j = 3, jmax - 2
+          rhs(i,j)    = (  3.d0*( fc(i,j+2) + fc(i,j-2) ) +
+     &                    48.d0*( fc(i,j+1) + fc(i,j-1) ) -
+     &                   102.d0 * fc(i,j) )/(4.d0*dyy)
+        end do
+        
+       rhs(i,jmax-1)=( 4834.d0*fc(i,jmax)-8424.d0*fc(i,jmax-1)+
+     &                 1890.d0*fc(i,jmax-2)+2320.d0*fc(i,jmax-3)-
+     &                  810.d0*fc(i,jmax-4)+ 216.d0*fc(i,jmax-5)-
+     &                   26.d0*fc(i,jmax-6) )/(360.d0*dyy)
+       
+       rhs(i,jmax)=( 9775.d0*fc(i,jmax)-20285.d0*fc(i,jmax-1)+
+     &              11170.d0*fc(i,jmax-2)-550.d0*fc(i,jmax-3)-
+     &                145.d0*fc(i,jmax-4)+ 35.d0*fc(i,jmax-5))/
+     &               (60.d0*dyy)
+      end do
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine coef_6th(a,b,c,lmax)
+
+      implicit none
+      integer l, lmax
+      real*8 a(lmax), b(lmax), c(lmax)
+
+      a(1)      = 0.d0
+      b(1)      = 1.d0
+      c(1)      = 4.d0
+
+      a(2)      = 1.d0
+      b(2)      = 6.d0
+      c(2)      = 2.d0
+
+      do l = 3, lmax - 2
+        a(l)    = 1.d0
+        b(l)    = 3.d0
+        c(l)    = 1.d0
+      end do
+
+      a(lmax-1) = 2.d0
+      b(lmax-1) = 6.d0
+      c(lmax-1) = 1.d0
+
+      a(lmax)   = 4.d0
+      b(lmax)   = 1.d0
+      c(lmax)   = 0.d0
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccc what this is?
+      subroutine coeffv(a,b,c,lmax)
+
+      implicit none
+      integer l, lmax
+      real*8 a(lmax), b(lmax), c(lmax)
+
+      a(1)      = 0.d0
+      b(1)      = 1.d0
+      c(1)      = 0.d0
+
+      a(2)      = 1.d0
+      b(2)      = 6.d0
+      c(2)      = 2.d0
+
+      do l = 3, lmax - 2
+        a(l)    = 1.d0
+        b(l)    = 3.d0
+        c(l)    = 1.d0
+      end do
+
+      a(lmax-1) = 2.d0
+      b(lmax-1) = 6.d0
+      c(lmax-1) = 1.d0
+
+      a(lmax)   = 0.d0
+      b(lmax)   = 1.d0
+      c(lmax)   = 0.d0
+
+      return
+      end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine coeff_6th(a,b,c,lmax)
+
+      implicit none
+      integer l, lmax
+      real*8 a(lmax), b(lmax), c(lmax)
+
+      a(1)      = 0.d0
+      b(1)      = 13.d0
+      c(1)      = 137.d0
+
+      a(2)      = 1.d0
+      b(2)      = 12.d0
+      c(2)      = 3.d0
+
+      do l = 3, lmax - 2
+        a(l)    = 2.d0
+        b(l)    = 11.d0
+        c(l)    = 2.d0
+      end do
+
+      a(lmax-1) = 3.d0
+      b(lmax-1) = 12.d0
+      c(lmax-1) = 1.d0
+
+      a(lmax)   = 137.d0
+      b(lmax)   = 13.d0
+      c(lmax)   = 0.d0
+
+      return
+      end
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c            end of derivative calculations             c
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

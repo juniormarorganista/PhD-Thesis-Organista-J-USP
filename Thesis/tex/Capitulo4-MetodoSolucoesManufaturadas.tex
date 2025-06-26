@@ -1,0 +1,139 @@
+% ----------------------------------------------------------
+%% Capitulo4-MetodosSolucoesManufaturadas.tex 
+% ----------------------------------------------------------
+% Metodos Numericos
+% ----------------------------------------------------------
+\chapter[MMS]{Métodos das Soluções Manufaturadas}
+\label{Cap_MetodosSolucoesManufaturadas}
+
+A abordagem adotada para a aplicação do Método de Soluções Manufaturadas (MMS) seguiu os princípios descritos por \citeonline{shih1989effects}, sendo um método amplamente utilizado no campo das simulações numéricas e da modelagem computacional \cite{Roy2004, Roy2001, Roache2002}. A relevância do MMS reside em sua capacidade de criar um ambiente controlado para a verificação de códigos numéricos, onde geralmente não se possui uma solução para o problema ao qual o código se destina. Ao gerar soluções exatas ou analíticas com características previamente conhecidas, torna-se possível avaliar a precisão, a convergência e a estabilidade dos métodos numéricos empregados. Além disso, o MMS permite que se examine a fidelidade desses métodos em diferentes condições, garantindo sua robustez em uma ampla gama de cenários. Esse método também facilita a identificação e correção de artefatos numéricos que possam comprometer a qualidade dos resultados das simulações.
+
+\section{Geração de soluções manufaturadas}\label{Sec_geracao_solucoes_manufaturadas}
+
+A geração de soluções manufaturada consiste, essencialmente, na introdução de um termo fonte nas equações governantes. Esse termo fonte é especialmente construído para forçar uma solução analítica a um problema semelhante ao inicial proposto, porém previamente determinada. Para gerar as soluções manufaturadas, adotou-se a notação $\overline{f}$ para representar as funções pré-definidas ou impostas, enquanto $\widetilde{f}$ denota aquelas funções que são derivadas das equações governantes. Inicialmente, define-se as funções previamente conhecidas, como $\overline{u}$, $\overline{T}_{xx}$, $\overline{T}_{xy}$ e $\overline{T}_{yy}$. Assim considerando $\overline{u}$ como uma função conhecida, e utilizando a \autoref{eq_cont_bidime} pode-se obter $\widetilde{v}$ fazendo:
+\begin{gather}
+    \widetilde{v} = - \int \frac{\partial \overline{u}}{\partial x}dy.\label{eq_MMS_v_linha}
+\end{gather}
+
+Utilizando $\overline{u}$ e $\widetilde{v}$, pode-se obter $\widetilde{\omega_z}$ fazendo:
+\begin{align}\label{eq_vortic_wz}
+    \widetilde{\omega_z} = \frac{\partial \overline{u}}{\partial y}-\frac{\partial \widetilde{v}}{\partial x}
+\end{align}
+e $\widetilde{\Psi}$ resolvendo:
+\begin{align}\label{eq_funcaocorrente_psi}
+    \frac{\partial \Psi}{\partial y} = \overline{u}\quad\text{ ou }\quad\frac{\partial \Psi}{\partial x} = -\overline{v}.
+\end{align}
+
+Com $\overline{u}$ estabelecida e $\widetilde{v}$ e $\widetilde{\omega_z}$ obtidas por meio das Equações \eqref{eq_MMS_v_linha} e \eqref{eq_vortic_wz}, e considerando ainda as funções $\overline{T^{xx}}$, $\overline{T^{xy}}$ e $\overline{T^{yy}}$ também conhecidas, substitui-se essas funções nas Equações \eqref{eq_movi_x_bidime},\eqref{eq_movi_y_bidime},\eqref{eq_lpog_txx},\eqref{eq_lpog_txy} e \eqref{eq_lpog_tyy}, fazendo com que seja necessário acrescentar os termos fontes, como apresentado nas Equações \eqref{eq_vortic_corrent_MMS}, \eqref{eq_lpog_txx_source_term_1}, \eqref{eq_lpog_txy_source_term_1} e \eqref{eq_lpog_tyy_source_term_1}:
+\begin{gather}
+    \begin{aligned}
+        \frac{\partial \omega_{z}}{\partial t} + \frac{\partial (u\omega_{z})}{\partial x} + \frac{\partial (v\omega_{z})}{\partial y} = \frac{\beta_{nn}}{Re}\left(\frac{\partial^{2} \omega_{z}}{\partial x^{2}} + \frac{\partial^{2} \omega_{z}}{\partial y^{2}}\right) + \frac{\partial^{2}T_{xx}}{\partial x^{}\partial y^{}} & +  \frac{\partial^{2}T_{xy}}{\partial y^{2}} - \frac{\partial^{2}T_{xy}}{\partial x^{2}} - \\ & -  \frac{\partial^{2}T_{yy}}{\partial x^{}\partial y^{}} + tf\omega_{z},
+    \end{aligned}
+    \label{eq_vortic_corrent_MMS}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        f(\mathbf{T})T_{xx} & + Wi\bigg[\frac{\partial T_{xx}}{\partial t} + \frac{\partial (uT_{xx})}{\partial x} + \frac{\partial (vT_{xx})}{\partial y} - 2T_{xx}\frac{\partial u}{\partial x} - 2T_{xy}\frac{\partial u}{\partial y}\bigg] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(T_{xx}^{2} + T_{xy}^{2}\right) + \\ & + \xi\operatorname{Wi}\left(2T_{xx}\frac{\partial u}{\partial x} + T_{xy}\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right)\right) = 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial u}{\partial x} + tfT_{xx},
+    \end{aligned}
+    \label{eq_lpog_txx_source_term_1}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        f(\mathbf{T})T_{xy} & + Wi\bigg[\frac{\partial T_{xy}}{\partial t} + \frac{\partial (uT_{xy})} {\partial x} + \frac{\partial (vT_{xy})}{\partial y} - T_{xx}\frac{\partial v}{\partial x} - T_{yy}\frac{\partial u}{\partial y}\bigg] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left[T_{xy}\left(T_{xx} + T_{yy}\right)\right] + \\ 
+        & + \frac{\xi\operatorname{Wi}}{2}\left(T_{xx} + T_{yy}\right)\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right) = \frac{1-\beta_{nn}}{\operatorname{Re}}\left(\frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\right)+ tfT_{xy},
+    \end{aligned}
+    \label{eq_lpog_txy_source_term_1}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        f(\mathbf{T})T_{yy} &+ Wi\bigg[\frac{\partial T_{yy}}{\partial t} + \frac{\partial (uT_{yy})}{\partial x} + \frac{\partial (vT_{yy})}{\partial y} - 2T_{xy}\frac{\partial v}{\partial x} - 2T_{yy}\frac{\partial v}{\partial y}\bigg] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(T_{xy}^{2} + T_{yy}^{2}\right) + \\ & + \xi\operatorname{Wi}\left(2T_{yy}\frac{\partial v}{\partial y} + T_{xy}\left(\frac{\partial u}{\partial y} + \frac{\partial v}{\partial x}\right)\right) = 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial v}{\partial y}+ tfT_{yy},
+    \end{aligned}
+    \label{eq_lpog_tyy_source_term_1}
+\end{gather}
+onde os termos fontes são dados por:
+\begin{gather}
+    \begin{aligned}
+        \mathbf{tf}\omega_{z} = & \frac{\partial \widetilde{\omega_{z}}}{\partial t} + \frac{\partial (\overline{u}\widetilde{\omega_{z}})}{\partial x} + \frac{\partial (\widetilde{v}\widetilde{\omega_{z}})}{\partial y} - \frac{\beta_{nn}}{Re}\left(\frac{\partial^{2} \widetilde{\omega_{z}}}{\partial x^{2}} + \frac{\partial^{2} \widetilde{\omega_{z}}}{\partial y^{2}}\right) \\ & - \frac{\partial^{2}\overline{T}_{xx}}{\partial x^{}\partial y^{}} - \frac{\partial^{2}\overline{T}_{xy}}{\partial y^{2}} + \frac{\partial^{2}\overline{T}_{xy}}{\partial x^{2}} + \frac{\partial^{2}\overline{T}_{yy}}{\partial x^{}\partial y^{}} ,
+    \end{aligned}
+    \label{eq_wz_s_t_2}
+\end{gather}
+\begin{equation}
+    \begin{aligned}
+        tfT_{xx} & = \overline{f}(\mathbf{T})\overline{T}_{xx} + \operatorname{Wi}\left[\frac{\partial \overline{T}_{xx}}{\partial t} + \frac{\partial (\overline{u}\overline{T}_{xx})}{\partial x} + \frac{\partial(\tilde{v}\overline{T}_{xx})}{\partial y} - 2\overline{T}_{xx}\frac{\partial \overline{u}}{\partial x} - 2\overline{T}_{xy}\frac{\partial \overline{u}}{\partial y}\right] + \\ & + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(\overline{T}_{xx}^{2} - \overline{T}_{xy}^{2}\right) + \xi\operatorname{Wi}\left(2\overline{T}_{xx}\frac{\partial \overline{u}}{\partial x} + \overline{T}_{xy}\left(\frac{\partial \overline{u}}{\partial y} + \frac{\partial \tilde{v}}{\partial x}\right)\right) - 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial \overline{u}}{\partial x},
+    \end{aligned}
+    \label{eq_lpog_txx_s_t_2}
+\end{equation}
+\begin{equation}
+    \begin{aligned}
+        tfT_{xy} & = \overline{f}(\mathbf{T})\overline{T}_{xy} + \operatorname{Wi}\left[\frac{\partial \overline{T}_{xy}}{\partial t} + \frac{\partial (\overline{u}\overline{T}_{xy})} {\partial x} + \frac{\partial(\tilde{v}\overline{T}_{xy})}{\partial y} - \overline{T}_{xx}\frac{\partial\tilde{v}}{\partial x} - \overline{T}_{yy}\frac{\partial \overline{u}}{\partial y}\right] + \\ & + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left[\overline{T}_{xy}\left(\overline{T}_{xx} + \overline{T}_{yy}\right)\right] + \frac{\xi\operatorname{Wi}}{2}\left(\overline{T}_{xx} + \overline{T}_{yy}\right)\left(\frac{\partial \overline{u}}{\partial y} + \frac{\partial \tilde{v}}{\partial x}\right) - \frac{1-\beta_{nn}}{\operatorname{Re}}\left(\frac{\partial \tilde{v}}{\partial x} + \frac{\partial \overline{u}}{\partial y}\right),
+    \end{aligned}
+    \label{eq_lpog_txy_s_t_2}
+\end{equation}
+\begin{equation}
+    \begin{aligned}
+        tfT_{yy} & = \overline{f}(\mathbf{T})\overline{T}_{yy} + \operatorname{Wi}\left[\frac{\partial \overline{T}_{yy}}{\partial t} + \frac{\partial (\overline{u}\overline{T}_{yy})}{\partial x} + \frac{\partial (\tilde{v}\overline{T}_{yy})}{\partial y} - 2\overline{T}_{xy}\frac{\partial \tilde{v}}{\partial x} - 2\overline{T}_{yy}\frac{\partial \tilde{v}}{\partial y}\right] + \\ & + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(\overline{T}_{xy}^{2} + \overline{T}_{yy}^{2}\right) + \xi\operatorname{Wi}\left(2\overline{T}_{yy}\frac{\partial\tilde{v}}{\partial y} + \overline{T}_{xy}\left(\frac{\partial \overline{u}}{\partial y} + \frac{\partial\tilde{v}}{\partial x}\right)\right) - 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial\tilde{v}}{\partial y},
+    \end{aligned}
+    \label{eq_lpog_tyy_s_t_2}
+\end{equation}
+com
+\begin{equation}
+    \begin{split}
+        \overline{f}(\mathbf{T}) = \left( 1+\frac{\epsilon \operatorname{Wi} \operatorname{Re}}{(1 - \beta_{nm})}\right) \left(\overline{T}_{xx} + \overline{T}_{yy}\right).
+    \end{split}\label{eq_funcao_traco_tensor_bidime_manufaturada}
+\end{equation}
+
+Um fato importante a ser observado é que a equação de Poisson não possui termo fonte justamente pela construção das soluções $\overline{u}$, $\widetilde{v}$ e $\widetilde{\omega}_{z}$.
+
+\section{Solução manufaturada para testar métodos numéricos de alta ordem}
+
+Para garantir a precisão na análise da ordem de convergência de códigos de alta ordem é preciso que as soluções manufaturadas evitem polinômios de ordem menor ou igual a ordem teórica dos métodos que são utilizados, pois o trucamento nas séries de Taylor que os métodos são baseados dariam zero e assim não seria possível verificar a ordem de convergência. Diante disso, propomos soluções baseadas em funções trigonométricas, como seno e cosseno, as quais permitem uma verificação detalhada da precisão dos métodos numéricos apresentados. Assim, as soluções manufaturadas propostas são dadas por:
+
+\begin{gather}
+    \begin{aligned}
+        \overline{u}(x,y,t) &~= (x-1) x \sin(\pi x) \left(\sin(\pi y) + \pi y \cos(\pi y)\right) e^{-a\cdot t},\label{eq:u_case0}
+    \end{aligned}
+\end{gather}
+
+Utilizando o procedimento descrito na ~\autoref{Sec_geracao_solucoes_manufaturadas}, obtemos:
+
+\begin{gather}
+    \begin{aligned}
+        \widetilde{v}(x,y,t) &~= -y\sin(\pi y) \left((2x-1)\sin(\pi x) + \pi(x-1)x\cos(\pi x)\right)e^{-a\cdot t},\label{eq:v_case0}
+    \end{aligned}
+\end{gather}
+
+\begin{gather}
+    \begin{aligned}
+        \widetilde{\omega_{z}}(x,y,t) = 2 &~ \bigg(\pi(x-1)x\sin(\pi x)\cos(\pi y) + y\sin(\pi y)\cdot \\ &~\cdot\left( (1 - \pi^2(x-1)x)\sin(\pi x) + \pi(2x-1)\cos(\pi x) \right)\bigg) e^{-a\cdot t},\label{eq:wz_case0}
+    \end{aligned}
+\end{gather}
+
+\begin{gather}
+    \begin{aligned}
+        \widetilde{\psi}(x,y,t) &~= (x-1) x y \sin(\pi x)\sin(\pi y) e^{-a\cdot t}.\label{eq:psi_case0}
+    \end{aligned}
+\end{gather}
+
+Por fim, para os tensores, consideramos as seguintes soluções manufaturadas:
+
+\begin{gather}
+    \begin{aligned}
+        \overline{T}_{xx}(x,y,t) &~= (1-\beta_{nn})\left(\sin(\pi x) + \cos(\pi x) + 1\right) \left(\sin(\pi y) + \cos(\pi y) + 1\right)e^{-a\cdot t},\label{eq:txx_case0}
+    \end{aligned}
+\end{gather}
+
+\begin{gather}
+    \begin{aligned}
+        \overline{T}_{xy}(x,y,t) &~= (1-\beta_{nn})\left(-\sin(\pi x) + \cos(\pi x) + 1\right) \left(-\sin(\pi y) + \cos(\pi y) + 1\right)e^{-a\cdot t},\label{eq:txy_case0}
+    \end{aligned}
+\end{gather}
+
+\begin{gather}
+    \begin{aligned}
+        \overline{T}_{yy}(x,y,t) &~= (1-\beta_{nn})\left(\sin(\pi x) - \cos(\pi x) - 1\right) \left(\sin(\pi y) - \cos(\pi y) - 1\right)e^{-a\cdot t}.\label{eq:tyy_case0}
+    \end{aligned}
+\end{gather}
+
+Para garantir uma comparação precisa dos resultados numéricos obtidos pelo código em teste, incluímos um fator multiplicativo de $(1-\beta_{nn})$ nas soluções manufaturadas dos tensores de tensão extra. Esse fator é essencial para ajustar os resultados em cenários envolvendo escoamentos Newtonianos, onde $\beta_{nn} = 1$. Nessas situações, o fator multiplicativo anula a contribuição dos tensores de tensão extra, fazendo com que a solução se alinhe com o comportamento de um fluido Newtoniano.
+
+Por fim, os resultados completos das expressões analíticas correspondentes aos termos fonte associadas a Solução Manufaturada, aqui consideradas, são apresentadas no Anexo~\ref{chapter:fortran_77}, já em \textit{Fortran 77}. Além disso, no Anexo~\ref{chapter:mathematica_wolfran} apresentam-se os códigos para obtenção dessas expressões que foram obtidas via o \textit{ software Mathematica} para diferentes variáveis do escoamento, incluindo velocidades, vorticidade, função de corrente e tensores de tensão extra. Além disso, todos os códigos computacionais utilizados na geração desses termos fonte foram disponibilizados publicamente em um repositório no GitHub.

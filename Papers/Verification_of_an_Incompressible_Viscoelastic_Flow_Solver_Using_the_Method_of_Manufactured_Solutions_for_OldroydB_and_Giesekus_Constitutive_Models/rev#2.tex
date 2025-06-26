@@ -1,0 +1,134 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\newcounter{question}
+\newcommand{\name}{00}
+
+\renewcommand{\thefigure}{R\arabic{figure}}
+\renewcommand{\thetable}{R\arabic{table}}
+
+\newcommand{\question}[1]{\stepcounter{question} \noindent \textbf{Comment \name.\thequestion} \emph{#1} }
+
+\newcommand{\answer}[1]{\noindent \textbf{Answer to \name.\thequestion} #1 \mbox{}\\}
+
+\newcommand{\newperson}[2]{\renewcommand{\name}{#2} \setcounter{question}{0} \newpage \noindent \textbf{\Large Answers to #1} \\}
+
+\begin{document}
+
+{\large \textbf{Response letter to the manuscript
+-- \emph{Development of a High-Order Numerical Method for Solving Incompressible Viscoelastic Fluid Flows and Verification using the Method of Manufactured Solutions}}}
+
+\vspace{0.8cm}
+We thank the reviewer \#2 for his/her constructive comments. We have addressed all of them and modified the paper accordingly. Our detailed answers follow. Please note that reviewers' comments are in italics while our answers are not.
+\vspace{0.8cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it This paper presents a high-order method for solving viscoelastic flow problems in 2D. The authors use the stream function-vorticity formulation of the governing equations in combination with the Oldroyd B and Giesekus constitutive equations.
+
+The numerical approximation scheme is based on a fourth order compact finite difference scheme in space and the fourth order Runge-Kutta scheme in time.
+
+The authors present a detailed convergence analysis with respect to a wide range of numerical and material parameters including the Reynolds number and viscosity ratio but only for Wi=1. However, convergence has only been demonstrated for a problem with an exact solution - the problem has been manufactured using the method of manufactured solutions in which source terms in the governing equations are determined from specified expressions for the dependent variables. This is fine to determine and verify the properties of the numerical scheme, but it is not helpful in assessing the ability to solve meaningful viscoelastic flow problems over a range of Weissenberg numbers. The 'exact' solutions that are used in the simulations are fairly smooth and do not exhibit features associated with high Weissenberg number problems such boundary/stress layers etc.
+
+The authors need to implement their scheme on one of the benchmark problems in computational rheology such as contraction flows, flow past a cylinder etc. to assess the robustness of the scheme and its ability to obtain approximations for a range of values of the Weissenberg number, viscosity ratio, mobility parameter etc.
+
+Whereas the numerical study presented in this paper would be suitable for a general numerical analysis journal without additional testing/validation on benchmark problems defined in complex geometries and comparisons with other methods, the paper is not suitable for publication in the Journal of Non-Newtonian Fluid Mechanics.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+We thank the reviewer for the thorough and thoughtful evaluation of our manuscript. We fully agree that the Method of Manufactured Solutions (MMS) is best suited for verifying the accuracy and order of convergence of numerical schemes, particularly under controlled conditions with smooth, analytically defined solutions. In line with this, our primary objective was to rigorously assess the performance of the proposed high-order compact finite difference method in a well-posed verification setting before advancing to more complex and physically realistic configurations.
+
+In response to the reviewer’s valuable suggestion, we have extended the revised manuscript to include additional results at higher Weissenberg numbers, focusing on scenarios where stronger viscoelastic effects emerge. While a full treatment of benchmark problems such as the 4:1 contraction or flow past a cylinder is beyond the scope of the present verification-centred study, we fully recognize the importance of such validations for establishing the robustness of a numerical method in practical applications. Accordingly, we are currently implementing our scheme on classical benchmark problems in computational rheology and intend to report these results in a follow-up publication specifically dedicated to that purpose.
+
+We have clarified the scope and limitations of the present work in the revised manuscript and included a discussion of ongoing efforts to apply the method to complex geometries and flow conditions. We hope this positioning helps to better contextualize the contribution of this study within a broader research program.
+
+We have added the following paragraph in the Conclusion section:
+
+"Future work will be directed toward extending the developed high-order numerical scheme to classical benchmark problems in computational rheology, including planar contraction flows and flow past a cylinder. These investigations will serve to evaluate the robustness and accuracy of the method across a broader range of Weissenberg numbers, viscosity ratios, and mobility parameters, thereby providing a more comprehensive assessment of its applicability to complex viscoelastic flow scenarios."
+
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it It is not straightforward to implement the stream function-vorticity formulation in 3D. There is not a reduction in the number of dependent variables as there is in 2D. The authors need to comment on how they would extend their approach/formulation to 3D and the computational challenges involved.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+The vorticity-streamfunction formulation, though less commonly employed in viscoelastic flow simulations, was selected for its distinct advantages in the context of the two-dimensional, incompressible flows investigated in this study.
+
+As primary advantage of this formulation is its ability to mitigate pressure-velocity decoupling artifacts, such as checkerboard instabilities, which are a recognized challenge in collocated high-order discretizations of the pressure-velocity formulation. Furthermore, the streamfunction approach inherently ensures mass conservation, simplifying the numerical implementation and reducing the degrees of freedom.
+
+However, we recognize the inherent limitations of this formulation, notably its applicability solely to two-dimensional flows and the difficulties associated with accurately prescribing vorticity boundary conditions. Although these challenges may lead to localized reductions in accuracy near boundaries, our comprehensive verification using the Method of Manufactured Solutions (MMS) demonstrates that fourth-order convergence is maintained throughout the domain.
+
+The manuscript has been revised to explicitly articulate the motivations, advantages, and limitations of the vorticity-streamfunction formulation, thereby providing a clearer justification for its use in this verification-focused study.
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it The authors employ a high-order compact finite difference scheme and validate the scheme by solving problems in regular domains e.g. square. The authors need to comment on how easy/difficult it would be (and give some computational examples) to implement the scheme in a more complex geometry. How would implementation in a more complex domain influence the convergence behaviour of the scheme?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+We appreciate the reviewer’s insightful comment regarding the extension of the scheme to complex geometries. Several challenges emerge when considering more intricate domains. The primary difficulty lies in generating structured grids that conform accurately to irregular boundaries while maintaining the scheme’s desirable properties.
+
+To address this, we suggest two potential pathways forward: First, coordinate transformations could be employed to map complex physical domains onto regular computational spaces, thereby preserving the applicability of our compact finite difference approach. Second, alternative strategies such as immersed boundary methods or unstructured grid techniques might offer the necessary flexibility for handling arbitrary geometries, though these would require careful adaptation of our current methodology.
+
+Regarding convergence behavior in complex domains, we recognize that several factors may influence the scheme’s performance, including:
+
+- The quality and resolution of the computational grid;
+
+- The fidelity of boundary representation;
+
+- The precision of any coordinate transformations employed.
+
+Maintaining the scheme’s high-order accuracy in such cases would necessitate particular attention to boundary condition implementation and grid generation procedures. These considerations represent important directions for future development of this work.
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it Validation on realistic problems such as the standard benchmark problems in computational rheology are lacking as well as comparisons with other schemes and an assessment of the dependence of the performance on rheological parameters.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+We appreciate the reviewer’s comment regarding the lack of validation against standard benchmark problems and comparisons with existing numerical schemes. The primary objective of this study was to develop and verify a high-order compact finite difference scheme through the Method of Manufactured Solutions, which provides a controlled framework for evaluating accuracy and convergence.
+
+We acknowledge the significance of validating the proposed scheme against established benchmark problems in computational rheology, such as planar contraction flows and flow past a cylinder, which feature complex flow patterns and stress distributions. Furthermore, comparing the performance of our scheme with other numerical approaches, such as finite element and spectral methods, would offer valuable insights into its relative strengths and limitations.
+
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{Minor points:}
+
+1 - P.13 There needs to be more discussion about the choice of the parameter $\alpha$. A precise value of 0.48 is suggested. How sensitive are the numerical predictions to this choice of parameter? How does influence the convergence behaviour of the overall scheme?}
+
+\vspace{3mm}
+When the filtering parameter $\alpha$ in the scheme is set to 0.5, no filtering is applied to the components. Values of $\alpha$ close to 0.5 result in the selective removal of high-frequency components, typically associated with spurious oscillations. To preserve physical frequencies while mitigating numerical artifacts, a value of $alpha = 0.48$ was adopted. This rationale has been incorporated into the revised manuscript.
+\vspace{3mm}
+
+{\it 2 - P.14 bottom - the authors refer to the k norm. What they really mean is the Hk norm;}
+
+\vspace{3mm}
+The notation has been revised to $H^k$ norm throughout the manuscript to accurately represent the Sobolev space norms employed in the analysis.
+\vspace{3mm}
+
+{\it 3 - There is no need to write out the governing equations again on pages 16 and 17. It suffices to say that the equations (4)-(6) are modified to include the appropriate source terms.}
+
+\vspace{3mm}
+While we agree that it is possible to reference the previously stated equations and simply indicate the addition of source terms, we believe that explicitly restating the modified governing equations improves the clarity and self-containment of the manuscript, particularly for readers less familiar with the Method of Manufactured Solutions. This presentation facilitates a clearer understanding of how the source terms are incorporated and how the verification problem is constructed. We hope the reviewer finds this justification acceptable.
+\vspace{3mm}
+
+{\it 4 - P.19 Figure 1 - refer to the problem being studied as the regularized lid-driven cavity problem to distinguish it from the standard version of the problem that possesses velocity singularities in the top corners.}
+
+\vspace{3mm}
+We have revised both the figure caption and accompanying text to explicitly identify the configuration as the classical lid-driven cavity problem. This modification provides readers with immediate context and aligns with standard terminology in the field.
+\vspace{3mm}
+
+{\it 5 - P.19 Eq (38) and following - no need for a period in the exponent - just use at.}
+
+\vspace{3mm}
+As suggested, we have removed the period in the exponent notation in Equation (38) and subsequent equations, and now use "at" to indicate the time dependency.
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

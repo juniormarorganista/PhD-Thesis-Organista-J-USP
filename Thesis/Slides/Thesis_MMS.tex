@@ -1,0 +1,136 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Método das Soluções Manufaturadas}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Geração de soluções manufaturadas}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Geração de soluções manufaturadas}
+Para a geração das soluções manufaturadas utilizou-se uma abordagem semelhante a de \cite{shih1989effects}, seguindo os passos abaixo:
+\begin{itemize}
+    \item Definir a componente da velocidade $\overline{u}$;
+    \item Calcular a componente da velocidade $\widetilde{v} = - \int \frac{\partial \overline{u}}{\partial x}dy$;
+    \item Calcular a vorticidade $\widetilde{\omega_z}=\frac{\partial \overline{u}}{\partial y}-\frac{\partial \widetilde{v}}{\partial x}$;
+     \item Definir tensores $\overline{T^{xx}}$, $\overline{T^{xy}}$ e $\overline{T^{yy}}$;
+\end{itemize}
+
+Com $\overline{u}$, $\overline{T^{xx}}$, $\overline{T^{xy}}$ e $\overline{T^{yy}}$ estabelecida e $\widetilde{v}$ e $\widetilde{\omega_z}$ calculadas, fazendo com que seja necessário acrescentar termos fontes nas equações, como a seguir:
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Acréscimo do termo fonte}
+\footnotesize{
+\begin{gather}
+    \begin{aligned}
+        \frac{\partial \omega_{z}}{\partial t} + \frac{\partial (u\omega_{z})}{\partial x} + \frac{\partial (v\omega_{z})}{\partial y} =& \frac{\beta_{nn}}{Re}\left(\frac{\partial^{2} \omega_{z}}{\partial x^{2}} + \frac{\partial^{2} \omega_{z}}{\partial y^{2}}\right) + \frac{\partial^{2}T_{xx}}{\partial x^{}\partial y^{}} +  \frac{\partial^{2}T_{xy}}{\partial y^{2}} - \frac{\partial^{2}T_{xy}}{\partial x^{2}} - \frac{\partial^{2}T_{yy}}{\partial x^{}\partial y^{}} + \mathbf{tf}\omega_{\mathbf{z}},\nonumber
+    \end{aligned}
+    \label{eq_vortic_corrent_MMS}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        f(\mathbf{T})T_{xx} + Wi\bigg[\frac{\partial T_{xx}}{\partial t} &~+ \frac{\partial (uT_{xx})}{\partial x} + \frac{\partial (vT_{xx})}{\partial y} - 2T_{xx}\frac{\partial u}{\partial x} - 2T_{xy}\frac{\partial u}{\partial y}\bigg] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(T_{xx}^{2} + T_{xy}^{2}\right) = 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial u}{\partial x} + \mathbf{tfT_{xx}},\nonumber
+    \end{aligned}
+    \label{eq_lpog_txx_source_term_1}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        f(\mathbf{T})T_{xy} + Wi\bigg[\frac{\partial T_{xy}}{\partial t} &~+ \frac{\partial (uT_{xy})} {\partial x} + \frac{\partial (vT_{xy})}{\partial y} - T_{xx}\frac{\partial v}{\partial x} - T_{yy}\frac{\partial u}{\partial y}\bigg] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left[T_{xy}\left(T_{xx} + T_{yy}\right)\right] = \frac{1-\beta_{nn}}{\operatorname{Re}}\left(\frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\right)+ \mathbf{tfT_{xy}},\nonumber
+    \end{aligned}
+    \label{eq_lpog_txy_source_term_1}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        f(\mathbf{T})T_{yy} + Wi\bigg[\frac{\partial T_{yy}}{\partial t} &~+ \frac{\partial (uT_{yy})}{\partial x} + \frac{\partial (vT_{yy})}{\partial y} - 2T_{xy}\frac{\partial v}{\partial x} - 2T_{yy}\frac{\partial v}{\partial y}\bigg] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(T_{xy}^{2} + T_{yy}^{2}\right) = 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial v}{\partial y}+ \mathbf{tfT_{yy}},\nonumber
+    \end{aligned}
+    \label{eq_lpog_tyy_source_term_1}
+\end{gather}}
+\normalsize
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Cálculo dos termos fontes}
+\footnotesize
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{tf}\omega_{\mathbf{z}} = &~\frac{\partial \widetilde{\omega_{z}}}{\partial t} + \frac{\partial (\overline{u}\widetilde{\omega_{z}})}{\partial x} + \frac{\partial (\widetilde{v}\widetilde{\omega_{z}})}{\partial y} - \frac{\beta_{nn}}{Re}\left(\frac{\partial^{2} \widetilde{\omega_{z}}}{\partial x^{2}} + \frac{\partial^{2} \widetilde{\omega_{z}}}{\partial y^{2}}\right) - \frac{\partial^{2}\overline{T}_{xx}}{\partial x^{}\partial y^{}} - \frac{\partial^{2}\overline{T}_{xy}}{\partial y^{2}} + \frac{\partial^{2}\overline{T}_{xy}}{\partial x^{2}} + \frac{\partial^{2}\overline{T}_{yy}}{\partial x^{}\partial y^{}} ,
+    \end{aligned}
+    \label{eq_wz_s_t_2}
+\end{equation*}
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{tfT_{xx}} = &~\overline{f}(\mathbf{T})\overline{T}_{xx} + Wi\left[\frac{\partial \overline{T}_{xx}}{\partial t} + \frac{\partial (\overline{u}\overline{T}_{xx})}{\partial x} + \frac{\partial (v\overline{T}_{xx})}{\partial y} - 2\overline{T}_{xx}\frac{\partial \overline{u}}{\partial x} - 2\overline{T}_{xy}\frac{\partial u}{\partial y}\right] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(\overline{T}_{xx}^{2} - \overline{T}_{xy}^{2}\right) - 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial \overline{u}}{\partial x},
+    \end{aligned}
+    \label{eq_lpog_txx_s_t_2}
+\end{equation*}
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{tfT_{xy}} = &~\overline{f}(\mathbf{T})\overline{T}_{xy} + Wi\left[\frac{\partial \overline{T}_{xy}}{\partial t} + \frac{\partial (\overline{u}\overline{T}_{xy})} {\partial x} + \frac{\partial (v\overline{T}_{xy})}{\partial y} - \overline{T}_{xx}\frac{\partial v}{\partial x} - \overline{T}_{yy}\frac{\partial \overline{u}}{\partial y}\right] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left[\overline{T}_{xy}\left(\overline{T}_{xx} + \overline{T}_{yy}\right)\right] - \frac{1-\beta_{nn}}{\operatorname{Re}}\left(\frac{\partial v}{\partial x} + \frac{\partial \overline{u}}{\partial y}\right),
+    \end{aligned}
+    \label{eq_lpog_txy_s_t_2}
+\end{equation*}
+\begin{equation*}
+    \begin{aligned}
+        \mathbf{tfT_{yy}} = &~\overline{f}(\mathbf{T})\overline{T}_{yy} + Wi\left[\frac{\partial \overline{T}_{yy}}{\partial t} + \frac{\partial (\overline{u}\overline{T}_{yy})}{\partial x} + \frac{\partial (\widetilde{v}\overline{T}_{yy})}{\partial y} - 2\overline{T}_{xy}\frac{\partial v}{\partial x} - 2\overline{T}_{yy}\frac{\partial v}{\partial y}\right] + \frac{\alpha_{G}\operatorname{Wi}\operatorname{Re}}{1-\beta_{nn}}\left(\overline{T}_{xy}^{2} + \overline{T}_{yy}^{2}\right) - 2\frac{1-\beta_{nn}}{\operatorname{Re}}\frac{\partial v}{\partial y}.
+    \end{aligned}
+    \label{eq_lpog_tyy_s_t_2}
+\end{equation*}
+\normalsize
+com
+\footnotesize
+\begin{equation}
+    \begin{split}
+        \overline{f}(\mathbf{T}) = 1+\frac{\epsilon \operatorname{Wi} \operatorname{Re}}{(1 - \beta_{nm})} \left(\overline{T}_{xx} + \overline{T}_{yy}\right).
+    \end{split}\label{eq_funcao_traco_tensor_bidime_manufaturada}
+\end{equation}
+\normalsize
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solução manufaturada}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Solução manufaturada para métodos de alta ordem}
+As soluções manufaturadas propostas são dadas por:
+\begin{gather}
+    \begin{aligned}
+        \overline{u}(x,y) &~= (x-1) x \sin(\pi x) \bigg(\sin(\pi y)+\pi y \cos(\pi y)\bigg) e^{-a\cdot t}.\label{eq:u_case0_2}
+    \end{aligned}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        \widetilde{v}(x,y) &~= -y\sin(\pi y)\bigg((2x-1)\sin(\pi x)+\pi(x-1)x\cos(\pi x)\bigg)e^{-a\cdot t},\label{eq:v_case0_2}
+    \end{aligned}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        \widetilde{\omega_{z}}(x,y) = 2\bigg(\pi(x-1)x\sin(\pi x)\cos(\pi y)+y\sin(\pi y) &~ \\ \left(\left(1-\pi^2(x-1)x\right)\sin(\pi x)+\pi(2x - 1)\cos(\pi x)\right)\bigg)e^{-a\cdot t},\label{eq:wz_case0_2}
+    \end{aligned}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        \widetilde{\Psi}(x,y) &~= (x-1) x y\sin(\pi x)\sin(\pi y) e^{-a\cdot t}.\label{eq:psi_case0_2}
+    \end{aligned}
+\end{gather}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Solução manufaturada para métodos de alta ordem}
+\begin{gather}
+    \begin{aligned}
+        \overline{T}_{xx}(x,y) &~= (1-\beta_{nn})\bigg(\sin(\pi x)+\cos(\pi x)+1\bigg)\bigg(\sin(\pi  y)+\cos (\pi y)+1\bigg)e^{-a\cdot t},\label{eq:txx_case0_2}
+    \end{aligned}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        \overline{T}_{xy}(x,y) &~= (1-\beta_{nn})\bigg(-\sin(\pi x)+\cos (\pi x)+1\bigg)\bigg(-\sin (\pi  y)+\cos (\pi  y)+1\bigg)e^{-a\cdot t},\label{eq:txy_case0_2}
+    \end{aligned}
+\end{gather}
+\begin{gather}
+    \begin{aligned}
+        \overline{T}_{yy}(x,y) &~= (1-\beta_{nn})\bigg(\sin(\pi x)-\cos(\pi  x)+1\bigg)\bigg(\sin(\pi y)-\cos(\pi y)+1\bigg)e^{-a\cdot t}.\label{eq:tyy_case0_2}
+    \end{aligned}
+\end{gather}
+\end{frame}

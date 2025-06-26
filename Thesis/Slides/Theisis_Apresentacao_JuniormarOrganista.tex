@@ -1,0 +1,222 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%       Juniormar Organista 	     	%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[10pt, aspectratio=169]{beamer}
+\usetheme[
+%%% options passed to the outer theme
+%    progressstyle=fixedCircCnt,   %either fixedCircCnt, movCircCnt, or corner
+%    rotationcw,          % change the rotation direction from counter-clockwise to clockwise
+%    shownavsym          % show the navigation symbols
+]{AAUsimple}
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usefonttheme{serif}
+\usepackage{pgfgantt}
+\usepackage{amsthm,amsmath,amssymb,amsfonts,latexsym,cancel}
+\usepackage{mathptmx}
+\usepackage{eulervm}
+\usepackage{helvet}
+%\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage{multimedia}
+%\usepackage{movie15}
+\usepackage{ragged2e}
+\usepackage{units}
+%\usepackage[skins,theorems]{tcolorbox}
+\usepackage{stmaryrd}
+\usepackage{fancybox}
+% \usepackage[backend=bibtex,style=authoryear]{biblatex}
+
+\usepackage{natbib}
+% \usepackage{biblatex}
+
+\usepackage{hyperref}
+\usepackage{textpos}
+%\usepackage{wrapfig}
+\usepackage[most]{tcolorbox}
+\usepackage{empheq}
+% \usepackage{subcaption}
+\usepackage{comment}
+\usepackage{subfigure}
+\usepackage{rotating}
+\usepackage{xcolor}
+\usepackage{transparent}
+\usepackage{verbatim}
+\usepackage{color}
+\usepackage{multicol,caption}
+\usepackage[all,knot,arc,import,poly]{xy}
+\usepackage{colortbl}
+\usepackage{slashbox}
+\usepackage{multirow}
+\usepackage{mathtools}
+\usepackage[all]{xy}
+\usepackage{color}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+
+\graphicspath{{images/}}
+\DeclareMathOperator{\trace}{tr}
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\tab}[1]{\hspace{.1\textwidth}\rlap{#1}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand*{\defeq}{\mathrel{\vcenter{\baselineskip0.5ex \lineskiplimit0pt
+                     \hbox{\scriptsize.}\hbox{\scriptsize.}}}%
+                     =}
+
+\newcommand{\Bl}{\textcolor{red}{\rule{5ex}{1ex}}}
+\newcommand{\Gr}{\textcolor{black}{\rule{5ex}{1ex}}}
+\newcommand{\surgr}{\nabla_{\scriptscriptstyle{\Gamma}}}
+\newcommand{\surlp}{\Delta_{\scriptscriptstyle{\Gamma}}}
+\newcommand{\Gam}{\scriptscriptstyle{\Gamma}}
+\newcommand*{\Scale}[2][4]{\scalebox{#1}{$#2$}}%
+
+\theoremstyle{remark}
+\newtheorem{obgeral}{Objetivo geral}
+\newtheorem{obesp}{Objetivos específicos}
+\newtheorem{Just}{Justificativas}
+\newtheorem{prop}{Proposition}
+\newtheorem{teo}{Theorem}
+\newtheorem{lema}{Lema}
+\newtheorem{defi1}{Definição 1.}
+\newtheorem{defi2}{Definição 2.}
+\definecolor{blue}{rgb}{0,0,255}
+
+\newcounter{saveenumi}
+\newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
+\newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
+
+% Definição dos estilos dos nós
+\tikzstyle{caixa} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!20]
+\tikzstyle{processo} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=gray!20]
+\tikzstyle{seta} = [thick,->,>=stealth]
+
+% colored hyperlinks
+\newcommand{\chref}[2]{%
+  \href{#1}{{\usebeamercolor[bg]{AAUsimple}#2}}%
+}
+%\usetikzlibrary{arrows}
+\title[Métodos das Soluções Manufaturadas para Fluidos Viscoelásticos]{Verificação de Código de Simulação Numérica de Escoamentos de Fluidos Viscoelásticos Através do Método de Soluções Manufaturadas}
+%\subtitle{v.\ 1.2.1}  % could also be a conference name
+%\date{18 de Novembro de 2014}
+
+\author[Organista, J.]{
+  Juniormar Organista
+}
+
+% - Give the names in the same order as they appear in the paper.
+% - Use the \inst{?} command only if the authors have different
+%   affiliation. See the beamer manual for an example
+
+\institute[ICMC]{
+    \textbf{Orientador:} Prof. Dr. Leandro Franco de Souza\\
+    \vspace{0.1cm}
+    Instituto de Ciências Matemáticas e de Computação\\
+    Universidade de São Paulo
+}
+\date{27 de fevereiro de 2025}
+%\date{\today}
+% specify a logo on the titlepage (you can specify additional logos an include them in 
+% institute command below
+\pgfdeclareimage[height=0.8cm]{titlepagelogo}{AAUgraphics/logohorizontal} % placed on the title page
+%\pgfdeclareimage[height=1.5cm]{titlepagelogo2}{AAUgraphics/streamslines} % placed on the title page
+\titlegraphic{% is placed on the bottom of the title page
+  \pgfuseimage{titlepagelogo}
+%  \hspace{1cm}\pgfuseimage{titlepagelogo2}
+}
+
+% Definir a imagem de fundo para todos os slides, exceto o primeiro
+\AtBeginSection[]{
+	\usebackgroundtemplate{
+		\begin{tikzpicture}
+			\useasboundingbox (0,0) rectangle (\paperwidth,\paperheight);
+			% Define a imagem de fundo com opacidade ajustada
+			\node[opacity=0.1] at (current page.center) {
+				\includegraphics[width=\paperwidth,height=\paperheight]{AAUgraphics/streamslines}
+			};
+		\end{tikzpicture}
+	}
+}
+
+%%%%%%%%%%%%%---------------%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%---------------%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+% the titlepage
+
+{\aauwavesbg%
+\begin{frame}[plain,noframenumbering] % the plain option removes the header from the title page
+  \titlepage
+\end{frame}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Organização da apresentação}{}
+\tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Motivação
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{Thesis_Motivacao.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Formulação
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{Thesis_Formulacao.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Métodos Numéricos
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{Thesis_Metodos_Numericos.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% MMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{Thesis_MMS.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Resultados e conclusões
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\include{Thesis_Resultados.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Referências e agradecimentos}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[allowframebreaks]
+	\frametitle{Referências}
+        \bibliographystyle{plainnat}
+	\bibliography{referencesOrganistaJ}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Agradecimentos}
+\color{fg} 
+\noindent
+\begin{center}
+	\begin{Large}
+		Obrigada pela atenção!
+	\end{Large}
+\end{center}
+\vspace{1cm}
+\begin{center}
+	\begin{Large}
+		Perguntas!?
+	\end{Large}
+\end{center}
+\vspace{-2.5cm}
+\begin{columns} 
+\column{0.51\textwidth}
+\vskip 1cm
+   \includegraphics[scale=0.33]{AAUgraphics/agrad.eps}
+ \column{0.51 \textwidth}
+ \begin{flushright}
+\begin{minipage}{0.8\textwidth}
+\vskip 3cm
+\end{minipage}
+\end{flushright}
+\end{columns} 
+\end{frame}
+
+\end{document}

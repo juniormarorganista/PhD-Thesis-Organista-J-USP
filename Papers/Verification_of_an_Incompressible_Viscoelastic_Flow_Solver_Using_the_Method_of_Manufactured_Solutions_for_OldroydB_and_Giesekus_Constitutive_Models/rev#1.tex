@@ -1,0 +1,147 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage[table]{xcolor}
+\usepackage{array}
+
+\newcounter{question}
+\newcommand{\name}{00}
+
+\renewcommand{\thefigure}{R\arabic{figure}}
+\renewcommand{\thetable}{R\arabic{table}}
+
+\newcommand{\question}[1]{\stepcounter{question} \noindent \textbf{Comment \name.\thequestion} \emph{#1} }
+
+\newcommand{\answer}[1]{\noindent \textbf{Answer to \name.\thequestion} #1 \mbox{}\\}
+
+\newcommand{\newperson}[2]{\renewcommand{\name}{#2} \setcounter{question}{0} \newpage \noindent \textbf{\Large Answers to #1} \\}
+
+\begin{document}
+
+{\large \textbf{Response letter to the manuscript
+-- \emph{Development of a High-Order Numerical Method for Solving Incompressible Viscoelastic Fluid Flows and Verification using the Method of Manufactured Solutions}}}
+\vspace{0.8cm}
+We thank the reviewer \#1 for his/her constructive comments. We have addressed all of them and modified the paper accordingly. Our detailed answers follow. Please note that reviewers' comments are in italics while our answers are not.
+\vspace{0.8cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{1. Novelty:}
+Page 5: You state "To the best of our knowledge, a high-order numerical scheme applied to viscoelastic fluid flow calculations is not yet available in the scientific literature." There are numerous works which use high-order methods for viscoelastic flow simulations:
+
+a) The various works by F. Pinho and co-workers over the past few years on turbulent viscoelastic jets use a high-order compact FD scheme;
+
+b) The various works by Vincenzi, Gupta and co-workers use 4th order compact finite differences;
+
+c) The mesh-free framework by King \& Lind (2024) is high-order, with convergence rates up to 10th order;
+
+d) Many researchers (e.g. Morozov, Page, Graham, Kerswell, Terrapon, Dubief) are now using the open-source Dedalus framework to conduct psuedo-spectral simulations of viscoelastic flow instabilities in simple geometries;
+
+e) Khomami published work on high-order finite element simulations of viscoelastic flows at least as far back as 1992, and now (I believe) works a lot with high-order FD and Kurganov-Tadmor schemes;
+
+f) Phillips has been working on simulations of viscoelastic flows with the spectral element method for at least the past 20 years;
+
+High-order simulations of viscoelastic flows are not themselves fundamentally novel. It may be the case that the streamfunction-vorticity formulation has not been previously utilised in a high-order method, although that could be due to the difficulties in accurately imposed vorticity boundary conditions (more on this below). The novelty in your work is perhaps the investigation into the validation by MMS of numerical methods for viscoelastic flows, and you should re-frame your work to highlight this..}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We thank the reviewer for the insightful and well-founded observation concerning the novelty of our study. We recognize that high-order numerical schemes have been extensively utilized in simulations of viscoelastic flows across a variety of formulations, as correctly noted in the cited literature.
+
+In light of this, we have revised our original claim to emphasize that the contribution of the present work does not stem from the general adoption of high-order methods. Rather, it lies in the implementation of a high-order compact finite difference scheme within the streamfunction–vorticity formulation, in conjunction with a rigorous verification procedure based on the Method of Manufactured Solutions (MMS) applied to both the Oldroyd-B and Giesekus constitutive models.
+
+To the best of our knowledge, this particular combination—especially the systematic use of MMS for verifying the numerical implementation across a wide range of physical and numerical parameters—remains insufficiently explored in the existing literature. The manuscript has been accordingly revised to more clearly reflect this specific aspect of the contribution.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{2. Vorticity-streamfunction formulation:} The vorticity-streamfunction formulation is not very widely used, due to two main drawbacks - a) difficulty in extension to 3D flows, and b) difficulty in accurately imposing boundary conditions on the vorticity. One reason why some prefer this formulation (over a traditional pressure-velocity formulation), is that for high-order collocated methods, pressure-velocity formulations admit "chequerboard" instabilities, which are not present in the vorticity-streamfunction formulation. You should clarify why you choose the vorticity-streamfunction formulation, and highlight the benefits and limitations.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+We express our gratitude to the reviewer for drawing attention to this critical aspect. The vorticity-streamfunction formulation, though less commonly employed in viscoelastic flow simulations, was selected for its distinct advantages in the context of the two-dimensional, incompressible flows investigated in this study.
+
+As highlighted by the reviewer, a primary advantage of this formulation is its ability to mitigate pressure-velocity decoupling artifacts, such as checkerboard instabilities, which are a recognized challenge in collocated high-order discretizations of the pressure-velocity formulation. Furthermore, the streamfunction approach inherently ensures mass conservation, simplifying the numerical implementation and reducing the degrees of freedom.
+
+However, we recognize the inherent limitations of this formulation, notably its applicability solely to two-dimensional flows and the difficulties associated with accurately prescribing vorticity boundary conditions. Although these challenges may lead to localized reductions in accuracy near boundaries, our comprehensive verification using the Method of Manufactured Solutions (MMS) demonstrates that fourth-order convergence is maintained throughout the domain.
+
+In response to the reviewer’s comments, the manuscript has been revised to explicitly articulate the motivations, advantages, and limitations of the vorticity-streamfunction formulation, thereby providing a clearer justification for its use in this verification-focused study.
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{3. Filtering:} You state on p12 that you filter the solution at each time-step. This is standard in high-order collocated methods (aka de-aliasing in pseudo-spectral methods), but is usually done to remove the chequerboard instability in pressure-velocity formulations. Please provide an explanation for why it is necessary in your vorticity-streamfunction formulation?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+One of the key motivations for adopting the vorticity–streamfunction formulation is indeed to avoid checkerboard instabilities, which are commonly associated with pressure–velocity coupling in collocated grid arrangements. Nonetheless, filtering remains a valuable tool in high-order numerical schemes, particularly for mitigating the accumulation of non-physical high-frequency modes that can result from discretization errors, nonlinear interactions, and round-off errors during time integration.
+
+In the present implementation, a sixth-order compact filter is applied at every time step of the Runge-Kutta scheme to both the velocity and polymer stress fields. This procedure serves to suppress spurious oscillations and enhance numerical stability, especially in regions where steep gradients develop in the stress components. While these oscillations are not attributed to pressure–velocity decoupling, they are frequently observed in high-order compact schemes applied to nonlinear, coupled systems such as viscoelastic fluid models. Importantly, we verified that the application of the filter does not affect the formal order of accuracy of the overall numerical method.
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{4. MMS:}
+- It is not very clearly explained in Section 4 what is being done. Perhaps it can be followed from the eqns, but a clear description in words of what is being done to obtain eqns 28-35 would help the reader.
+
+- If I understand correctly, you're only assessing steady-state solutions with the MMS, so this does not necessarily provide validation for the ability of the method to handle the unsteady dynmics of viscoelastic flows. Please add a comment on this.
+
+- For the Oldroyd-B model, analytic solutions exist for start-up Poiseuille flow, and for the steady state laminar fixed point of a Kolmorogov flow (a comparison of the errors between these two flows allows you to identify how accurately your boundary conditions are being imposed). I believe there is also an exact solution for Poiseuille flow of a Giesekus fluid. Given your focus is on the ability of the MMS to validate a numerical framework for viscoelastic flows, it would be important to compare the convergence rates you obtain with MMS with those for Poiseuille/Kolmogorov flow.
+
+- The high-Weissenberg number problem is arguably the primary challenge for computational rheology. In all your tests, you set Wi=1. You need to show how your method performs as Wi is increased, and for a simple case, it would be useful to see the limiting Wi above which the code breaks down.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+1 - MMS Procedure Clarification
+
+We acknowledge that the original description of the MMS methodology was overly brief. Section 4 has been expanded to include a detailed paragraph explaining the derivation of source terms through substitution of analytical expressions into the governing equations and subsequent residual calculation. An explicit example of the manufactured functions is now provided, along with a clear derivation path to Equations (28)-(35).
+
+2 - Time-Dependent Nature of MMS Implementation
+
+Our implementation incorporates temporally evolving manufactured solutions, featuring an exponential decay factor $\exp{-a t}$, with $a = 0.05$. This design choice introduces a transient component, ensuring that while our primary focus remains spatial verification, the numerical method is simultaneously evaluated for temporal accuracy within a time-dependent framework.
+
+3 - Analytical Solution Benchmarking
+
+While we recognize the merit in comparing MMS results against established analytical solutions (e.g., Poiseuille flow or Kolmogorov flow for Oldroyd-B models), such comprehensive validation exceeds the current study's scope. We have added a remark in the conclusion highlighting this as an important direction for future research.
+
+4 - Weissenberg Number Considerations
+
+Additional results at high Weissenberg numbers have been included in the revised manuscript to further support and extend the analysis.
+
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{5. Mis-representation of data:} On pages 26 and 27 you describe the convergence rate as approaching 4.5 for all Re and beta, but the data in Table 1 contradicts this, with the convergence rate for the vorticity generally $<$ 4 for Re $>=$ 100. The same issue arises in the later tables for analysis of the Giesekus model.
+
+- You need to correct the text so it is consistent with the data!
+
+- Can you comment on why the order decreases (from approx 4.5 at low Re to 3.5 at high Re), and why this is only observed in the vorticity, and not $T_{xx}$?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+We appreciate the reviewer's careful attention to the discrepancies between our textual statements and numerical results. Upon re-examination, we confirm that the convergence order for vorticity ($\omega_z$) decreases slightly below fourth-order for Reynolds numbers exceeding $Re = 100$, as documented in Table 1. In response, we have modified the Summary and Results sections to more precisely characterize these observations. Specifically, we now report that while most variables approach 4.5-order convergence, the vorticity field exhibits marginally reduced convergence rates at elevated Reynolds numbers.
+
+This behavior stems from the increased sensitivity of vorticity to numerical diffusion, particularly as convective effects grow dominant at higher Reynolds numbers. Although our compact scheme maintains excellent accuracy overall, the vorticity calculation demonstrates greater susceptibility to accumulated numerical error compared to stress components (e.g., $T_{xx}$). The latter benefit from smoother gradients and the stabilizing influence of elastic relaxation terms. We have expanded the discussion in the Results section to provide a more nuanced interpretation of these convergence characteristics.
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\it \textbf{6. Minor:}
+- In eqns 28 - 35, the bold font for the source terms is confusing. These terms are scalars, but bold font suggests to the skim-reader they might be vectors.
+
+- Fig 4: you're not showing streamlines here, you're showing contours. Please reword the caption and description. Likewise for Fig 5.
+
+- Some parts read a bit like ChatGPT or other generative AI helped write them. I'd suggest a careful proof read to make it sound more human! If generative AI was used, you MUST include a statement declaring the scope of its use.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{3mm}
+
+In response to the reviewer's comments, we have addressed the formatting issues in Equations (28)--(35). The use of bold font for the source terms, which are scalar functions, was deemed potentially confusing. Accordingly, the bold styling has been removed from these terms throughout the revised manuscript to ensure clarity and consistency.
+
+Regarding Figures 4 and 5, we acknowledge an error in the terminology used in the captions and text, where the term ``streamlines'' was incorrectly applied. These figures depict scalar field contours rather than streamlines. The captions and all relevant descriptions in the manuscript have been updated to reflect this accurate terminology.
+
+Lastly, we confirm that the manuscript was entirely written and revised by the authors. While automated tools, such as spell-checkers and grammar assistants, were employed to enhance linguistic clarity, no generative artificial intelligence systems were used to produce or draft content. A thorough proofreading of the manuscript has also been conducted to ensure a natural, human-authored tone.
+
+\vspace{3mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
