@@ -16,12 +16,17 @@ src/mms_viscoelastic/manufactured_solutions/__init__.py
 src/mms_viscoelastic/manufactured_solutions/case_12.py
 src/mms_viscoelastic/manufactured_solutions/toy.py
 src/mms_viscoelastic/ml/__init__.py
+src/mms_viscoelastic/ml/datasets.py
 src/mms_viscoelastic/ml/features.py
 src/mms_viscoelastic/models/__init__.py
 src/mms_viscoelastic/models/constitutive.py
 src/mms_viscoelastic/numerics/__init__.py
 src/mms_viscoelastic/numerics/derivatives.py
 src/mms_viscoelastic/numerics/errors.py
+src/mms_viscoelastic/visualization/__init__.py
+src/mms_viscoelastic/visualization/fields.py
+tests/test_case12_datasets.py
+tests/test_case12_visualization.py
 tests/test_case_12_manufactured.py
 tests/test_grid_and_fields.py
 tests/test_import.py

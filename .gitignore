@@ -63,3 +63,11 @@ outputs/
 results/
 tmp/
 temp/
+
+# phase-4-generated-outputs
+outputs/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
