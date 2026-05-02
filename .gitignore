@@ -72,3 +72,4 @@ outputs/
 .ruff_cache/
 __pycache__/
 # Generated outputs
+# Python caches
