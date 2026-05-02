@@ -40,7 +40,7 @@ The repository has two purposes:
 
 ## Scientific problem
 
-The thesis studies the verification of numerical solvers for incompressible viscoelastic flows. These flows are difficult because the velocity, pressure/streamfunction, vorticity and polymeric stresses are coupled through nonlinear constitutive equations.
+The thesis studies the verification of numerical solvers for incompressible viscoelastic flows. These flows are difficult because the velocity, streamfunction, vorticity and polymeric stresses are coupled through nonlinear constitutive equations.
 
 The numerical question is:
 
@@ -163,12 +163,14 @@ Implemented:
 - MMS Case 12 exact manufactured solution;
 - Case 12 visualization;
 - ML-ready dataset generation;
-- source-term contract for Case 12;
-- tests for package imports, dataset generation and source-term status.
+- `tfwz` source-term port for Case 12;
+- tests for package imports, dataset generation, source-term registry and `tfwz`.
 
-Not fully implemented yet:
+Pending:
 
-- full algebraic source terms from `case_12.f`;
+- `tfTxx`;
+- `tfTxy`;
+- `tfTyy`;
 - Fortran-vs-Python numerical regression tests;
 - complete solver port.
 
@@ -275,38 +277,49 @@ Visualization and ML dataset generation:
 python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
+Case 12 `tfwz` source term:
+
+```powershell
+python examples\04_case12_tfwz_source_term.py
+```
+
 ---
 
 ## Source terms
 
-The Case 12 source-term interface exists at:
+The Case 12 source-term interface is located at:
 
 ```text
 src/mms_viscoelastic/source_terms/case_12.py
 ```
 
-It maps the Fortran arrays:
+Ported:
 
 ```text
 tfwz
+```
+
+Pending:
+
+```text
 tfTxx
 tfTxy
 tfTyy
 ```
 
-The full algebraic port is intentionally pending. Until it is complete:
+The full evaluator still raises by default:
 
 ```python
 evaluate_case_12_source_terms()
 ```
 
-raises:
+For explicit partial use:
 
 ```python
-NotImplementedError
+evaluate_case_12_source_terms(grid, allow_partial=True)
 ```
 
-This is deliberate. Silent fake source terms would corrupt verification.
+This returns `tfwz` and leaves tensor source terms as `None`.
 
 ---
 
@@ -342,9 +355,10 @@ git push origin --tags
 v0.5.4 — dataset and visualization compatibility fixes
 v0.6.0 — Case 12 source-term contract and porting map
 v0.6.1 — port tfwz
-v0.6.2 — port tfTxx
-v0.6.3 — port tfTxy
-v0.6.4 — port tfTyy
+v0.6.2 — create Fortran reference export for tfwz
+v0.6.3 — port tfTxx
+v0.6.4 — port tfTxy
+v0.6.5 — port tfTyy
 v0.7.0 — Fortran-vs-Python reference validation
 v0.8.0 — expanded ML datasets
 v0.9.0 — scientific notebooks
