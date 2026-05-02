@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="330" viewBox="0 0 1100 330">
+  <defs>
+    <style>
+      .box{fill:#f7fbff;stroke:#1f4e79;stroke-width:2;rx:16;ry:16}
+      .title{font-family:Arial, sans-serif;font-size:22px;font-weight:700;fill:#17324d}
+      .txt{font-family:Arial, sans-serif;font-size:15px;fill:#17324d}
+      .arrow{stroke:#1f4e79;stroke-width:3;marker-end:url(#m)}
+    </style>
+    <marker id="m" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1f4e79"/>
+    </marker>
+  </defs>
+  <text x="40" y="42" class="title">Pipeline do Método das Soluções Manufaturadas</text>
+  <rect x="40" y="80" width="170" height="110" class="box"/>
+  <text x="65" y="116" class="title" font-size="18">Solução exata</text>
+  <text x="65" y="145" class="txt">q_exata(x,y,t)</text>
+  <text x="65" y="168" class="txt">campos analíticos</text>
+  <line x1="210" y1="135" x2="260" y2="135" class="arrow"/>
+  <rect x="260" y="80" width="170" height="110" class="box"/>
+  <text x="285" y="116" class="title" font-size="18">Residual</text>
+  <text x="285" y="145" class="txt">R(q_exata)</text>
+  <text x="285" y="168" class="txt">termo fonte MMS</text>
+  <line x1="430" y1="135" x2="480" y2="135" class="arrow"/>
+  <rect x="480" y="80" width="170" height="110" class="box"/>
+  <text x="505" y="116" class="title" font-size="18">Código numérico</text>
+  <text x="505" y="145" class="txt">Fortran original</text>
+  <text x="505" y="168" class="txt">Python moderno</text>
+  <line x1="650" y1="135" x2="700" y2="135" class="arrow"/>
+  <rect x="700" y="80" width="170" height="110" class="box"/>
+  <text x="725" y="116" class="title" font-size="18">Erro</text>
+  <text x="725" y="145" class="txt">e_h = q_h - q_exata</text>
+  <text x="725" y="168" class="txt">normas L2 e Linf</text>
+  <line x1="870" y1="135" x2="920" y2="135" class="arrow"/>
+  <rect x="920" y="80" width="150" height="110" class="box"/>
+  <text x="945" y="116" class="title" font-size="18">Ordem</text>
+  <text x="945" y="145" class="txt">p observado</text>
+  <text x="945" y="168" class="txt">verificação</text>
+  <text x="40" y="250" class="txt">Objetivo: verificar se a implementação computacional reproduz a ordem teórica esperada quando submetida a uma solução analítica manufaturada.</text>
+</svg>
