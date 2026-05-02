@@ -1,209 +1,119 @@
-# Tese USP — Verificação Numérica por MMS e Modernização Python
+# Thesis USP Codes — MMS Verification and Python Modernization
 
-> Repositório científico associado à tese de doutorado de **Juniormar Organista**, dedicado à verificação numérica de códigos de alta ordem para escoamentos viscoelásticos incompressíveis por meio do **Método das Soluções Manufaturadas (MMS)**.
+Repository associated with the doctoral thesis of **Juniormar Organista**, focused on the numerical verification of high-order solvers for incompressible viscoelastic flows using the **Method of Manufactured Solutions (MMS)**.
 
-Este projeto preserva o material original da tese — códigos Fortran, notebooks Mathematica, arquivos LaTeX e figuras — e adiciona uma camada moderna em Python para documentação, reprodução, visualização científica, geração de datasets e futura integração com **Machine Learning** e **Scientific Machine Learning**.
+The repository has two purposes:
 
----
-
-## Visão geral
-
-A tese investiga a verificação numérica de formulações e implementações computacionais para escoamentos viscoelásticos. O foco está em demonstrar, por meio de soluções manufaturadas, que os operadores diferenciais, termos fonte, variáveis físicas e componentes do método numérico estão implementados de forma consistente com a ordem esperada.
-
-O repositório está sendo reorganizado com três objetivos principais:
-
-1. **Preservar o legado científico**
-   - manter intactos os códigos Fortran originais;
-   - manter intactos os arquivos LaTeX da tese;
-   - preservar notebooks Mathematica e materiais dos artigos.
-
-2. **Tornar o projeto compreensível e reprodutível**
-   - documentar a formulação matemática;
-   - explicar os métodos numéricos;
-   - registrar comandos de instalação, teste e execução;
-   - incluir figuras e diagramas no README.
-
-3. **Construir uma biblioteca Python**
-   - transcrever progressivamente o Fortran para Python;
-   - criar testes automatizados;
-   - gerar datasets científicos;
-   - preparar o caminho para modelos supervisionados, PINNs, operadores neurais e surrogates.
+1. preserve the original thesis, Fortran and Mathematica material;
+2. build a modern Python package for reproducibility, visualization, datasets and future machine-learning workflows.
 
 ---
 
-## Motivação científica
+## Scientific problem
 
-Simulações de escoamentos viscoelásticos são numericamente delicadas. A interação entre advecção, difusão, elasticidade e tensões poliméricas pode gerar instabilidades, especialmente em regimes de maior número de Weissenberg. Por isso, antes de usar o código para inferência física, comparação experimental ou extrapolação computacional, é necessário verificar se a implementação resolve corretamente as equações propostas.
+The thesis studies the verification of numerical solvers for incompressible viscoelastic flows. These flows are difficult because the velocity, pressure/streamfunction, vorticity and polymeric stresses are coupled through nonlinear constitutive equations.
 
-A pergunta central é simples e brutal:
+The numerical question is:
 
-> O código implementado resolve aquilo que as equações dizem que ele deveria resolver?
-
-O **Método das Soluções Manufaturadas** responde a essa pergunta criando uma solução analítica artificial, substituindo-a nas equações governantes e obtendo termos fonte compatíveis. Depois, o código numérico é executado e o erro entre a solução computada e a solução exata é medido.
+> Does the implemented high-order solver reproduce the theoretical order of accuracy when an exact manufactured solution is imposed?
 
 ---
 
-## Diagrama do método
+## Mathematical structure
 
-![Pipeline MMS](assets/preview/mms_pipeline.svg)
+### Incompressibility
 
----
+```math
+\nabla \cdot \mathbf{u} = 0.
+```
 
-## Formulação matemática resumida
+### Vorticity-streamfunction formulation
 
-Para um escoamento incompressível bidimensional, a condição de incompressibilidade é
-
-$$
-\nabla \cdot \mathbf{u} = 0,
-$$
-
-com campo de velocidades
-
-$$
-\mathbf{u} = (u,v).
-$$
-
-A equação de quantidade de movimento pode ser escrita, de forma geral, como
-
-$$
-\rho\left(
-\frac{\partial \mathbf{u}}{\partial t}
-+
-\mathbf{u}\cdot\nabla\mathbf{u}
-\right)
-=
--\nabla p
-+
-\beta \eta_0 \nabla^2 \mathbf{u}
-+
-\nabla\cdot\boldsymbol{\tau}
-+
-\mathbf{f},
-$$
-
-em que:
-
-- \(p\) é a pressão;
-- \(\boldsymbol{\tau}\) é o tensor de tensões poliméricas;
-- \(\beta\) representa a contribuição relativa do solvente;
-- \(\eta_0\) é uma viscosidade de referência;
-- \(\mathbf{f}\) é um termo fonte, que no MMS é construído artificialmente.
-
----
-
-## Formulação vorticidade-função de corrente
-
-A formulação em vorticidade e função de corrente evita lidar diretamente com a pressão em certas etapas do método. Define-se
-
-$$
+```math
 u = \frac{\partial \psi}{\partial y},
 \qquad
-v = -\frac{\partial \psi}{\partial x},
-$$
+v = -\frac{\partial \psi}{\partial x}.
+```
 
-e a vorticidade escalar
-
-$$
-\omega =
+```math
+\omega_z =
 \frac{\partial v}{\partial x}
 -
 \frac{\partial u}{\partial y}.
-$$
+```
 
-A relação entre vorticidade e função de corrente é dada pela equação de Poisson
+```math
+\nabla^2 \psi = -\omega_z.
+```
 
-$$
-\nabla^2\psi = -\omega.
-$$
+### Viscoelastic stress equation
 
-Essa relação é uma das partes críticas da verificação numérica, pois erros de sinal, troca de eixos ou inconsistência nas derivadas aparecem rapidamente nas normas de erro.
+A generic constitutive representation can be written as:
 
----
-
-## Modelos constitutivos
-
-A tese envolve modelos viscoelásticos relevantes para fluidos não newtonianos. De forma esquemática, um modelo tipo Oldroyd-B pode ser representado por
-
-$$
-\boldsymbol{\tau}
+```math
+\mathrm{Wi}\,\mathcal{D}\boldsymbol{\tau}
 +
-Wi\,\overset{\nabla}{\boldsymbol{\tau}}
+\mathcal{F}(\boldsymbol{\tau}, \nabla \mathbf{u})
 =
 2(1-\beta)\mathbf{D},
-$$
+```
 
-em que \(Wi\) é o número de Weissenberg, \(\mathbf{D}\) é o tensor taxa de deformação e \(\overset{\nabla}{\boldsymbol{\tau}}\) representa uma derivada convectada superior.
+where:
 
-Para o modelo de Giesekus, aparece um termo não linear adicional:
-
-$$
-\boldsymbol{\tau}
-+
-Wi\,\overset{\nabla}{\boldsymbol{\tau}}
-+
-\alpha_G\frac{Wi}{1-\beta}
-\boldsymbol{\tau}\cdot\boldsymbol{\tau}
+```math
+\mathbf{D}
 =
-2(1-\beta)\mathbf{D}.
-$$
-
-Para modelos PTT/LPTT, a contribuição não linear é usualmente incorporada por uma função dependente do traço do tensor de tensões:
-
-$$
-f(\operatorname{tr}\boldsymbol{\tau})\boldsymbol{\tau}
+\frac{1}{2}
+\left(
+\nabla\mathbf{u}
 +
-Wi\,\overset{\nabla}{\boldsymbol{\tau}}
-=
-2(1-\beta)\mathbf{D}.
-$$
+\nabla\mathbf{u}^{T}
+\right).
+```
 
-Essas equações tornam a verificação essencial: uma implementação aparentemente pequena pode carregar erros em derivadas, produtos tensoriais, termos de relaxação, termos fonte ou acoplamentos.
+The specific form changes according to the model:
+
+- UCM;
+- Oldroyd-B;
+- Giesekus;
+- LPTT.
 
 ---
 
-## Método das Soluções Manufaturadas
+## Method of Manufactured Solutions
 
-No MMS, escolhe-se uma solução analítica artificial
+The MMS strategy prescribes an exact field:
 
-$$
-\mathbf{q}_{exata}(x,y,t),
-$$
-
-substitui-se essa solução nas equações governantes e define-se um termo fonte manufaturado
-
-$$
-\mathbf{S}_{MMS}
+```math
+\mathbf{q}_e(x,y,t)
 =
-\mathcal{R}\left(\mathbf{q}_{exata}\right),
-$$
+\left(
+u_e, v_e, \psi_e, \omega_{z,e},
+T_{xx,e}, T_{xy,e}, T_{yy,e}
+\right).
+```
 
-em que \(\mathcal{R}\) representa o operador residual das equações diferenciais.
+The exact field is substituted into the governing equations, producing source terms:
 
-O código numérico resolve então o problema com esse termo fonte. O erro discreto é medido por
+```math
+\mathcal{L}(\mathbf{q}_e)
+=
+\mathbf{f}_{\mathrm{MMS}}.
+```
 
-$$
+The numerical error is:
+
+```math
 \mathbf{e}_h
 =
 \mathbf{q}_h
 -
-\mathbf{q}_{exata},
-$$
+\mathbf{q}_e.
+```
 
-e sua norma pode ser avaliada, por exemplo, por
+The observed order is estimated by:
 
-$$
-\|\mathbf{e}_h\|_2
-=
-\left(
-\frac{1}{N}
-\sum_{i=1}^{N}
-\left|\mathbf{q}_h(\mathbf{x}_i)-\mathbf{q}_{exata}(\mathbf{x}_i)\right|^2
-\right)^{1/2}.
-$$
-
-A ordem observada de convergência entre duas malhas sucessivas é estimada por
-
-$$
+```math
 p
 =
 \frac{
@@ -211,124 +121,63 @@ p
 }{
 \log(2)
 }.
-$$
-
-Se o método é de alta ordem, espera-se que \(p\) se aproxime da ordem teórica à medida que a malha é refinada.
+```
 
 ---
 
-## Esquemas compactos de alta ordem
+## Current Python status
 
-A tese utiliza métodos de diferenças finitas de alta ordem. Um esquema compacto típico para derivada primeira pode ser representado por
+Implemented:
 
-$$
-\alpha f'_{i-1}
-+
-f'_i
-+
-\alpha f'_{i+1}
-=
-a\frac{f_{i+1}-f_{i-1}}{2h}
-+
-b\frac{f_{i+2}-f_{i-2}}{4h}.
-$$
+- repository reorganization;
+- Python package foundation;
+- MMS Case 12 exact manufactured solution;
+- Case 12 visualization;
+- ML-ready dataset generation;
+- source-term contract for Case 12;
+- tests for package imports, dataset generation and source-term status.
 
-Esse tipo de discretização melhora a resolução espectral dos operadores diferenciais e é particularmente útil em problemas onde derivadas de campos acoplados aparecem de forma intensa.
+Not fully implemented yet:
+
+- full algebraic source terms from `case_12.f`;
+- Fortran-vs-Python numerical regression tests;
+- complete solver port.
 
 ---
 
-## Estrutura atual do repositório
-
-![Mapa do repositório](assets/preview/repository_layout.svg)
+## Repository structure
 
 ```text
 .
 ├── src/
-│   ├── fortran_original/          # códigos Fortran originais preservados
-│   ├── mathematica_original/      # notebooks Mathematica originais preservados
-│   └── mms_viscoelastic/          # biblioteca Python em construção
+│   ├── fortran_original/          # original Fortran code, preserved
+│   ├── mathematica_original/      # original Mathematica notebooks, preserved
+│   └── mms_viscoelastic/          # Python package under construction
 │
 ├── thesis/
-│   └── original/                  # arquivos LaTeX originais da tese
+│   └── original/                  # original LaTeX thesis files, preserved
 │
 ├── papers/
-│   └── original/                  # materiais originais de artigos
+│   └── original/                  # original paper material, preserved
 │
-├── docs/                          # documentação técnica
-├── examples/                      # exemplos executáveis em Python
-├── tests/                         # testes automatizados
-├── assets/preview/                # imagens usadas no README
-└── outputs/                       # saídas geradas localmente e ignoradas pelo Git
+├── docs/                          # technical documentation
+├── examples/                      # executable examples
+├── tests/                         # pytest suite
+├── assets/preview/                # curated README figures
+└── outputs/                       # generated files, ignored by Git
 ```
 
 ---
 
-## Biblioteca Python
+## Preview figures
 
-A biblioteca Python em desenvolvimento está em
-
-```text
-src/mms_viscoelastic/
-```
-
-Componentes previstos e/ou já iniciados:
-
-```text
-grids.py                         # malhas estruturadas
-parameters.py                    # parâmetros físicos e numéricos
-fields.py                        # estruturas para campos escalares/vetoriais
-numerics/                        # derivadas, Laplaciano, erros e ordem
-manufactured_solutions/          # soluções manufaturadas
-visualization/                   # visualização científica
-ml/                              # datasets para aprendizado de máquina
-```
-
-A ideia é que o Python funcione futuramente como uma biblioteca científica instalável:
+Generate figures:
 
 ```powershell
-python -m pip install -e .
+python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
----
-
-## Caso manufaturado 12
-
-A primeira etapa da modernização Python começou pelo **caso manufaturado 12**.
-
-Campos considerados:
-
-```text
-u, v, psi, wz, txx, txy, tyy
-```
-
-A geração tabular para Machine Learning organiza os dados como
-
-```text
-x, y, time, beta,
-x2, y2, xy,
-sin_pi_x, cos_pi_x,
-sin_pi_y, cos_pi_y,
-u, v, psi, wz, txx, txy, tyy
-```
-
-Entradas candidatas para modelos:
-
-```text
-x, y, time, beta, x2, y2, xy,
-sin_pi_x, cos_pi_x, sin_pi_y, cos_pi_y
-```
-
-Alvos supervisionados:
-
-```text
-u, v, psi, wz, txx, txy, tyy
-```
-
----
-
-## Galeria de resultados
-
-Depois de rodar os exemplos Python, copie as figuras geradas para `assets/preview/`:
+Copy selected figures to the README assets:
 
 ```powershell
 New-Item -ItemType Directory -Force assets\preview
@@ -340,24 +189,13 @@ Copy-Item outputs\case12\figures\case12_psi.png assets\preview\case12_psi.png -F
 Copy-Item outputs\case12\figures\case12_wz.png assets\preview\case12_wz.png -Force
 ```
 
-Quando esses arquivos existirem, esta seção passa a exibir as figuras principais da tese modernizadas para o GitHub:
+If the image below exists, GitHub will render it:
 
-![Campos manufaturados do caso 12](assets/preview/case12_panel.png)
-
-Figuras individuais esperadas:
-
-```text
-assets/preview/case12_u.png
-assets/preview/case12_v.png
-assets/preview/case12_psi.png
-assets/preview/case12_wz.png
-```
+![Case 12 manufactured fields](assets/preview/case12_panel.png)
 
 ---
 
-## Instalação
-
-No PowerShell:
+## Installation
 
 ```powershell
 cd C:\dev\Thesis_USP_Codes_Organista_J
@@ -370,7 +208,7 @@ python -m pip install -r requirements-dev.txt
 python -m pip install -e .
 ```
 
-Se o PowerShell bloquear a ativação:
+If PowerShell blocks activation:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
@@ -379,7 +217,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 ---
 
-## Testes
+## Tests
 
 ```powershell
 python -m compileall src\mms_viscoelastic
@@ -388,62 +226,79 @@ python -m pytest -q
 
 ---
 
-## Exemplos
+## Examples
 
-Teste básico da biblioteca:
+Smoke test:
 
 ```powershell
 python examples\01_smoke_python_package.py
 ```
 
-Avaliação da solução manufaturada:
+Case 12 exact manufactured solution:
 
 ```powershell
 python examples\02_case12_manufactured_solution.py
 ```
 
-Visualização e dataset:
+Visualization and ML dataset generation:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
-Com malha mais fina:
+---
 
-```powershell
-python examples\03_case12_visualization_and_ml_dataset.py --nx 129 --ny 129
+## Source terms
+
+The Case 12 source-term interface exists at:
+
+```text
+src/mms_viscoelastic/source_terms/case_12.py
 ```
+
+It maps the Fortran arrays:
+
+```text
+tfwz
+tfTxx
+tfTxy
+tfTyy
+```
+
+The full algebraic port is intentionally pending. Until it is complete:
+
+```python
+evaluate_case_12_source_terms()
+```
+
+raises:
+
+```python
+NotImplementedError
+```
+
+This is deliberate. Silent fake source terms would corrupt verification.
 
 ---
 
-## Fluxo Git local
-
-Este projeto está seguindo o fluxo local:
-
-```text
-branch → alterações → testes → commit → merge local na main → tag → push posterior
-```
-
-Exemplo:
+## Local Git workflow
 
 ```powershell
 git checkout main
-git checkout -b docs/readme-thesis-summary
-
-# editar/copiar arquivos
+git checkout -b feat/name-of-phase
 
 python -m pytest -q
 
 git add -A
-git commit -m "docs: add thesis summary README with equations and figures"
+git commit -m "feat: objective message"
 
 git checkout main
-git merge --no-ff docs/readme-thesis-summary -m "merge: add thesis summary README"
+git merge --no-ff feat/name-of-phase -m "merge: objective message"
 
-git tag -a v0.5.2 -m "v0.5.2: thesis README with equations and figures"
+git tag -a v0.X.0 -m "v0.X.0: release summary"
 ```
 
-Push posterior:
+Synchronize later:
 
 ```powershell
 git push origin main
@@ -452,76 +307,25 @@ git push origin --tags
 
 ---
 
-## Roteiro de desenvolvimento
+## Roadmap
 
 ```text
-v0.1.0 — reorganização inicial e fundação Python
-v0.2.0 — documentação GitHub
-v0.3.0 — solução exata do caso manufaturado 12
-v0.4.0 — visualização e dataset ML do caso 12
-v0.5.0 — README visual e About
-v0.5.2 — README expandido com resumo da tese, equações e figuras
-v0.6.0 — termos fonte completos do caso 12
-v0.7.0 — validação Fortran vs Python
-v0.8.0 — datasets ampliados para ML
-v0.9.0 — notebooks científicos
-v1.0.0 — primeira versão reprodutível consolidada
+v0.5.4 — dataset and visualization compatibility fixes
+v0.6.0 — Case 12 source-term contract and porting map
+v0.6.1 — port tfwz
+v0.6.2 — port tfTxx
+v0.6.3 — port tfTxy
+v0.6.4 — port tfTyy
+v0.7.0 — Fortran-vs-Python reference validation
+v0.8.0 — expanded ML datasets
+v0.9.0 — scientific notebooks
+v1.0.0 — first reproducible scientific release
 ```
 
 ---
 
-## Sobre o projeto no GitHub
-
-Descrição curta sugerida:
-
-```text
-Verification and Python modernization of high-order viscoelastic flow solvers using MMS.
-```
-
-Tópicos sugeridos:
-
-```text
-computational-fluid-dynamics
-viscoelastic-flows
-non-newtonian-fluids
-manufactured-solutions
-method-of-manufactured-solutions
-mms
-oldroyd-b
-giesekus
-lptt
-ucm
-log-conformation
-finite-differences
-compact-schemes
-fortran
-python
-scientific-computing
-numerical-methods
-numerical-verification
-machine-learning
-scientific-machine-learning
-applied-mathematics
-doctoral-thesis
-usp
-```
-
----
-
-## Licença e citação
-
-Este repositório contém materiais associados a uma tese de doutorado. Ao reutilizar ideias, códigos, formulações ou resultados, cite a tese original e este repositório.
-
-Consulte também:
-
-```text
-CITATION.cff
-```
-
----
-
-## Autor
+## Author
 
 **Juniormar Organista**
 
-Pesquisa em Matemática Aplicada e Computacional, Mecânica dos Fluidos Computacional, escoamentos viscoelásticos, métodos numéricos de alta ordem, verificação numérica e Scientific Machine Learning.
+Applied and Computational Mathematics, computational fluid mechanics, viscoelastic flows, high-order finite differences and manufactured-solution verification.
