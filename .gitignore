@@ -1,75 +1,32 @@
+# Generated outputs
+outputs/
+
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
 *.egg-info/
-.eggs/
-build/
-dist/
-.venv/
-venv/
-.env
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.coverage
-htmlcov/
+.venv/
 
-# Jupyter
-.ipynb_checkpoints/
+# Build/distribution
+build/
+dist/
 
-# LaTeX build artifacts
-*.aux
-*.bbl
-*.bcf
-*.blg
-*.fdb_latexmk
-*.fls
-*.idx
-*.ilg
-*.ind
-*.lof
-*.log
-*.lot
-*.nav
-*.out
-*.run.xml
-*.snm
-*.synctex.gz
-*.toc
-*.vrb
-*.xdv
+# Temporary generated phase scripts - not part of repository anymore
+criar_*.py
+corrigir_*.py
+reorganizar_*.ps1
+cleanup_repository_phase*.py
 
-# Fortran build artifacts
-*.o
-*.obj
-*.mod
-*.smod
-*.exe
-*.out
-*.a
-*.so
-*.dll
+# Old README backups
+README.before-*.md
+README.backup*.md
+README.old*.md
 
 # OS/editor
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-
-# Project local outputs
-outputs/
-results/
-tmp/
-temp/
-
-# phase-4-generated-outputs
-outputs/
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-__pycache__/
-# Generated outputs
-# Python caches
