@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the thesis and this software repository."
+title: "Verification of High-Order Viscoelastic Flow Solvers Using Manufactured Solutions"
+authors:
+  - family-names: "Organista"
+    given-names: "Juniormar"
+version: "0.1.0"
+date-released: "2026-05-02"
+keywords:
+  - "computational fluid dynamics"
+  - "viscoelastic flows"
+  - "manufactured solutions"
+  - "Fortran"
+  - "Python"
+  - "scientific machine learning"
+license: "MIT"
+repository-code: "https://github.com/SEU_USUARIO/SEU_REPOSITORIO"
