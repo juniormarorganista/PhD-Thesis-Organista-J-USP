@@ -1,0 +1,31 @@
+Metadata-Version: 2.4
+Name: mms-viscoelastic
+Version: 0.1.0
+Summary: Python package foundation for manufactured-solution verification of high-order viscoelastic flow solvers.
+Author: Juniormar Organista
+License: MIT
+Keywords: viscoelastic flows,manufactured solutions,computational fluid dynamics,finite differences,machine learning,scientific machine learning,MMS,Fortran to Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26
+Requires-Dist: pandas>=2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"
+Requires-Dist: mypy>=1.10; extra == "dev"
+Requires-Dist: build>=1.2; extra == "dev"
+Provides-Extra: ml
+Requires-Dist: scikit-learn>=1.4; extra == "ml"
+Requires-Dist: matplotlib>=3.8; extra == "ml"
+Requires-Dist: scipy>=1.11; extra == "ml"
+
+# Arquivos da tese
+
