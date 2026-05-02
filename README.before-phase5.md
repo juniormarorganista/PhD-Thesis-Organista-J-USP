@@ -1,0 +1,187 @@
+# Verification of High-Order Viscoelastic Flow Solvers Using Manufactured Solutions
+
+Repositório de organização, documentação e modernização dos códigos associados à tese de doutorado de **Juniormar Organista**.
+
+O projeto reúne códigos originais em Fortran, notebooks Mathematica, arquivos LaTeX da tese, apresentação da defesa, material de artigo científico e uma fundação em Python para futura transcrição, validação e uso em fluxos de *Scientific Machine Learning*.
+
+> Este repositório está em fase de reorganização. Os arquivos originais em Fortran, LaTeX e Mathematica são preservados como fontes históricas e científicas. A nova camada Python está sendo construída separadamente para validação, reprodutibilidade e futuras aplicações com aprendizado de máquina.
+
+## Palavras-chave
+
+`computational-fluid-dynamics`, `viscoelastic-flows`, `manufactured-solutions`, `MMS`, `Oldroyd-B`, `Giesekus`, `LPTT`, `UCM`, `log-conformation`, `finite-differences`, `compact-schemes`, `Fortran`, `Python`, `scientific-machine-learning`, `machine-learning`, `numerical-verification`, `CFD`, `non-newtonian-fluids`
+
+## Sobre o trabalho
+
+A tese trata da **verificação numérica de um solucionador incompressível para escoamentos viscoelásticos**, utilizando o **Método das Soluções Manufaturadas** (*Method of Manufactured Solutions*, MMS). O foco está na avaliação da consistência computacional de esquemas numéricos de alta ordem aplicados a modelos constitutivos não newtonianos.
+
+O problema científico central pode ser resumido assim:
+
+> Como verificar, de maneira sistemática, se a implementação numérica de um código para escoamentos viscoelásticos reproduz corretamente a ordem de convergência esperada para diferentes modelos constitutivos e diferentes variáveis do escoamento?
+
+A resposta construída na tese passa por quatro elementos:
+
+1. formulação matemática dos escoamentos incompressíveis viscoelásticos;
+2. construção de soluções manufaturadas e respectivos termos fonte;
+3. implementação de esquemas numéricos de alta ordem;
+4. análise de erro e estimativa da ordem de convergência.
+
+## Modelos e variáveis de interesse
+
+O material original contempla formulações e experimentos associados a modelos como:
+
+- fluido Newtoniano como caso de referência;
+- UCM (*Upper-Convected Maxwell*);
+- Oldroyd-B;
+- Giesekus;
+- LPTT (*Linear Phan-Thien--Tanner*);
+- formulações com transformação log-conformação.
+
+As principais variáveis envolvidas incluem:
+
+- velocidade horizontal `u`;
+- velocidade vertical `v`;
+- função corrente `psi`;
+- vorticidade `wz`;
+- tensões poliméricas `Txx`, `Txy`, `Tyy`;
+- variáveis associadas à formulação log-conformação.
+
+## Estrutura atual do repositório
+
+```text
+.
+├── docs/                         # documentação técnica e planos de reorganização
+├── examples/                     # exemplos mínimos da biblioteca Python
+├── papers/                       # material original de artigo científico
+├── src/
+│   ├── fortran_original/          # código Fortran original preservado
+│   ├── mathematica_original/      # notebooks Mathematica originais preservados
+│   └── mms_viscoelastic/          # fundação da futura biblioteca Python
+├── tests/                        # testes da camada Python
+├── thesis/                       # tese, apresentação e arquivos LaTeX originais
+├── pyproject.toml                # configuração da biblioteca Python
+├── requirements.txt              # dependências mínimas
+└── requirements-dev.txt          # dependências de desenvolvimento
+```
+
+## Código Fortran original
+
+O código Fortran original foi preservado em:
+
+```text
+src/fortran_original/4Order_LPOG_Euler/
+```
+
+Arquivos centrais:
+
+| Arquivo | Função esperada |
+|---|---|
+| `main.f` | fluxo principal da simulação |
+| `case_01.f`--`case_14.f` | casos manufaturados e termos fonte |
+| `derivs.f` | operadores diferenciais e derivadas |
+| `poisson.f` | solução da equação de Poisson |
+| `solvers.f` | rotinas auxiliares de solução numérica |
+| `euler_rk.f` | integração temporal |
+| `conform.f` | formulação associada à log-conformação |
+| `normerror.f` | cálculo de normas de erro |
+| `write_solutions.f` | escrita das soluções/resultados |
+
+A reorganização do repositório não altera esses arquivos. Eles são a referência para a transcrição progressiva em Python.
+
+## Fundação da biblioteca Python
+
+A nova camada Python está em:
+
+```text
+src/mms_viscoelastic/
+```
+
+Objetivos da camada Python:
+
+1. transcrever progressivamente a lógica dos códigos Fortran;
+2. permitir testes unitários e validação cruzada Fortran/Python;
+3. gerar datasets estruturados para aprendizado de máquina;
+4. facilitar experimentos futuros com regressão, classificação, operadores neurais e modelos híbridos física-dados;
+5. transformar o projeto em uma biblioteca Python científica reutilizável.
+
+Instalação em modo desenvolvimento:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements-dev.txt
+python -m pip install -e .
+```
+
+Execução dos testes:
+
+```powershell
+python -m pytest -q
+```
+
+Execução do exemplo mínimo:
+
+```powershell
+python examples\01_smoke_python_package.py
+```
+
+## Plano de transcrição Fortran → Python
+
+A transcrição será incremental. A ordem recomendada é:
+
+1. mapear cada arquivo Fortran;
+2. transcrever estruturas de parâmetros e malhas;
+3. transcrever soluções manufaturadas;
+4. transcrever operadores diferenciais;
+5. transcrever cálculo de normas de erro;
+6. implementar validação de ordem de convergência;
+7. transcrever rotinas de Poisson e integração temporal;
+8. criar comparação Fortran vs Python;
+9. gerar datasets para ML;
+10. documentar exemplos e notebooks.
+
+A regra é simples: **cada módulo Python novo deve nascer com teste**. Código científico sem teste é só superstição com `for`.
+
+## Resultados e evidências numéricas
+
+Os resultados originais da tese e do artigo incluem famílias de figuras e tabelas relacionadas a:
+
+- mapas de erro;
+- superfícies de erro;
+- cortes em linhas específicas do domínio;
+- comparação entre solução exata/manufaturada e solução numérica;
+- normas de erro;
+- estimativas de ordem de convergência;
+- variações de parâmetros como `Re`, `Wi`, `beta`, `alphaG`, `epsilon`, `xi` e `dt`.
+
+As figuras originais permanecem preservadas nos diretórios da tese e do artigo. Uma etapa posterior deverá selecionar figuras representativas e convertê-las para `PNG` em:
+
+```text
+assets/preview/
+```
+
+Essas figuras serão usadas no README e na documentação, evitando depender diretamente de arquivos EPS pesados.
+
+## Como citar
+
+Use o arquivo `CITATION.cff` deste repositório quando disponível. Em trabalhos acadêmicos, cite também a tese de doutorado original e os artigos derivados quando aplicável.
+
+## Status do projeto
+
+- [x] Clone corrigido no Windows com caminhos longos.
+- [x] Reorganização inicial de diretórios.
+- [x] Fundação Python criada.
+- [x] Testes mínimos funcionando.
+- [ ] README com figuras representativas.
+- [ ] Mapa completo do Fortran.
+- [ ] Transcrição do primeiro caso manufaturado.
+- [ ] Validação Fortran/Python.
+- [ ] Geração de datasets para Machine Learning.
+- [ ] Notebooks explicativos.
+- [ ] GitHub Actions.
+
+## Autor
+
+**Juniormar Organista**  
+Doutorado em Matemática Aplicada e Computacional  
+Ênfase: Mecânica dos Fluidos Computacional, Métodos Numéricos, Escoamentos Viscoelásticos e Verificação Numérica.
