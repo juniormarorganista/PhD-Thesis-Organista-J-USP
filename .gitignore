@@ -71,3 +71,4 @@ outputs/
 .mypy_cache/
 .ruff_cache/
 __pycache__/
+# Generated outputs
