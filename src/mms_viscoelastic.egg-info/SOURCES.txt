@@ -23,6 +23,8 @@ src/mms_viscoelastic/models/constitutive.py
 src/mms_viscoelastic/numerics/__init__.py
 src/mms_viscoelastic/numerics/derivatives.py
 src/mms_viscoelastic/numerics/errors.py
+src/mms_viscoelastic/source_terms/__init__.py
+src/mms_viscoelastic/source_terms/case_12.py
 src/mms_viscoelastic/visualization/__init__.py
 src/mms_viscoelastic/visualization/fields.py
 tests/test_case12_datasets.py
@@ -32,3 +34,4 @@ tests/test_grid_and_fields.py
 tests/test_import.py
 tests/test_ml_imports.py
 tests/test_numerics.py
+tests/test_source_terms_case12_contract.py
