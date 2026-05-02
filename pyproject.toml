@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mms-viscoelastic"
+version = "0.1.0"
+description = "Python package foundation for manufactured-solution verification of high-order viscoelastic flow solvers."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Juniormar Organista" }
+]
+license = { text = "MIT" }
+keywords = [
+    "viscoelastic flows",
+    "manufactured solutions",
+    "computational fluid dynamics",
+    "finite differences",
+    "machine learning",
+    "scientific machine learning",
+    "MMS",
+    "Fortran to Python"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "build>=1.2"
+]
+ml = [
+    "scikit-learn>=1.4",
+    "matplotlib>=3.8",
+    "scipy>=1.11"
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mms_viscoelastic*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
