@@ -1,34 +1,129 @@
-﻿# Plano de transcrição Fortran -> Python
+# Plano de Transcrição Fortran para Python
 
-## Princípio
+## Objetivo
 
-A versão Python deve nascer como biblioteca científica, não como um conjunto solto
-de scripts. O código Fortran original permanece como referência.
+Construir uma biblioteca Python chamada `mms_viscoelastic`, baseada nos códigos Fortran originais da tese, preparada para:
 
-## Ordem sugerida de transcrição
+- verificação numérica;
+- geração de dados;
+- análise de erro;
+- comparação Fortran/Python;
+- integração futura com Machine Learning e Scientific Machine Learning.
 
-1. Parâmetros físicos e numéricos.
-2. Malhas e convenções de indexação.
-3. Campos bidimensionais e saída de dados.
-4. Soluções manufaturadas dos arquivos `case_01.f` até `case_14.f`.
-5. Operadores diferenciais de segunda ordem.
-6. Operadores compactos de alta ordem.
-7. Normas de erro e estimativa de ordem de convergência.
-8. Solver de Poisson.
-9. Integração temporal Euler/RK.
-10. Modelos UCM, Oldroyd-B, Giesekus e LPTT.
-11. Comparação automatizada Fortran vs Python.
-12. Geração de datasets para Machine Learning.
+## Filosofia da transcrição
 
-## Preparação para Machine Learning
+A transcrição não deve ser uma cópia cega linha a linha. O Fortran original é procedural e orientado à execução numérica direta. A camada Python deve ser modular, testável e extensível.
 
-A função `field_to_feature_table` já converte malhas e campos em `pandas.DataFrame`,
-criando uma base natural para regressão, classificação, surrogates, PINNs/FNOs ou
-outros métodos de Scientific Machine Learning.
+Portanto, a tradução será conceitual:
 
-## Cuidados críticos
+```text
+Fortran original -> interpretação matemática -> API Python limpa -> testes -> validação
+```
 
-- Manter a convenção NumPy: campos com shape `(ny, nx)`.
-- Documentar qualquer diferença em relação aos índices Fortran.
-- Testar cada módulo isoladamente.
-- Não validar o Python apenas visualmente; comparar normas e ordens de convergência.
+## Módulos planejados
+
+```text
+mms_viscoelastic/
+├── parameters.py
+├── grids.py
+├── fields.py
+├── manufactured/
+│   ├── __init__.py
+│   ├── base.py
+│   ├── case_12.py
+│   └── cases.py
+├── numerics/
+│   ├── derivatives.py
+│   ├── errors.py
+│   ├── convergence.py
+│   └── filters.py
+├── models/
+│   ├── newtonian.py
+│   ├── ucm.py
+│   ├── oldroyd_b.py
+│   ├── giesekus.py
+│   ├── lptt.py
+│   └── log_conformation.py
+├── solvers/
+│   ├── poisson.py
+│   ├── linear.py
+│   └── time.py
+├── ml/
+│   ├── datasets.py
+│   ├── features.py
+│   └── splits.py
+└── io/
+    ├── readers.py
+    └── writers.py
+```
+
+## Fases
+
+### Fase 1 — Fundação
+
+Já iniciada:
+
+- pacote instalável;
+- objetos de malha;
+- objetos de campo;
+- erros básicos;
+- conversão campo → tabela;
+- testes mínimos.
+
+### Fase 2 — Documentação e mapa do Fortran
+
+Atual:
+
+- README profissional;
+- mapa do projeto;
+- mapa dos arquivos Fortran;
+- plano de transcrição;
+- instruções GitHub.
+
+### Fase 3 — Primeiro caso MMS
+
+Implementar `case_12.f` como primeiro caso Python:
+
+```text
+src/mms_viscoelastic/manufactured/case_12.py
+```
+
+Deve conter funções para:
+
+- `u_exact(x, y, t, params)`;
+- `v_exact(x, y, t, params)`;
+- `psi_exact(x, y, t, params)`;
+- `wz_exact(x, y, t, params)`;
+- `stress_exact(x, y, t, params)`;
+- termos fonte quando transcritos.
+
+### Fase 4 — Derivadas e verificação
+
+Implementar derivadas com diferenças finitas e testar usando funções analíticas suaves.
+
+### Fase 5 — Dados para Machine Learning
+
+Criar um pipeline que gere tabelas com colunas como:
+
+```text
+x, y, t, Re, Wi, beta, alphaG, epsilon, u, v, psi, wz, Txx, Txy, Tyy
+```
+
+Esses dados poderão alimentar:
+
+- regressão supervisionada;
+- modelos de erro;
+- surrogates;
+- operadores neurais;
+- classificadores de regimes;
+- modelos híbridos físico-estatísticos.
+
+## Regra de qualidade
+
+Toda transcrição deve seguir o ciclo:
+
+```text
+ler Fortran -> documentar função -> implementar Python -> testar -> comparar -> versionar
+```
+
+Nada de transcrição heroica de madrugada sem teste. Isso é como resolver Navier-Stokes no guardanapo: romântico, mas perigoso.
