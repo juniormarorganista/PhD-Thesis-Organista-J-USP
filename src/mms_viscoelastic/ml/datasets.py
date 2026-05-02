@@ -1,40 +1,65 @@
-"""Dataset builders for future Machine Learning workflows.
-
-The functions in this module intentionally avoid depending on scikit-learn.
-They produce simple, reproducible tabular data that can later feed regression,
-operator-learning or physics-informed workflows.
-"""
+"""Dataset builders for manufactured-solution machine-learning workflows."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
-import numpy as np
 import pandas as pd
 
 from mms_viscoelastic.grids import Grid2D
-from mms_viscoelastic.manufactured_solutions import Case12Parameters, evaluate_case_12_exact
-from mms_viscoelastic.ml.features import field_to_feature_table
+from mms_viscoelastic.manufactured_solutions import (
+    Case12Parameters,
+    evaluate_case_12_exact,
+)
+from mms_viscoelastic.ml.features import TARGET_COLUMNS, field_to_feature_table
 
 
-def add_spatial_features(table: pd.DataFrame) -> pd.DataFrame:
-    """Add deterministic spatial features useful for baseline ML models.
+DEFAULT_TARGET_COLUMNS = TARGET_COLUMNS
 
-    Added columns:
-    - ``x2``, ``y2`` and ``xy``;
-    - low-order trigonometric features using ``pi*x`` and ``pi*y``.
-    """
-    result = table.copy()
-    x = result["x"].to_numpy()
-    y = result["y"].to_numpy()
-    result["x2"] = x**2
-    result["y2"] = y**2
-    result["xy"] = x * y
-    result["sin_pi_x"] = np.sin(np.pi * x)
-    result["cos_pi_x"] = np.cos(np.pi * x)
-    result["sin_pi_y"] = np.sin(np.pi * y)
-    result["cos_pi_y"] = np.cos(np.pi * y)
-    return result
+
+@dataclass(frozen=True)
+class DatasetBundle:
+    """Container for full/train/validation datasets and metadata."""
+
+    full: pd.DataFrame
+    train: pd.DataFrame
+    validation: pd.DataFrame
+    feature_columns: tuple[str, ...]
+    target_columns: tuple[str, ...]
+    metadata: dict[str, Any]
+
+
+def infer_feature_columns(
+    df: pd.DataFrame,
+    *,
+    target_columns: tuple[str, ...] = DEFAULT_TARGET_COLUMNS,
+) -> tuple[str, ...]:
+    """Return ML input columns by excluding target columns."""
+
+    targets = set(target_columns)
+    return tuple(column for column in df.columns if column not in targets)
+
+
+def split_train_validation(
+    df: pd.DataFrame,
+    *,
+    validation_fraction: float = 0.2,
+    random_state: int = 42,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Create a deterministic train/validation split."""
+
+    if not 0.0 < validation_fraction < 1.0:
+        raise ValueError("validation_fraction must be between 0 and 1.")
+
+    validation = df.sample(frac=validation_fraction, random_state=random_state)
+    train = df.drop(index=validation.index)
+
+    return (
+        train.reset_index(drop=True),
+        validation.reset_index(drop=True),
+    )
 
 
 def build_case12_dataset(
@@ -44,72 +69,83 @@ def build_case12_dataset(
     time: float = 0.0,
     beta: float = 0.5,
     at: float = 0.0,
-    include_spatial_features: bool = True,
-) -> pd.DataFrame:
-    """Build a tabular dataset from the exact MMS case-12 fields."""
+    validation_fraction: float = 0.2,
+    random_state: int = 42,
+    include_engineered_features: bool = True,
+) -> DatasetBundle:
+    """Build an ML-ready dataset from the MMS Case 12 exact solution."""
+
     grid = Grid2D.from_bounds(nx=nx, ny=ny)
-    params = Case12Parameters(beta=beta, at=at)
-    field = evaluate_case_12_exact(grid, t=time, parameters=params)
-    table = field_to_feature_table(grid, field)
-    table.insert(2, "time", float(time))
-    table.insert(3, "beta", float(beta))
-    if include_spatial_features:
-        table = add_spatial_features(table)
-    return table
+    parameters = Case12Parameters(beta=beta, at=at)
+    fields = evaluate_case_12_exact(grid, t=time, parameters=parameters)
+
+    full = field_to_feature_table(
+        grid,
+        fields,
+        time=time,
+        beta=beta,
+        include_engineered_features=include_engineered_features,
+    )
+
+    target_columns = tuple(
+        column for column in DEFAULT_TARGET_COLUMNS if column in full.columns
+    )
+    feature_columns = infer_feature_columns(full, target_columns=target_columns)
+
+    train, validation = split_train_validation(
+        full,
+        validation_fraction=validation_fraction,
+        random_state=random_state,
+    )
+
+    metadata = {
+        "case": "case_12",
+        "nx": nx,
+        "ny": ny,
+        "n_points": len(full),
+        "time": time,
+        "beta": beta,
+        "at": at,
+        "validation_fraction": validation_fraction,
+        "random_state": random_state,
+        "feature_columns": list(feature_columns),
+        "target_columns": list(target_columns),
+        "shape_convention": "(ny, nx)",
+    }
+
+    return DatasetBundle(
+        full=full,
+        train=train,
+        validation=validation,
+        feature_columns=feature_columns,
+        target_columns=target_columns,
+        metadata=metadata,
+    )
 
 
-def deterministic_spatial_split(
-    table: pd.DataFrame,
-    *,
-    validation_stride: int = 5,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Split a table into train/validation sets using grid-index stride.
+def save_dataset_bundle(bundle: DatasetBundle, output_dir: str | Path) -> dict[str, Path]:
+    """Save dataset CSV files and metadata text file."""
 
-    This is deterministic and spatially distributed: every ``validation_stride``
-    row goes to validation.  It is intentionally simple and reproducible.
-    """
-    if validation_stride < 2:
-        raise ValueError("validation_stride must be at least 2.")
-    index = np.arange(len(table))
-    validation_mask = index % validation_stride == 0
-    validation = table.loc[validation_mask].reset_index(drop=True)
-    train = table.loc[~validation_mask].reset_index(drop=True)
-    return train, validation
+    path = Path(output_dir)
+    path.mkdir(parents=True, exist_ok=True)
 
+    full_path = path / "case12_full.csv"
+    train_path = path / "case12_train.csv"
+    validation_path = path / "case12_validation.csv"
+    metadata_path = path / "case12_metadata.txt"
 
-def save_dataset_bundle(
-    table: pd.DataFrame,
-    output_dir: str | Path,
-    *,
-    prefix: str = "case12",
-    validation_stride: int = 5,
-) -> dict[str, Path]:
-    """Save full/train/validation CSV files and a small metadata file."""
-    output = Path(output_dir)
-    output.mkdir(parents=True, exist_ok=True)
-    train, validation = deterministic_spatial_split(table, validation_stride=validation_stride)
+    bundle.full.to_csv(full_path, index=False)
+    bundle.train.to_csv(train_path, index=False)
+    bundle.validation.to_csv(validation_path, index=False)
 
-    full_path = output / f"{prefix}_full.csv"
-    train_path = output / f"{prefix}_train.csv"
-    validation_path = output / f"{prefix}_validation.csv"
-    metadata_path = output / f"{prefix}_metadata.txt"
+    lines = ["Case 12 ML dataset metadata", ""]
+    for key, value in bundle.metadata.items():
+        lines.append(f"{key}: {value}")
+    lines.append("")
+    lines.append(f"feature_columns: {list(bundle.feature_columns)}")
+    lines.append(f"target_columns: {list(bundle.target_columns)}")
 
-    table.to_csv(full_path, index=False)
-    train.to_csv(train_path, index=False)
-    validation.to_csv(validation_path, index=False)
-
-    target_columns = ["u", "v", "psi", "wz", "txx", "txy", "tyy"]
-    feature_columns = [name for name in table.columns if name not in target_columns]
-    metadata = [
-        "MMS case 12 dataset bundle",
-        f"rows_full={len(table)}",
-        f"rows_train={len(train)}",
-        f"rows_validation={len(validation)}",
-        f"validation_stride={validation_stride}",
-        "feature_columns=" + ",".join(feature_columns),
-        "target_columns=" + ",".join(target_columns),
-    ]
-    metadata_path.write_text("\n".join(metadata) + "\n", encoding="utf-8", newline="\n")
+    metadata_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     return {
         "full": full_path,
@@ -117,3 +153,13 @@ def save_dataset_bundle(
         "validation": validation_path,
         "metadata": metadata_path,
     }
+
+
+__all__ = [
+    "DEFAULT_TARGET_COLUMNS",
+    "DatasetBundle",
+    "build_case12_dataset",
+    "infer_feature_columns",
+    "save_dataset_bundle",
+    "split_train_validation",
+]

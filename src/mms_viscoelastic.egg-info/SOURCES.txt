@@ -30,4 +30,5 @@ tests/test_case12_visualization.py
 tests/test_case_12_manufactured.py
 tests/test_grid_and_fields.py
 tests/test_import.py
+tests/test_ml_imports.py
 tests/test_numerics.py
