@@ -1,22 +1,30 @@
-# Preview Assets
+# Imagens do README
 
-This directory stores curated figures used by `README.md` and GitHub-facing documentation.
+Esta pasta contém imagens usadas diretamente no `README.md`.
 
-Generated outputs should remain under:
+## Imagens incluídas neste pacote
 
 ```text
-outputs/
+mms_pipeline.svg
+repository_layout.svg
 ```
 
-Only selected figures should be copied here.
+## Imagens geradas localmente
 
-## Current assets
+Depois de executar:
 
-- `assets/preview/case12_panel.png`
-- `assets/preview/case12_u.png`
-- `assets/preview/case12_v.png`
-- `assets/preview/case12_psi.png`
-- `assets/preview/case12_wz.png`
-- `assets/preview/case12_txx.png`
-- `assets/preview/case12_txy.png`
-- `assets/preview/case12_tyy.png`
+```powershell
+python examples\03_case12_visualization_and_ml_dataset.py
+```
+
+copie:
+
+```powershell
+Copy-Item outputs\case12\figures\case12_panel.png assets\preview\case12_panel.png -Force
+Copy-Item outputs\case12\figures\case12_u.png assets\preview\case12_u.png -Force
+Copy-Item outputs\case12\figures\case12_v.png assets\preview\case12_v.png -Force
+Copy-Item outputs\case12\figures\case12_psi.png assets\preview\case12_psi.png -Force
+Copy-Item outputs\case12\figures\case12_wz.png assets\preview\case12_wz.png -Force
+```
+
+Essas imagens aparecerão na galeria do README.

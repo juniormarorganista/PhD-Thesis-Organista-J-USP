@@ -4,9 +4,17 @@
 
 Verification and Python modernization of high-order viscoelastic flow solvers using MMS.
 
-## Full description
+## Descrição curta
 
-Repository associated with the doctoral thesis of Juniormar Organista, dedicated to numerical verification of high-order solvers for incompressible viscoelastic flows using the Method of Manufactured Solutions. The project preserves the original Fortran codes and LaTeX thesis sources while building a modern Python package for reproducibility, visualization, dataset generation and future machine learning workflows.
+Verificação numérica e modernização Python de códigos de alta ordem para escoamentos viscoelásticos usando MMS.
+
+## Long description
+
+Repository associated with the doctoral thesis of Juniormar Organista, focused on numerical verification of high-order solvers for incompressible viscoelastic flows using the Method of Manufactured Solutions. The project preserves the original Fortran, Mathematica and LaTeX sources while building a modern Python package for reproducibility, visualization, dataset generation and future machine learning workflows.
+
+## Descrição longa em português
+
+Repositório científico associado à tese de doutorado de Juniormar Organista, dedicado à verificação numérica de códigos de alta ordem para escoamentos viscoelásticos incompressíveis por meio do Método das Soluções Manufaturadas. O projeto preserva os códigos originais em Fortran, notebooks Mathematica e arquivos LaTeX, ao mesmo tempo em que constrói uma biblioteca Python moderna para reprodutibilidade, visualização científica, geração de datasets e futura integração com aprendizado de máquina.
 
 ## Suggested topics
 
@@ -31,10 +39,5 @@ numerical-verification
 machine-learning  
 scientific-machine-learning  
 applied-mathematics  
-cfd  
 doctoral-thesis  
-usp  
-
-## Descrição em português
-
-Repositório científico da tese de doutorado de Juniormar Organista, dedicado à verificação numérica de códigos de alta ordem para escoamentos viscoelásticos incompressíveis por meio do Método das Soluções Manufaturadas. O projeto preserva os códigos originais em Fortran e os arquivos LaTeX da tese, reorganiza a estrutura do repositório e inicia uma transcrição moderna para Python, com foco futuro em análise de dados, visualização científica e aprendizado de máquina.
+usp
