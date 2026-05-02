@@ -13,6 +13,7 @@ src/mms_viscoelastic.egg-info/top_level.txt
 src/mms_viscoelastic/io/__init__.py
 src/mms_viscoelastic/io/reference.py
 src/mms_viscoelastic/manufactured_solutions/__init__.py
+src/mms_viscoelastic/manufactured_solutions/case_12.py
 src/mms_viscoelastic/manufactured_solutions/toy.py
 src/mms_viscoelastic/ml/__init__.py
 src/mms_viscoelastic/ml/features.py
@@ -21,6 +22,7 @@ src/mms_viscoelastic/models/constitutive.py
 src/mms_viscoelastic/numerics/__init__.py
 src/mms_viscoelastic/numerics/derivatives.py
 src/mms_viscoelastic/numerics/errors.py
+tests/test_case_12_manufactured.py
 tests/test_grid_and_fields.py
 tests/test_import.py
 tests/test_numerics.py
