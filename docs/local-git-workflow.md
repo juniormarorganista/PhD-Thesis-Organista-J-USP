@@ -1,73 +1,73 @@
-# Local Git Workflow
+# Fluxo Git Local do Projeto
 
-This project is currently using a local-maintainer workflow.
+Este projeto está sendo conduzido com fluxo local, sem Pull Request obrigatório.
 
-The preferred sequence is:
+## Regra
 
 ```text
-branch → changes → tests → commit → local merge into main → tag → later push
+branch → alterações → testes → commit → merge local → tag → push posterior
 ```
 
-## Start a new phase
+## Nova fase
 
 ```powershell
 git checkout main
-git pull --ff-only origin main
-git checkout -b feat/name-of-phase
+git status
+git checkout -b tipo/nome-da-fase
 ```
 
-## Validate changes
+Exemplos:
+
+```powershell
+git checkout -b docs/readme-thesis-summary
+git checkout -b feat/case12-source-terms
+git checkout -b chore/remove-generated-files
+```
+
+## Testes antes do commit
 
 ```powershell
 python -m compileall src\mms_viscoelastic
 python -m pytest -q
 ```
 
-Run relevant examples:
+Quando houver visualização/dataset:
 
 ```powershell
-python examples\01_smoke_python_package.py
-python examples\02_case12_manufactured_solution.py
 python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
-## Commit phase
+## Commit
 
 ```powershell
-git status
-git diff --stat
-git add .
-git commit -m "feat: short objective message"
+git add -A
+git commit -m "docs: add thesis README with equations and figures"
 ```
 
-## Merge locally
+## Merge local
 
 ```powershell
 git checkout main
-git merge --no-ff feat/name-of-phase -m "merge: short objective message"
+git merge --no-ff docs/readme-thesis-summary -m "merge: add thesis README with equations and figures"
 ```
 
-## Tag locally
+## Tag
 
 ```powershell
-git tag -a v0.X.0 -m "v0.X.0: release summary"
+git tag -a v0.5.2 -m "v0.5.2: thesis README with equations and figures"
 ```
 
-## Synchronize later
+## Push posterior
 
 ```powershell
 git push origin main
 git push origin --tags
 ```
 
-Optionally push feature branches:
+## Não usar agora
 
 ```powershell
-git push origin feat/name-of-phase
+git push --force
 ```
 
-## Rules
-
-Do not use force push unless intentionally rewriting history.
-
-Avoid committing generated `outputs/` data. Use `assets/preview/` only for curated figures intended for README or documentation.
+Sem necessidade. `--force` é a motosserra do Git: útil quando se sabe exatamente o que está cortando; perigoso quando só se queria podar uma roseira.
