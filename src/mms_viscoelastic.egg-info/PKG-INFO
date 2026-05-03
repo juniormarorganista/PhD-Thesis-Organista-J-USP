@@ -79,13 +79,6 @@ A generic viscoelastic constitutive representation can be written as:
 2(1-\beta)\mathbf{D}.
 ```
 
-The specific form changes according to the model:
-
-- UCM;
-- Oldroyd-B;
-- Giesekus;
-- LPTT.
-
 ---
 
 ## Method of Manufactured Solutions
@@ -142,15 +135,15 @@ Implemented:
 - MMS Case 12 exact manufactured solution;
 - Case 12 visualization;
 - ML-ready dataset generation;
-- `tfwz` source-term port for Case 12;
-- `tfTxx` source-term port for Case 12;
+- `tfwz` source-term port and Fortran-reference validation;
+- `tfTxx` source-term port and Fortran-reference validation;
 - tests for package imports, dataset generation and source-term registry.
 
 Pending:
 
 - `tfTxy`;
 - `tfTyy`;
-- Fortran-vs-Python regression tests for tensor source terms;
+- complete Fortran-vs-Python validation for all source terms;
 - complete solver port.
 
 ---
@@ -163,7 +156,7 @@ The Case 12 source-term interface is located at:
 src/mms_viscoelastic/source_terms/case_12.py
 ```
 
-Ported:
+Ported and validated:
 
 ```text
 tfwz
@@ -177,12 +170,6 @@ tfTxy
 tfTyy
 ```
 
-The full evaluator still raises by default:
-
-```python
-evaluate_case_12_source_terms()
-```
-
 For explicit partial use:
 
 ```python
@@ -190,6 +177,35 @@ evaluate_case_12_source_terms(grid, allow_partial=True)
 ```
 
 This returns `tfwz` and `tfTxx`; pending terms remain `None`.
+
+---
+
+## Validation commands
+
+```powershell
+python examples\05_validate_case12_tfwz_reference.py
+python examples\06_validate_case12_tfTxx_reference.py
+```
+
+Run all tests:
+
+```powershell
+python -m compileall src\mms_viscoelastic
+python -m pytest -q
+```
+
+---
+
+## Examples
+
+```powershell
+python examples\01_smoke_python_package.py
+python examples\02_case12_manufactured_solution.py
+python examples\03_case12_visualization_and_ml_dataset.py
+python examples\04_case12_tfwz_source_term.py
+python examples\05_validate_case12_tfwz_reference.py
+python examples\06_validate_case12_tfTxx_reference.py
+```
 
 ---
 
@@ -222,26 +238,6 @@ python -m pip install -e .
 
 ---
 
-## Tests
-
-```powershell
-python -m compileall src\mms_viscoelastic
-python -m pytest -q
-```
-
----
-
-## Examples
-
-```powershell
-python examples\01_smoke_python_package.py
-python examples\02_case12_manufactured_solution.py
-python examples\03_case12_visualization_and_ml_dataset.py
-python examples\04_case12_tfwz_source_term.py
-```
-
----
-
 ## Roadmap
 
 ```text
@@ -250,8 +246,10 @@ v0.6.2 — validate tfwz against Fortran reference
 v0.6.3 — port tfTxx
 v0.6.4 — validate tfTxx against Fortran reference
 v0.6.5 — port tfTxy
-v0.6.6 — port tfTyy
-v0.7.0 — Fortran-vs-Python reference validation
+v0.6.6 — validate tfTxy against Fortran reference
+v0.6.7 — port tfTyy
+v0.6.8 — validate tfTyy against Fortran reference
+v0.7.0 — complete Case 12 source-term validation
 v0.8.0 — expanded ML datasets
 v0.9.0 — scientific notebooks
 v1.0.0 — first reproducible scientific release
