@@ -73,16 +73,6 @@ The exact field is substituted into the governing equations:
 \mathbf{f}_{\mathrm{MMS}}.
 ```
 
-The numerical error is:
-
-```math
-\mathbf{e}_h
-=
-\mathbf{q}_h
--
-\mathbf{q}_e.
-```
-
 The observed order is estimated by:
 
 ```math
@@ -108,12 +98,13 @@ Implemented:
 - ML-ready dataset generation;
 - `tfwz` source-term port and Fortran-reference validation;
 - `tfTxx` source-term port and Fortran-reference validation;
+- `tfTxy` source-term port;
 - tests for package imports, dataset generation and source-term registry.
 
 Pending:
 
-- `tfTxy`;
 - `tfTyy`;
+- Fortran-reference validation for `tfTxy`;
 - complete Fortran-vs-Python validation for all source terms;
 - complete solver port.
 
@@ -127,17 +118,17 @@ The Case 12 source-term interface is located at:
 src/mms_viscoelastic/source_terms/case_12.py
 ```
 
-Ported and validated:
+Ported:
 
 ```text
 tfwz
 tfTxx
+tfTxy
 ```
 
 Pending:
 
 ```text
-tfTxy
 tfTyy
 ```
 
@@ -147,7 +138,7 @@ For explicit partial use:
 evaluate_case_12_source_terms(grid, allow_partial=True)
 ```
 
-This returns `tfwz` and `tfTxx`; pending terms remain `None`.
+This returns `tfwz`, `tfTxx` and `tfTxy`; pending terms remain `None`.
 
 ---
 

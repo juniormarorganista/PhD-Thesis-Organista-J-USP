@@ -1,4 +1,4 @@
-"""Evaluate the ported MMS Case 12 source terms ``tfwz`` and ``tfTxx``."""
+"""Evaluate the ported MMS Case 12 source terms."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from mms_viscoelastic.grids import Grid2D
 from mms_viscoelastic.source_terms import (
     Case12SourceTermParameters,
     evaluate_case_12_tfTxx,
+    evaluate_case_12_tfTxy,
     evaluate_case_12_tfwz,
 )
 
@@ -49,15 +50,18 @@ def main() -> None:
         alpha_g=args.alpha_g,
         at=args.at,
     )
-    tfwz = evaluate_case_12_tfwz(grid, t=args.time, parameters=params)
-    tfTxx = evaluate_case_12_tfTxx(grid, t=args.time, parameters=params)
+
+    arrays = {
+        "tfwz": evaluate_case_12_tfwz(grid, t=args.time, parameters=params),
+        "tfTxx": evaluate_case_12_tfTxx(grid, t=args.time, parameters=params),
+        "tfTxy": evaluate_case_12_tfTxy(grid, t=args.time, parameters=params),
+    }
 
     df = pd.DataFrame(
         {
             "x": grid.X.ravel(),
             "y": grid.Y.ravel(),
-            "tfwz": tfwz.ravel(),
-            "tfTxx": tfTxx.ravel(),
+            **{name: array.ravel() for name, array in arrays.items()},
         }
     )
 
@@ -66,7 +70,7 @@ def main() -> None:
 
     print("Case 12 ported source terms generated.")
     print(f"grid: nx={args.nx}, ny={args.ny}")
-    for name, array in {"tfwz": tfwz, "tfTxx": tfTxx}.items():
+    for name, array in arrays.items():
         print(f"{name}:")
         print(f"  shape: {array.shape}")
         print(f"  min:   {np.min(array): .6e}")
