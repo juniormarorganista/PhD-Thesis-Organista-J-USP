@@ -21,13 +21,9 @@ The numerical question is:
 
 ## Mathematical structure
 
-### Incompressibility
-
 ```math
 \nabla \cdot \mathbf{u} = 0.
 ```
-
-### Vorticity-streamfunction formulation
 
 ```math
 u = \frac{\partial \psi}{\partial y},
@@ -39,36 +35,19 @@ v = -\frac{\partial \psi}{\partial x}.
 \omega_z =
 \frac{\partial v}{\partial x}
 -
-\frac{\partial u}{\partial y}.
-```
-
-```math
+\frac{\partial u}{\partial y},
+\qquad
 \nabla^2 \psi = -\omega_z.
 ```
 
-### Viscoelastic stress equation
-
-A generic constitutive representation can be written as:
+A generic viscoelastic constitutive representation can be written as:
 
 ```math
 \mathrm{Wi}\,\mathcal{D}\boldsymbol{\tau}
 +
 \mathcal{F}(\boldsymbol{\tau}, \nabla \mathbf{u})
 =
-2(1-\beta)\mathbf{D},
-```
-
-where:
-
-```math
-\mathbf{D}
-=
-\frac{1}{2}
-\left(
-\nabla\mathbf{u}
-+
-\nabla\mathbf{u}^{T}
-\right).
+2(1-\beta)\mathbf{D}.
 ```
 
 The specific form changes according to the model:
@@ -93,7 +72,7 @@ T_{xx,e}, T_{xy,e}, T_{yy,e}
 \right).
 ```
 
-The exact field is substituted into the governing equations, producing source terms:
+The exact field is substituted into the governing equations:
 
 ```math
 \mathcal{L}(\mathbf{q}_e)
@@ -135,43 +114,53 @@ Implemented:
 - Case 12 visualization;
 - ML-ready dataset generation;
 - `tfwz` source-term port for Case 12;
-- Fortran-reference validation for `tfwz` using `3 x 3` and `5 x 5` grids.
+- `tfTxx` source-term port for Case 12;
+- tests for package imports, dataset generation and source-term registry.
 
 Pending:
 
-- `tfTxx`;
 - `tfTxy`;
 - `tfTyy`;
-- full solver port;
-- large-grid Fortran-vs-Python validation.
+- Fortran-vs-Python regression tests for tensor source terms;
+- complete solver port.
 
 ---
 
-## Repository structure
+## Source terms
+
+The Case 12 source-term interface is located at:
 
 ```text
-.
-├── src/
-│   ├── fortran_original/          # original Fortran code, preserved
-│   ├── mathematica_original/      # original Mathematica notebooks, preserved
-│   └── mms_viscoelastic/          # Python package under construction
-│
-├── validation/
-│   ├── fortran_reference/         # standalone validation utilities
-│   └── reference_data/            # curated CSV reference files
-│
-├── thesis/
-│   └── original/                  # original LaTeX thesis files, preserved
-│
-├── papers/
-│   └── original/                  # original paper material, preserved
-│
-├── docs/                          # technical documentation
-├── examples/                      # executable examples
-├── tests/                         # pytest suite
-├── assets/preview/                # curated README figures
-└── outputs/                       # generated files, ignored by Git
+src/mms_viscoelastic/source_terms/case_12.py
 ```
+
+Ported:
+
+```text
+tfwz
+tfTxx
+```
+
+Pending:
+
+```text
+tfTxy
+tfTyy
+```
+
+The full evaluator still raises by default:
+
+```python
+evaluate_case_12_source_terms()
+```
+
+For explicit partial use:
+
+```python
+evaluate_case_12_source_terms(grid, allow_partial=True)
+```
+
+This returns `tfwz` and `tfTxx`; pending terms remain `None`.
 
 ---
 
@@ -181,18 +170,6 @@ Generate figures:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py
-```
-
-Copy selected figures to the README assets:
-
-```powershell
-New-Item -ItemType Directory -Force assets\preview
-
-Copy-Item outputs\case12\figures\case12_panel.png assets\preview\case12_panel.png -Force
-Copy-Item outputs\case12\figures\case12_u.png assets\preview\case12_u.png -Force
-Copy-Item outputs\case12\figures\case12_v.png assets\preview\case12_v.png -Force
-Copy-Item outputs\case12\figures\case12_psi.png assets\preview\case12_psi.png -Force
-Copy-Item outputs\case12\figures\case12_wz.png assets\preview\case12_wz.png -Force
 ```
 
 If the image below exists, GitHub will render it:
@@ -214,13 +191,6 @@ python -m pip install -r requirements-dev.txt
 python -m pip install -e .
 ```
 
-If PowerShell blocks activation:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-.\.venv\Scripts\Activate.ps1
-```
-
 ---
 
 ## Tests
@@ -234,102 +204,28 @@ python -m pytest -q
 
 ## Examples
 
-Smoke test:
-
 ```powershell
 python examples\01_smoke_python_package.py
-```
-
-Case 12 exact manufactured solution:
-
-```powershell
 python examples\02_case12_manufactured_solution.py
-```
-
-Visualization and ML dataset generation:
-
-```powershell
 python examples\03_case12_visualization_and_ml_dataset.py
-```
-
-Case 12 `tfwz` source term:
-
-```powershell
 python examples\04_case12_tfwz_source_term.py
 ```
 
-Validate `tfwz` against Fortran reference:
-
-```powershell
-python examples\05_validate_case12_tfwz_reference.py
-```
-
 ---
 
-## Source terms
-
-The Case 12 source-term interface is located at:
+## Roadmap
 
 ```text
-src/mms_viscoelastic/source_terms/case_12.py
-```
-
-Ported and reference-validated:
-
-```text
-tfwz
-```
-
-Pending:
-
-```text
-tfTxx
-tfTxy
-tfTyy
-```
-
-The full evaluator still raises by default:
-
-```python
-evaluate_case_12_source_terms()
-```
-
-For explicit partial use:
-
-```python
-evaluate_case_12_source_terms(grid, allow_partial=True)
-```
-
----
-
-## Fortran reference validation
-
-The standalone Fortran reference exporter is available at:
-
-```text
-validation/fortran_reference/case12_tfwz/case12_tfwz_reference.f90
-```
-
-Reference CSV files:
-
-```text
-validation/reference_data/case12_tfwz_3x3_default.csv
-validation/reference_data/case12_tfwz_5x5_default.csv
-```
-
-Compile the exporter:
-
-```powershell
-gfortran -O2 -std=f2008 `
-  validation\fortran_reference\case12_tfwz\case12_tfwz_reference.f90 `
-  -o validation\fortran_reference\case12_tfwz\case12_tfwz_reference.exe
-```
-
-Regenerate a reference file:
-
-```powershell
-.\validation\fortran_reference\case12_tfwz\case12_tfwz_reference.exe `
-  validation\reference_data\case12_tfwz_5x5_default.csv 5 5
+v0.6.1 — port tfwz
+v0.6.2 — validate tfwz against Fortran reference
+v0.6.3 — port tfTxx
+v0.6.4 — validate tfTxx against Fortran reference
+v0.6.5 — port tfTxy
+v0.6.6 — port tfTyy
+v0.7.0 — Fortran-vs-Python reference validation
+v0.8.0 — expanded ML datasets
+v0.9.0 — scientific notebooks
+v1.0.0 — first reproducible scientific release
 ```
 
 ---
@@ -356,24 +252,6 @@ Synchronize later:
 ```powershell
 git push origin main
 git push origin --tags
-```
-
----
-
-## Roadmap
-
-```text
-v0.5.4 — dataset and visualization compatibility fixes
-v0.6.0 — Case 12 source-term contract and porting map
-v0.6.1 — port tfwz
-v0.6.2 — validate tfwz against Fortran reference
-v0.6.3 — port tfTxx
-v0.6.4 — port tfTxy
-v0.6.5 — port tfTyy
-v0.7.0 — complete Case 12 source-term validation
-v0.8.0 — expanded ML datasets
-v0.9.0 — scientific notebooks
-v1.0.0 — first reproducible scientific release
 ```
 
 ---
