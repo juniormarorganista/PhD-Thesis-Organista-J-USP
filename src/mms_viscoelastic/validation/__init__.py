@@ -2,9 +2,10 @@
 
 from mms_viscoelastic.validation.source_term_reference import (
     SourceTermReferenceComparison,
-    compare_case12_tftxx_reference,
-    compare_case12_tfwz_reference,
     compare_case12_reference_csv,
+    compare_case12_tftxx_reference,
+    compare_case12_tftxy_reference,
+    compare_case12_tfwz_reference,
     load_source_term_reference_csv,
 )
 
@@ -12,6 +13,7 @@ __all__ = [
     "SourceTermReferenceComparison",
     "compare_case12_reference_csv",
     "compare_case12_tftxx_reference",
+    "compare_case12_tftxy_reference",
     "compare_case12_tfwz_reference",
     "load_source_term_reference_csv",
 ]
