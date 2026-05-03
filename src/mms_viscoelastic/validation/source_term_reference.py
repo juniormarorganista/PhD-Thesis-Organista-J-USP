@@ -1,4 +1,17 @@
-"""Reference-data comparison utilities for manufactured source terms."""
+"""Reference-data comparison utilities for manufactured source terms.
+
+This module compares Python source-term implementations against CSV files
+generated from isolated Fortran reference programs.
+
+Compatibility notes
+-------------------
+1. The project ``Grid2D.from_bounds`` API currently accepts only ``nx`` and
+   ``ny``. Therefore reference CSV coordinates are validated as uniform grids on
+   ``[0, 1]`` before building the grid with ``Grid2D.from_bounds(nx, ny)``.
+
+2. Earlier tests and examples expect comparison objects to expose ``nx`` and
+   ``ny``. The dataclass keeps these fields explicitly.
+"""
 
 from __future__ import annotations
 
@@ -24,6 +37,8 @@ class SourceTermReferenceComparison:
 
     component: str
     reference_path: Path
+    nx: int
+    ny: int
     n_points: int
     max_abs_error: float
     max_rel_error: float
@@ -33,7 +48,13 @@ class SourceTermReferenceComparison:
 
 
 def load_source_term_reference_csv(path: str | Path) -> pd.DataFrame:
-    """Load a source-term reference CSV file."""
+    """Load a source-term reference CSV file.
+
+    Parameters
+    ----------
+    path:
+        CSV path. The file must contain at least ``x`` and ``y`` columns.
+    """
 
     csv_path = Path(path)
     if not csv_path.exists():
@@ -48,7 +69,41 @@ def load_source_term_reference_csv(path: str | Path) -> pd.DataFrame:
     return df
 
 
-def _grid_from_reference(df: pd.DataFrame) -> Grid2D:
+def _assert_uniform_unit_grid(values: np.ndarray, name: str, *, atol: float = 1.0e-12) -> None:
+    """Validate that coordinate values describe a uniform grid on [0, 1]."""
+
+    if values.ndim != 1 or len(values) < 1:
+        raise ValueError(f"{name} coordinates must be a one-dimensional array.")
+
+    if not np.isclose(values[0], 0.0, atol=atol):
+        raise ValueError(
+            f"{name} reference coordinates must start at 0.0 for the current "
+            f"Grid2D.from_bounds API. Got {values[0]!r}."
+        )
+
+    if not np.isclose(values[-1], 1.0, atol=atol):
+        raise ValueError(
+            f"{name} reference coordinates must end at 1.0 for the current "
+            f"Grid2D.from_bounds API. Got {values[-1]!r}."
+        )
+
+    if len(values) > 1:
+        expected = np.linspace(0.0, 1.0, len(values))
+        if not np.allclose(values, expected, atol=atol, rtol=0.0):
+            raise ValueError(
+                f"{name} reference coordinates must be uniformly spaced on [0, 1]."
+            )
+
+
+def _grid_from_reference(df: pd.DataFrame) -> tuple[Grid2D, int, int]:
+    """Build a ``Grid2D`` instance from reference CSV coordinates.
+
+    Returns
+    -------
+    tuple
+        ``(grid, nx, ny)``.
+    """
+
     x_unique = np.sort(df["x"].unique())
     y_unique = np.sort(df["y"].unique())
 
@@ -61,17 +116,15 @@ def _grid_from_reference(df: pd.DataFrame) -> Grid2D:
             f"Got nx={nx}, ny={ny}, rows={len(df)}."
         )
 
-    return Grid2D.from_bounds(
-        nx=nx,
-        ny=ny,
-        x0=float(x_unique.min()),
-        x1=float(x_unique.max()),
-        y0=float(y_unique.min()),
-        y1=float(y_unique.max()),
-    )
+    _assert_uniform_unit_grid(x_unique, "x")
+    _assert_uniform_unit_grid(y_unique, "y")
+
+    return Grid2D.from_bounds(nx=nx, ny=ny), nx, ny
 
 
 def _relative_error(abs_error: np.ndarray, reference: np.ndarray) -> np.ndarray:
+    """Return a safe relative error with denominator bounded below by one."""
+
     denominator = np.maximum(1.0, np.abs(reference))
     return abs_error / denominator
 
@@ -95,13 +148,14 @@ def compare_case12_reference_csv(
             f"Available columns: {list(df.columns)}"
         )
 
-    grid = _grid_from_reference(df)
+    grid, nx, ny = _grid_from_reference(df)
     predicted = evaluator(grid).ravel()
     reference = df[component].to_numpy(dtype=float)
 
     if predicted.shape != reference.shape:
         raise ValueError(
-            f"Predicted shape {predicted.shape} does not match reference shape {reference.shape}."
+            f"Predicted shape {predicted.shape} does not match reference shape "
+            f"{reference.shape}."
         )
 
     abs_error = np.abs(predicted - reference)
@@ -114,6 +168,8 @@ def compare_case12_reference_csv(
     return SourceTermReferenceComparison(
         component=component,
         reference_path=reference_path,
+        nx=nx,
+        ny=ny,
         n_points=len(df),
         max_abs_error=max_abs,
         max_rel_error=max_rel,
@@ -130,7 +186,10 @@ def compare_case12_tfwz_reference(
     atol: float = 1.0e-10,
     rtol: float = 1.0e-10,
 ) -> SourceTermReferenceComparison:
+    """Compare Python ``tfwz`` against a Fortran-generated CSV."""
+
     params = parameters or Case12SourceTermParameters()
+
     return compare_case12_reference_csv(
         path,
         component="tfwz",
@@ -147,7 +206,10 @@ def compare_case12_tftxx_reference(
     atol: float = 1.0e-10,
     rtol: float = 1.0e-10,
 ) -> SourceTermReferenceComparison:
+    """Compare Python ``tfTxx`` against a Fortran-generated CSV."""
+
     params = parameters or Case12SourceTermParameters()
+
     return compare_case12_reference_csv(
         path,
         component="tfTxx",
@@ -164,7 +226,10 @@ def compare_case12_tftxy_reference(
     atol: float = 1.0e-10,
     rtol: float = 1.0e-10,
 ) -> SourceTermReferenceComparison:
+    """Compare Python ``tfTxy`` against a Fortran-generated CSV."""
+
     params = parameters or Case12SourceTermParameters()
+
     return compare_case12_reference_csv(
         path,
         component="tfTxy",

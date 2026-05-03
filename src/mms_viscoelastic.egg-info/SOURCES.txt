@@ -39,4 +39,6 @@ tests/test_grid_and_fields.py
 tests/test_import.py
 tests/test_ml_imports.py
 tests/test_numerics.py
+tests/test_reference_comparison_shape_metadata.py
 tests/test_source_terms_case12_contract.py
+tests/test_validation_grid_api.py
