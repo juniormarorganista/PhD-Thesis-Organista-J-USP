@@ -30,6 +30,7 @@ src/mms_viscoelastic/validation/source_term_reference.py
 src/mms_viscoelastic/visualization/__init__.py
 src/mms_viscoelastic/visualization/fields.py
 tests/test_case12_datasets.py
+tests/test_case12_tfTxx_fortran_reference.py
 tests/test_case12_tfwz_fortran_reference.py
 tests/test_case12_visualization.py
 tests/test_case_12_manufactured.py
