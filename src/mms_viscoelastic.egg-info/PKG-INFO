@@ -164,15 +164,15 @@ Implemented:
 - Case 12 visualization;
 - ML-ready dataset generation;
 - `tfwz` source-term port for Case 12;
-- tests for package imports, dataset generation, source-term registry and `tfwz`.
+- Fortran-reference validation for `tfwz` using `3 x 3` and `5 x 5` grids.
 
 Pending:
 
 - `tfTxx`;
 - `tfTxy`;
 - `tfTyy`;
-- Fortran-vs-Python numerical regression tests;
-- complete solver port.
+- full solver port;
+- large-grid Fortran-vs-Python validation.
 
 ---
 
@@ -184,6 +184,10 @@ Pending:
 │   ├── fortran_original/          # original Fortran code, preserved
 │   ├── mathematica_original/      # original Mathematica notebooks, preserved
 │   └── mms_viscoelastic/          # Python package under construction
+│
+├── validation/
+│   ├── fortran_reference/         # standalone validation utilities
+│   └── reference_data/            # curated CSV reference files
 │
 ├── thesis/
 │   └── original/                  # original LaTeX thesis files, preserved
@@ -283,6 +287,12 @@ Case 12 `tfwz` source term:
 python examples\04_case12_tfwz_source_term.py
 ```
 
+Validate `tfwz` against Fortran reference:
+
+```powershell
+python examples\05_validate_case12_tfwz_reference.py
+```
+
 ---
 
 ## Source terms
@@ -293,7 +303,7 @@ The Case 12 source-term interface is located at:
 src/mms_viscoelastic/source_terms/case_12.py
 ```
 
-Ported:
+Ported and reference-validated:
 
 ```text
 tfwz
@@ -319,7 +329,37 @@ For explicit partial use:
 evaluate_case_12_source_terms(grid, allow_partial=True)
 ```
 
-This returns `tfwz` and leaves tensor source terms as `None`.
+---
+
+## Fortran reference validation
+
+The standalone Fortran reference exporter is available at:
+
+```text
+validation/fortran_reference/case12_tfwz/case12_tfwz_reference.f90
+```
+
+Reference CSV files:
+
+```text
+validation/reference_data/case12_tfwz_3x3_default.csv
+validation/reference_data/case12_tfwz_5x5_default.csv
+```
+
+Compile the exporter:
+
+```powershell
+gfortran -O2 -std=f2008 `
+  validation\fortran_reference\case12_tfwz\case12_tfwz_reference.f90 `
+  -o validation\fortran_reference\case12_tfwz\case12_tfwz_reference.exe
+```
+
+Regenerate a reference file:
+
+```powershell
+.\validation\fortran_reference\case12_tfwz\case12_tfwz_reference.exe `
+  validation\reference_data\case12_tfwz_5x5_default.csv 5 5
+```
 
 ---
 
@@ -355,11 +395,11 @@ git push origin --tags
 v0.5.4 — dataset and visualization compatibility fixes
 v0.6.0 — Case 12 source-term contract and porting map
 v0.6.1 — port tfwz
-v0.6.2 — create Fortran reference export for tfwz
+v0.6.2 — validate tfwz against Fortran reference
 v0.6.3 — port tfTxx
 v0.6.4 — port tfTxy
 v0.6.5 — port tfTyy
-v0.7.0 — Fortran-vs-Python reference validation
+v0.7.0 — complete Case 12 source-term validation
 v0.8.0 — expanded ML datasets
 v0.9.0 — scientific notebooks
 v1.0.0 — first reproducible scientific release
