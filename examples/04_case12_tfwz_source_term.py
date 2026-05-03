@@ -13,6 +13,7 @@ from mms_viscoelastic.source_terms import (
     Case12SourceTermParameters,
     evaluate_case_12_tfTxx,
     evaluate_case_12_tfTxy,
+    evaluate_case_12_tfTyy,
     evaluate_case_12_tfwz,
 )
 
@@ -55,6 +56,7 @@ def main() -> None:
         "tfwz": evaluate_case_12_tfwz(grid, t=args.time, parameters=params),
         "tfTxx": evaluate_case_12_tfTxx(grid, t=args.time, parameters=params),
         "tfTxy": evaluate_case_12_tfTxy(grid, t=args.time, parameters=params),
+        "tfTyy": evaluate_case_12_tfTyy(grid, t=args.time, parameters=params),
     }
 
     df = pd.DataFrame(

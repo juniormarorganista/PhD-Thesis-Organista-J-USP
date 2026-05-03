@@ -10,12 +10,9 @@ Current implementation status:
 - ``tfwz``: ported to NumPy;
 - ``tfTxx``: ported to NumPy;
 - ``tfTxy``: ported to NumPy;
-- ``tfTyy``: pending.
+- ``tfTyy``: ported to NumPy.
 
-The full source-term evaluator remains protected by default. It raises
-``NotImplementedError`` unless explicitly called with ``allow_partial=True``.
-This prevents incomplete source terms from being used silently in verification
-or machine-learning workflows.
+All four Case 12 source-term components are now available in Python. The tensor term ``tfTyy`` still needs independent Fortran-reference validation in the next phase.
 """
 
 from __future__ import annotations
@@ -31,8 +28,8 @@ from mms_viscoelastic.grids import Grid2D
 FloatArray = NDArray[np.float64]
 
 CASE12_FORTRAN_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx", "tfTxy", "tfTyy")
-CASE12_PORTED_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx", "tfTxy")
-CASE12_PENDING_ARRAYS: tuple[str, ...] = ("tfTyy",)
+CASE12_PORTED_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx", "tfTxy", "tfTyy")
+CASE12_PENDING_ARRAYS: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -130,7 +127,7 @@ def case12_source_term_status() -> dict[str, str]:
         "tfwz": "ported to NumPy; regression against Fortran reference available",
         "tfTxx": "ported to NumPy; regression against Fortran reference available",
         "tfTxy": "ported to NumPy; regression against Fortran reference pending",
-        "tfTyy": "mapped from Fortran, algebraic Python port pending",
+        "tfTyy": "ported to NumPy; regression against Fortran reference pending",
     }
 
 
@@ -547,6 +544,95 @@ def evaluate_case_12_tfTxy(
     return (first + giesekus + relaxation + (-1.0 + betann) * Wi * wi_inner) / exp_2at
 
 
+def evaluate_case_12_tfTyy(
+    grid: Grid2D,
+    t: float = 0.0,
+    parameters: Case12SourceTermParameters | None = None,
+) -> FloatArray:
+    """Evaluate the ported ``tfTyy`` source term for MMS Case 12.
+
+    This is a NumPy translation of the original Fortran assignment
+    ``tfTyy(i,j) = ...`` in ``source_term_case_12(t)``.
+    """
+
+    c = _case12_common(grid, t, parameters)
+    s = _tensor_shapes(c)
+    p: Case12SourceTermParameters = c["p"]  # type: ignore[assignment]
+
+    x: FloatArray = c["x"]  # type: ignore[assignment]
+    y: FloatArray = c["y"]  # type: ignore[assignment]
+    pi: float = c["pi"]  # type: ignore[assignment]
+    exp_at: FloatArray = c["exp_at"]  # type: ignore[assignment]
+    exp_2at: FloatArray = c["exp_2at"]  # type: ignore[assignment]
+    cos_px: FloatArray = c["cos_px"]  # type: ignore[assignment]
+    sin_px: FloatArray = c["sin_px"]  # type: ignore[assignment]
+    cos_py: FloatArray = c["cos_py"]  # type: ignore[assignment]
+    sin_py: FloatArray = c["sin_py"]  # type: ignore[assignment]
+    x_poly: FloatArray = c["x_poly"]  # type: ignore[assignment]
+    dpsi_dy_like: FloatArray = c["dpsi_dy_like"]  # type: ignore[assignment]
+    dudx_shape: FloatArray = c["dudx_shape"]  # type: ignore[assignment]
+    mixed_xy_shape: FloatArray = c["mixed_xy_shape"]  # type: ignore[assignment]
+    uxx_shape: FloatArray = c["uxx_shape"]  # type: ignore[assignment]
+
+    Rey = p.reynolds
+    Wi = p.wi
+    betann = p.beta
+    epsylon = p.epsilon
+    xi = p.xi
+    alphaG = p.alpha_g
+    at = p.at
+
+    Axx = s["Axx"]
+    Bxx = s["Bxx"]
+    Axy = s["Axy"]
+    Bxy = s["Bxy"]
+    Ayy = s["Ayy"]
+    Byy = s["Byy"]
+
+    x_derivative_yy = -(p.a2yy * cos_px) + p.a3yy * sin_px
+    y_derivative_yy = p.b2yy * cos_py - p.b3yy * sin_py
+
+    first = -2.0 * (-1.0 + betann) * exp_at * dudx_shape * dpsi_dy_like / Rey
+
+    relaxation = (
+        (1.0 - betann)
+        * exp_at
+        * Ayy
+        * Byy
+        * (
+            1.0
+            + (epsylon * Rey * Wi * Axx * Bxx) / exp_at
+            + (epsylon * Rey * Wi * Ayy * Byy) / exp_at
+        )
+    )
+
+    giesekus = alphaG * (1.0 - betann) * Rey * Wi * (
+        Axy**2 * Bxy**2 + Ayy**2 * Byy**2
+    )
+
+    wi_inner = (
+        2.0 * (-1.0 + betann) * y * Axy * uxx_shape * sin_py * Bxy
+        + at * (-1.0 + betann) * exp_at * Ayy * Byy
+        + (-1.0 + betann) * pi * y * cos_py * Ayy * dudx_shape * Byy
+        + (-1.0 + betann) * Ayy * dudx_shape * sin_py * Byy
+        - (-1.0 + betann) * pi * x_poly * cos_px * Ayy * dpsi_dy_like * Byy
+        - (-1.0 + betann) * (-1.0 + x) * sin_px * Ayy * dpsi_dy_like * Byy
+        - (-1.0 + betann) * x * sin_px * Ayy * dpsi_dy_like * Byy
+        + (-1.0 + betann) * pi * x_poly * sin_px * x_derivative_yy * dpsi_dy_like * Byy
+        - 2.0 * (-1.0 + betann) * Ayy * dudx_shape * dpsi_dy_like * Byy
+        + (-1.0 + betann) * pi * y * Ayy * dudx_shape * sin_py * y_derivative_yy
+        + (1.0 - betann)
+        * xi
+        * (
+            y * Axy * uxx_shape * sin_py * Bxy
+            - 2.0 * Ayy * dudx_shape * dpsi_dy_like * Byy
+            - pi * x_poly * sin_px * Axy * Bxy * mixed_xy_shape
+        )
+    )
+
+    return (first + relaxation + giesekus + Wi * wi_inner) / exp_2at
+
+
 def evaluate_case_12_source_terms(
     grid: Grid2D | None = None,
     t: float = 0.0,
@@ -554,29 +640,21 @@ def evaluate_case_12_source_terms(
     *,
     allow_partial: bool = False,
 ) -> Case12SourceTerms:
-    """Evaluate MMS Case 12 source terms.
+    """Evaluate all currently ported MMS Case 12 source terms.
 
-    By default this function still raises ``NotImplementedError`` because
-    ``tfTyy`` is pending. Use ``allow_partial=True`` when the caller explicitly
-    accepts a partial result.
+    All four source-term components are now available in Python. The
+    ``allow_partial`` keyword is retained for backward compatibility with
+    previous phases; it is no longer required.
     """
 
-    if not allow_partial:
-        raise NotImplementedError(
-            "MMS Case 12 full source terms are not fully ported yet. "
-            "Currently available: tfwz, tfTxx and tfTxy. "
-            "Use evaluate_case_12_source_terms(..., allow_partial=True) only "
-            "when a partial source-term object is intentional."
-        )
-
     if grid is None:
-        raise ValueError("grid is required when allow_partial=True.")
+        raise ValueError("grid is required.")
 
     return Case12SourceTerms(
         tfwz=evaluate_case_12_tfwz(grid, t=t, parameters=parameters),
         tfTxx=evaluate_case_12_tfTxx(grid, t=t, parameters=parameters),
         tfTxy=evaluate_case_12_tfTxy(grid, t=t, parameters=parameters),
-        tfTyy=None,
+        tfTyy=evaluate_case_12_tfTyy(grid, t=t, parameters=parameters),
     )
 
 
@@ -591,6 +669,7 @@ __all__ = [
     "evaluate_case_12_source_terms",
     "evaluate_case_12_tfTxx",
     "evaluate_case_12_tfTxy",
+    "evaluate_case_12_tfTyy",
     "evaluate_case_12_tfwz",
     "pending_case12_source_terms",
     "ported_case12_source_terms",
