@@ -12,6 +12,7 @@ from mms_viscoelastic.source_terms import (
     case12_source_term_status,
     evaluate_case_12_source_terms,
     evaluate_case_12_tfTxx,
+    evaluate_case_12_tfTxy,
     evaluate_case_12_tfwz,
     pending_case12_source_terms,
     ported_case12_source_terms,
@@ -20,8 +21,8 @@ from mms_viscoelastic.source_terms import (
 
 def test_case12_source_term_registry() -> None:
     assert available_case12_source_terms() == ("tfwz", "tfTxx", "tfTxy", "tfTyy")
-    assert ported_case12_source_terms() == ("tfwz", "tfTxx")
-    assert pending_case12_source_terms() == ("tfTxy", "tfTyy")
+    assert ported_case12_source_terms() == ("tfwz", "tfTxx", "tfTxy")
+    assert pending_case12_source_terms() == ("tfTyy",)
 
 
 def test_case12_source_term_status_is_explicit() -> None:
@@ -30,7 +31,7 @@ def test_case12_source_term_status_is_explicit() -> None:
     assert set(status) == {"tfwz", "tfTxx", "tfTxy", "tfTyy"}
     assert "ported" in status["tfwz"]
     assert "ported" in status["tfTxx"]
-    assert "pending" in status["tfTxy"]
+    assert "ported" in status["tfTxy"]
     assert "pending" in status["tfTyy"]
 
 
@@ -47,20 +48,17 @@ def test_case12_full_source_terms_still_raise_until_complete() -> None:
         evaluate_case_12_source_terms()
 
 
-def test_case12_tfwz_shape_and_finite_values() -> None:
+def test_case12_ported_terms_shape_and_finite_values() -> None:
     grid = Grid2D.from_bounds(nx=9, ny=7)
-    tfwz = evaluate_case_12_tfwz(grid)
 
-    assert tfwz.shape == (7, 9)
-    assert np.isfinite(tfwz).all()
-
-
-def test_case12_tfTxx_shape_and_finite_values() -> None:
-    grid = Grid2D.from_bounds(nx=9, ny=7)
-    tfTxx = evaluate_case_12_tfTxx(grid)
-
-    assert tfTxx.shape == (7, 9)
-    assert np.isfinite(tfTxx).all()
+    for evaluator in (
+        evaluate_case_12_tfwz,
+        evaluate_case_12_tfTxx,
+        evaluate_case_12_tfTxy,
+    ):
+        values = evaluator(grid)
+        assert values.shape == (7, 9)
+        assert np.isfinite(values).all()
 
 
 def test_case12_partial_source_term_object() -> None:
@@ -69,28 +67,20 @@ def test_case12_partial_source_term_object() -> None:
 
     assert terms.tfwz is not None
     assert terms.tfTxx is not None
+    assert terms.tfTxy is not None
+    assert terms.tfTyy is None
+
     assert terms.tfwz.shape == (4, 5)
     assert terms.tfTxx.shape == (4, 5)
-    assert terms.tfTxy is None
-    assert terms.tfTyy is None
-    assert terms.available_components() == ("tfwz", "tfTxx")
-    assert terms.pending_components() == ("tfTxy", "tfTyy")
+    assert terms.tfTxy.shape == (4, 5)
+
+    assert terms.available_components() == ("tfwz", "tfTxx", "tfTxy")
+    assert terms.pending_components() == ("tfTyy",)
 
 
-def test_case12_tfwz_default_reference_at_origin() -> None:
+def test_case12_default_references_at_origin() -> None:
     grid = Grid2D.from_bounds(nx=3, ny=3)
-    tfwz = evaluate_case_12_tfwz(grid)
 
-    expected = -4.0 * np.pi**2
-    assert np.isclose(tfwz[0, 0], expected)
-
-
-def test_case12_tfTxx_default_reference_at_origin() -> None:
-    grid = Grid2D.from_bounds(nx=3, ny=3)
-    tfTxx = evaluate_case_12_tfTxx(grid)
-
-    # Default parameters at x=0, y=0:
-    # beta=0.5, Re=Wi=1, alpha_g=epsilon=xi=at=0,
-    # all a/b coefficients are 1.
-    expected = -4.0
-    assert np.isclose(tfTxx[0, 0], expected)
+    assert np.isclose(evaluate_case_12_tfwz(grid)[0, 0], -4.0 * np.pi**2)
+    assert np.isclose(evaluate_case_12_tfTxx(grid)[0, 0], 2.0)
+    assert np.isclose(evaluate_case_12_tfTxy(grid)[0, 0], 2.0)

@@ -9,7 +9,7 @@ Current implementation status:
 
 - ``tfwz``: ported to NumPy;
 - ``tfTxx``: ported to NumPy;
-- ``tfTxy``: pending;
+- ``tfTxy``: ported to NumPy;
 - ``tfTyy``: pending.
 
 The full source-term evaluator remains protected by default. It raises
@@ -31,8 +31,8 @@ from mms_viscoelastic.grids import Grid2D
 FloatArray = NDArray[np.float64]
 
 CASE12_FORTRAN_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx", "tfTxy", "tfTyy")
-CASE12_PORTED_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx")
-CASE12_PENDING_ARRAYS: tuple[str, ...] = ("tfTxy", "tfTyy")
+CASE12_PORTED_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx", "tfTxy")
+CASE12_PENDING_ARRAYS: tuple[str, ...] = ("tfTyy",)
 
 
 @dataclass(frozen=True)
@@ -127,9 +127,9 @@ def case12_source_term_status() -> dict[str, str]:
     """Return current implementation status for each source-term component."""
 
     return {
-        "tfwz": "ported to NumPy; regression against Fortran reference pending",
-        "tfTxx": "ported to NumPy; regression against Fortran reference pending",
-        "tfTxy": "mapped from Fortran, algebraic Python port pending",
+        "tfwz": "ported to NumPy; regression against Fortran reference available",
+        "tfTxx": "ported to NumPy; regression against Fortran reference available",
+        "tfTxy": "ported to NumPy; regression against Fortran reference pending",
         "tfTyy": "mapped from Fortran, algebraic Python port pending",
     }
 
@@ -148,6 +148,12 @@ def _case12_common(
     y = grid.Y
     pi = np.pi
 
+    cos_px = np.cos(pi * x)
+    sin_px = np.sin(pi * x)
+    cos_py = np.cos(pi * y)
+    sin_py = np.sin(pi * y)
+    x_poly = (-1.0 + x) * x
+
     return {
         "p": params,
         "x": x,
@@ -155,15 +161,52 @@ def _case12_common(
         "pi": pi,
         "exp_at": np.exp(params.at * t),
         "exp_2at": np.exp(2.0 * params.at * t),
-        "cos_px": np.cos(pi * x),
-        "sin_px": np.sin(pi * x),
-        "cos_py": np.cos(pi * y),
-        "sin_py": np.sin(pi * y),
+        "cos_px": cos_px,
+        "sin_px": sin_px,
+        "cos_py": cos_py,
+        "sin_py": sin_py,
         "cos_2px": np.cos(2.0 * pi * x),
         "sin_2px": np.sin(2.0 * pi * x),
         "cos_2py": np.cos(2.0 * pi * y),
         "sin_2py": np.sin(2.0 * pi * y),
-        "x_poly": (-1.0 + x) * x,
+        "x_poly": x_poly,
+        "dpsi_dy_like": pi * y * cos_py + sin_py,
+        "dudx_shape": pi * x_poly * cos_px + (-1.0 + 2.0 * x) * sin_px,
+        "uxx_shape": (
+            2.0 * pi * (1.0 - 2.0 * x) * cos_px
+            + (-2.0 + pi**2 * x_poly) * sin_px
+        ),
+        "mixed_xy_shape": -2.0 * cos_py + pi * y * sin_py,
+    }
+
+
+def _tensor_shapes(
+    c: dict[str, object],
+) -> dict[str, FloatArray]:
+    """Return manufactured tensor shape factors used in Case 12."""
+
+    p: Case12SourceTermParameters = c["p"]  # type: ignore[assignment]
+    cos_px: FloatArray = c["cos_px"]  # type: ignore[assignment]
+    sin_px: FloatArray = c["sin_px"]  # type: ignore[assignment]
+    cos_py: FloatArray = c["cos_py"]  # type: ignore[assignment]
+    sin_py: FloatArray = c["sin_py"]  # type: ignore[assignment]
+
+    Axx = p.a1xx + p.a3xx * cos_px + p.a2xx * sin_px
+    Bxx = p.b1xx + p.b3xx * cos_py + p.b2xx * sin_py
+
+    Axy = p.a1xy + p.a3xy * cos_px + p.a2xy * sin_px
+    Bxy = p.b1xy + p.b3xy * cos_py + p.b2xy * sin_py
+
+    Ayy = p.a1yy + p.a3yy * cos_px + p.a2yy * sin_px
+    Byy = p.b1yy + p.b3yy * cos_py + p.b2yy * sin_py
+
+    return {
+        "Axx": Axx,
+        "Bxx": Bxx,
+        "Axy": Axy,
+        "Bxy": Bxy,
+        "Ayy": Ayy,
+        "Byy": Byy,
     }
 
 
@@ -327,13 +370,10 @@ def evaluate_case_12_tfTxx(
     t: float = 0.0,
     parameters: Case12SourceTermParameters | None = None,
 ) -> FloatArray:
-    """Evaluate the ported ``tfTxx`` source term for MMS Case 12.
-
-    This is a NumPy translation of the original Fortran assignment
-    ``tfTxx(i,j) = ...`` in ``source_term_case_12(t)``.
-    """
+    """Evaluate the ported ``tfTxx`` source term for MMS Case 12."""
 
     c = _case12_common(grid, t, parameters)
+    s = _tensor_shapes(c)
     p: Case12SourceTermParameters = c["p"]  # type: ignore[assignment]
 
     x: FloatArray = c["x"]  # type: ignore[assignment]
@@ -346,6 +386,10 @@ def evaluate_case_12_tfTxx(
     cos_py: FloatArray = c["cos_py"]  # type: ignore[assignment]
     sin_py: FloatArray = c["sin_py"]  # type: ignore[assignment]
     x_poly: FloatArray = c["x_poly"]  # type: ignore[assignment]
+    dpsi_dy_like: FloatArray = c["dpsi_dy_like"]  # type: ignore[assignment]
+    dudx_shape: FloatArray = c["dudx_shape"]  # type: ignore[assignment]
+    mixed_xy_shape: FloatArray = c["mixed_xy_shape"]  # type: ignore[assignment]
+    uxx_shape: FloatArray = c["uxx_shape"]  # type: ignore[assignment]
 
     Rey = p.reynolds
     Wi = p.wi
@@ -355,73 +399,152 @@ def evaluate_case_12_tfTxx(
     alphaG = p.alpha_g
     at = p.at
 
-    Ax = p.a1xx + p.a3xx * cos_px + p.a2xx * sin_px
-    Bx = p.b1xx + p.b3xx * cos_py + p.b2xx * sin_py
-    Axy = p.a1xy + p.a3xy * cos_px + p.a2xy * sin_px
-    Bxy = p.b1xy + p.b3xy * cos_py + p.b2xy * sin_py
-    Ayy = p.a1yy + p.a3yy * cos_px + p.a2yy * sin_px
-    Byy = p.b1yy + p.b3yy * cos_py + p.b2yy * sin_py
+    Axx = s["Axx"]
+    Bxx = s["Bxx"]
+    Axy = s["Axy"]
+    Bxy = s["Bxy"]
+    Ayy = s["Ayy"]
+    Byy = s["Byy"]
 
-    dpsi_dy_like = pi * y * cos_py + sin_py
-    dudx_shape = pi * x_poly * cos_px + (-1.0 + 2.0 * x) * sin_px
     x_derivative_shape = -(p.a2xx * cos_px) + p.a3xx * sin_px
     y_derivative_shape = p.b2xx * cos_py - p.b3xx * sin_py
-    mixed_xy_shape = -2.0 * cos_py + pi * y * sin_py
-    uxx_shape = (
-        2.0 * pi * (1.0 - 2.0 * x) * cos_px
-        + (-2.0 + pi**2 * x_poly) * sin_px
-    )
 
-    first = (
-        2.0
-        * (-1.0 + betann)
-        * exp_at
-        * dudx_shape
-        * dpsi_dy_like
-        / Rey
-    )
-
-    giesekus = (
-        alphaG
-        * (1.0 - betann)
-        * Rey
-        * Wi
-        * (Ax**2 * Bx**2 + Axy**2 * Bxy**2)
-    )
-
+    first = 2.0 * (-1.0 + betann) * exp_at * dudx_shape * dpsi_dy_like / Rey
+    giesekus = alphaG * (1.0 - betann) * Rey * Wi * (Axx**2 * Bxx**2 + Axy**2 * Bxy**2)
     relaxation = (
         (1.0 - betann)
         * exp_at
-        * Ax
-        * Bx
-        * (
-            1.0
-            + (epsylon * Rey * Wi * Ax * Bx) / exp_at
-            + (epsylon * Rey * Wi * Ayy * Byy) / exp_at
-        )
+        * Axx
+        * Bxx
+        * (1.0 + (epsylon * Rey * Wi * Axx * Bxx) / exp_at + (epsylon * Rey * Wi * Ayy * Byy) / exp_at)
     )
 
     wi_inner = (
-        at * (-1.0 + betann) * exp_at * Ax * Bx
-        + (-1.0 + betann) * pi * y * cos_py * Ax * dudx_shape * Bx
-        + (-1.0 + betann) * Ax * dudx_shape * sin_py * Bx
-        - (-1.0 + betann) * pi * x_poly * cos_px * Ax * dpsi_dy_like * Bx
-        - (-1.0 + betann) * (-1.0 + x) * sin_px * Ax * dpsi_dy_like * Bx
-        - (-1.0 + betann) * x * sin_px * Ax * dpsi_dy_like * Bx
-        + (-1.0 + betann) * pi * x_poly * sin_px * x_derivative_shape * dpsi_dy_like * Bx
-        + 2.0 * (-1.0 + betann) * Ax * dudx_shape * dpsi_dy_like * Bx
-        + (-1.0 + betann) * pi * y * Ax * dudx_shape * sin_py * y_derivative_shape
+        at * (-1.0 + betann) * exp_at * Axx * Bxx
+        + (-1.0 + betann) * pi * y * cos_py * Axx * dudx_shape * Bxx
+        + (-1.0 + betann) * Axx * dudx_shape * sin_py * Bxx
+        - (-1.0 + betann) * pi * x_poly * cos_px * Axx * dpsi_dy_like * Bxx
+        - (-1.0 + betann) * (-1.0 + x) * sin_px * Axx * dpsi_dy_like * Bxx
+        - (-1.0 + betann) * x * sin_px * Axx * dpsi_dy_like * Bxx
+        + (-1.0 + betann) * pi * x_poly * sin_px * x_derivative_shape * dpsi_dy_like * Bxx
+        + 2.0 * (-1.0 + betann) * Axx * dudx_shape * dpsi_dy_like * Bxx
+        + (-1.0 + betann) * pi * y * Axx * dudx_shape * sin_py * y_derivative_shape
         - 2.0 * (-1.0 + betann) * pi * x_poly * sin_px * Axy * Bxy * mixed_xy_shape
         + (1.0 - betann)
         * xi
         * (
-            2.0 * Ax * dudx_shape * dpsi_dy_like * Bx
+            2.0 * Axx * dudx_shape * dpsi_dy_like * Bxx
             + y * Axy * uxx_shape * sin_py * Bxy
             - pi * x_poly * sin_px * Axy * Bxy * mixed_xy_shape
         )
     )
 
     return (first + giesekus + relaxation + Wi * wi_inner) / exp_2at
+
+
+def evaluate_case_12_tfTxy(
+    grid: Grid2D,
+    t: float = 0.0,
+    parameters: Case12SourceTermParameters | None = None,
+) -> FloatArray:
+    """Evaluate the ported ``tfTxy`` source term for MMS Case 12."""
+
+    c = _case12_common(grid, t, parameters)
+    s = _tensor_shapes(c)
+    p: Case12SourceTermParameters = c["p"]  # type: ignore[assignment]
+
+    x: FloatArray = c["x"]  # type: ignore[assignment]
+    y: FloatArray = c["y"]  # type: ignore[assignment]
+    pi: float = c["pi"]  # type: ignore[assignment]
+    exp_at: FloatArray = c["exp_at"]  # type: ignore[assignment]
+    exp_2at: FloatArray = c["exp_2at"]  # type: ignore[assignment]
+    cos_px: FloatArray = c["cos_px"]  # type: ignore[assignment]
+    sin_px: FloatArray = c["sin_px"]  # type: ignore[assignment]
+    cos_py: FloatArray = c["cos_py"]  # type: ignore[assignment]
+    sin_py: FloatArray = c["sin_py"]  # type: ignore[assignment]
+    x_poly: FloatArray = c["x_poly"]  # type: ignore[assignment]
+    dpsi_dy_like: FloatArray = c["dpsi_dy_like"]  # type: ignore[assignment]
+    dudx_shape: FloatArray = c["dudx_shape"]  # type: ignore[assignment]
+    mixed_xy_shape: FloatArray = c["mixed_xy_shape"]  # type: ignore[assignment]
+    uxx_shape: FloatArray = c["uxx_shape"]  # type: ignore[assignment]
+
+    Rey = p.reynolds
+    Wi = p.wi
+    betann = p.beta
+    epsylon = p.epsilon
+    xi = p.xi
+    alphaG = p.alpha_g
+    at = p.at
+
+    Axx = s["Axx"]
+    Bxx = s["Bxx"]
+    Axy = s["Axy"]
+    Bxy = s["Bxy"]
+    Ayy = s["Ayy"]
+    Byy = s["Byy"]
+
+    x_derivative_xy = -(p.a2xy * cos_px) + p.a3xy * sin_px
+    y_derivative_xy = p.b2xy * cos_py - p.b3xy * sin_py
+
+    shear_shape = pi * x_poly * cos_py * sin_px - y * (pi * (-1.0 + 2.0 * x) * cos_px + sin_px) * sin_py
+
+    tensor_sum = (
+        p.a1xx * p.b1xx
+        + p.a1yy * p.b1yy
+        + cos_py
+        * (
+            p.a1xx * p.b3xx
+            + p.a1yy * p.b3yy
+            + (p.a2xx * p.b3xx + p.a2yy * p.b3yy) * sin_px
+        )
+        + (p.a1xx * p.b2xx + p.a1yy * p.b2yy) * sin_py
+        + sin_px
+        * (
+            p.a2xx * p.b1xx
+            + p.a2yy * p.b1yy
+            + (p.a2xx * p.b2xx + p.a2yy * p.b2yy) * sin_py
+        )
+        + cos_px
+        * (
+            p.a3xx * p.b1xx
+            + p.a3yy * p.b1yy
+            + (p.a3xx * p.b3xx + p.a3yy * p.b3yy) * cos_py
+            + (p.a3xx * p.b2xx + p.a3yy * p.b2yy) * sin_py
+        )
+    )
+
+    first = 2.0 * (-1.0 + betann) * exp_at * shear_shape / Rey
+
+    giesekus = alphaG * (1.0 - betann) * Rey * Wi * Axy * Bxy * (Axx * Bxx + Ayy * Byy)
+
+    relaxation = (
+        (1.0 - betann)
+        * exp_at
+        * Axy
+        * Bxy
+        * (1.0 + (epsylon * Rey * Wi * Axx * Bxx) / exp_at + (epsylon * Rey * Wi * Ayy * Byy) / exp_at)
+    )
+
+    wi_inner = (
+        y * Axx * uxx_shape * sin_py * Bxx
+        + at * exp_at * Axy * Bxy
+        + pi * y * cos_py * Axy * dudx_shape * Bxy
+        + Axy * dudx_shape * sin_py * Bxy
+        - pi * x_poly * cos_px * Axy * dpsi_dy_like * Bxy
+        - (-1.0 + x) * sin_px * Axy * dpsi_dy_like * Bxy
+        - x * sin_px * Axy * dpsi_dy_like * Bxy
+        + pi * x_poly * sin_px * x_derivative_xy * dpsi_dy_like * Bxy
+        + pi * y * Axy * dudx_shape * sin_py * y_derivative_xy
+        + pi * x_poly * sin_px * Ayy * Byy * (2.0 * cos_py - pi * y * sin_py)
+        + xi
+        * (
+            -(pi * x_poly * cos_py * sin_px)
+            + y * (pi * (-1.0 + 2.0 * x) * cos_px + sin_px) * sin_py
+        )
+        * tensor_sum
+    )
+
+    return (first + giesekus + relaxation + (-1.0 + betann) * Wi * wi_inner) / exp_2at
 
 
 def evaluate_case_12_source_terms(
@@ -434,14 +557,14 @@ def evaluate_case_12_source_terms(
     """Evaluate MMS Case 12 source terms.
 
     By default this function still raises ``NotImplementedError`` because
-    ``tfTxy`` and ``tfTyy`` are pending. Use ``allow_partial=True`` when the
-    caller explicitly accepts a partial result.
+    ``tfTyy`` is pending. Use ``allow_partial=True`` when the caller explicitly
+    accepts a partial result.
     """
 
     if not allow_partial:
         raise NotImplementedError(
             "MMS Case 12 full source terms are not fully ported yet. "
-            "Currently available: tfwz and tfTxx. "
+            "Currently available: tfwz, tfTxx and tfTxy. "
             "Use evaluate_case_12_source_terms(..., allow_partial=True) only "
             "when a partial source-term object is intentional."
         )
@@ -452,7 +575,7 @@ def evaluate_case_12_source_terms(
     return Case12SourceTerms(
         tfwz=evaluate_case_12_tfwz(grid, t=t, parameters=parameters),
         tfTxx=evaluate_case_12_tfTxx(grid, t=t, parameters=parameters),
-        tfTxy=None,
+        tfTxy=evaluate_case_12_tfTxy(grid, t=t, parameters=parameters),
         tfTyy=None,
     )
 
@@ -467,6 +590,7 @@ __all__ = [
     "case12_source_term_status",
     "evaluate_case_12_source_terms",
     "evaluate_case_12_tfTxx",
+    "evaluate_case_12_tfTxy",
     "evaluate_case_12_tfwz",
     "pending_case12_source_terms",
     "ported_case12_source_terms",
