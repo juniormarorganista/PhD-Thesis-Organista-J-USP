@@ -15,17 +15,27 @@ Implemented:
 - ML-ready dataset generation;
 - `tfwz` source-term port and Fortran-reference validation;
 - `tfTxx` source-term port and Fortran-reference validation;
-- `tfTxy` source-term port and Fortran-reference validation.
+- `tfTxy` source-term port and Fortran-reference validation;
+- `tfTyy` source-term port.
 
 Pending:
 
-- `tfTyy`;
-- complete source-term validation;
+- Fortran-reference validation for `tfTyy`;
+- complete source-term validation report;
 - complete solver port.
 
 ## Source terms
 
-Ported and validated:
+Ported:
+
+```text
+tfwz
+tfTxx
+tfTxy
+tfTyy
+```
+
+Validated against Fortran reference:
 
 ```text
 tfwz
@@ -33,13 +43,21 @@ tfTxx
 tfTxy
 ```
 
-Pending:
+Pending validation:
 
 ```text
 tfTyy
 ```
 
-## Validation commands
+## Main commands
+
+```powershell
+python -m compileall src\mms_viscoelastic
+python -m pytest -q
+python examples\04_case12_tfwz_source_term.py
+```
+
+Reference validations:
 
 ```powershell
 python examples\05_validate_case12_tfwz_reference.py
@@ -47,19 +65,13 @@ python examples\06_validate_case12_tfTxx_reference.py
 python examples\07_validate_case12_tfTxy_reference.py
 ```
 
-Run all tests:
-
-```powershell
-python -m compileall src\mms_viscoelastic
-python -m pytest -q
-```
-
 ## Roadmap
 
 ```text
-v0.6.6 — validate tfTxy against Fortran reference
 v0.6.7 — port tfTyy
 v0.6.8 — validate tfTyy against Fortran reference
 v0.7.0 — complete Case 12 source-term validation
+v0.8.0 — expanded ML datasets
+v0.9.0 — scientific notebooks
 v1.0.0 — first reproducible scientific release
 ```
