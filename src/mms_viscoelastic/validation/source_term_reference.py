@@ -11,6 +11,9 @@ Compatibility notes
 
 2. Earlier tests and examples expect comparison objects to expose ``nx`` and
    ``ny``. The dataclass keeps these fields explicitly.
+
+3. The original ``tfwz`` validation example also prints ``mean_abs_error``.
+   The dataclass therefore exposes both maximum and mean error metrics.
 """
 
 from __future__ import annotations
@@ -41,20 +44,16 @@ class SourceTermReferenceComparison:
     ny: int
     n_points: int
     max_abs_error: float
+    mean_abs_error: float
     max_rel_error: float
+    mean_rel_error: float
     atol: float
     rtol: float
     passed: bool
 
 
 def load_source_term_reference_csv(path: str | Path) -> pd.DataFrame:
-    """Load a source-term reference CSV file.
-
-    Parameters
-    ----------
-    path:
-        CSV path. The file must contain at least ``x`` and ``y`` columns.
-    """
+    """Load a source-term reference CSV file."""
 
     csv_path = Path(path)
     if not csv_path.exists():
@@ -96,13 +95,7 @@ def _assert_uniform_unit_grid(values: np.ndarray, name: str, *, atol: float = 1.
 
 
 def _grid_from_reference(df: pd.DataFrame) -> tuple[Grid2D, int, int]:
-    """Build a ``Grid2D`` instance from reference CSV coordinates.
-
-    Returns
-    -------
-    tuple
-        ``(grid, nx, ny)``.
-    """
+    """Build a ``Grid2D`` instance from reference CSV coordinates."""
 
     x_unique = np.sort(df["x"].unique())
     y_unique = np.sort(df["y"].unique())
@@ -162,7 +155,9 @@ def compare_case12_reference_csv(
     rel_error = _relative_error(abs_error, reference)
 
     max_abs = float(abs_error.max(initial=0.0))
+    mean_abs = float(abs_error.mean()) if abs_error.size else 0.0
     max_rel = float(rel_error.max(initial=0.0))
+    mean_rel = float(rel_error.mean()) if rel_error.size else 0.0
     passed = bool(np.allclose(predicted, reference, atol=atol, rtol=rtol))
 
     return SourceTermReferenceComparison(
@@ -172,7 +167,9 @@ def compare_case12_reference_csv(
         ny=ny,
         n_points=len(df),
         max_abs_error=max_abs,
+        mean_abs_error=mean_abs,
         max_rel_error=max_rel,
+        mean_rel_error=mean_rel,
         atol=atol,
         rtol=rtol,
         passed=passed,
