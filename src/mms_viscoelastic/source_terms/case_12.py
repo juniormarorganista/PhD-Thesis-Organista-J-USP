@@ -1,13 +1,14 @@
 """Source terms for MMS Case 12.
 
-This module starts the algebraic Python port of the Fortran routine:
+This module ports selected algebraic source terms from the original Fortran
+routine:
 
 ``src/fortran_original/4Order_LPOG_Euler/case_12.f::source_term_case_12(t)``
 
 Current implementation status:
 
 - ``tfwz``: ported to NumPy;
-- ``tfTxx``: pending;
+- ``tfTxx``: ported to NumPy;
 - ``tfTxy``: pending;
 - ``tfTyy``: pending.
 
@@ -30,17 +31,13 @@ from mms_viscoelastic.grids import Grid2D
 FloatArray = NDArray[np.float64]
 
 CASE12_FORTRAN_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx", "tfTxy", "tfTyy")
-CASE12_PORTED_ARRAYS: tuple[str, ...] = ("tfwz",)
-CASE12_PENDING_ARRAYS: tuple[str, ...] = ("tfTxx", "tfTxy", "tfTyy")
+CASE12_PORTED_ARRAYS: tuple[str, ...] = ("tfwz", "tfTxx")
+CASE12_PENDING_ARRAYS: tuple[str, ...] = ("tfTxy", "tfTyy")
 
 
 @dataclass(frozen=True)
 class Case12SourceTermParameters:
-    """Physical and constitutive parameters required by Case 12 source terms.
-
-    Defaults are intentionally simple and mirror the early Python case-12
-    defaults: unit trigonometric coefficients, ``Re = 1`` and ``beta = 0.5``.
-    """
+    """Physical and constitutive parameters required by Case 12 source terms."""
 
     reynolds: float = 1.0
     wi: float = 1.0
@@ -131,31 +128,18 @@ def case12_source_term_status() -> dict[str, str]:
 
     return {
         "tfwz": "ported to NumPy; regression against Fortran reference pending",
-        "tfTxx": "mapped from Fortran, algebraic Python port pending",
+        "tfTxx": "ported to NumPy; regression against Fortran reference pending",
         "tfTxy": "mapped from Fortran, algebraic Python port pending",
         "tfTyy": "mapped from Fortran, algebraic Python port pending",
     }
 
 
-def evaluate_case_12_tfwz(
+def _case12_common(
     grid: Grid2D,
-    t: float = 0.0,
-    parameters: Case12SourceTermParameters | None = None,
-) -> FloatArray:
-    """Evaluate the ported ``tfwz`` source term for MMS Case 12.
-
-    The expression is a direct NumPy translation of the Fortran assignment:
-
-    ``tfwz(i,j) = ...``
-
-    in ``source_term_case_12(t)``.
-
-    Notes
-    -----
-    Fortran stores ``tfwz(i,j)``. Python returns an array with shape
-    ``(grid.ny, grid.nx)``, so the same physical value is accessed as
-    ``tfwz[j, i]`` using zero-based Python indices.
-    """
+    t: float,
+    parameters: Case12SourceTermParameters | None,
+) -> dict[str, object]:
+    """Collect common arrays and parameters for Case 12 source terms."""
 
     params = parameters or Case12SourceTermParameters()
     params.validate()
@@ -164,45 +148,53 @@ def evaluate_case_12_tfwz(
     y = grid.Y
     pi = np.pi
 
-    Rey = params.reynolds
-    betann = params.beta
-    at = params.at
+    return {
+        "p": params,
+        "x": x,
+        "y": y,
+        "pi": pi,
+        "exp_at": np.exp(params.at * t),
+        "exp_2at": np.exp(2.0 * params.at * t),
+        "cos_px": np.cos(pi * x),
+        "sin_px": np.sin(pi * x),
+        "cos_py": np.cos(pi * y),
+        "sin_py": np.sin(pi * y),
+        "cos_2px": np.cos(2.0 * pi * x),
+        "sin_2px": np.sin(2.0 * pi * x),
+        "cos_2py": np.cos(2.0 * pi * y),
+        "sin_2py": np.sin(2.0 * pi * y),
+        "x_poly": (-1.0 + x) * x,
+    }
 
-    a1xx = params.a1xx
-    a2xx = params.a2xx
-    a3xx = params.a3xx
-    b1xx = params.b1xx
-    b2xx = params.b2xx
-    b3xx = params.b3xx
 
-    a1xy = params.a1xy
-    a2xy = params.a2xy
-    a3xy = params.a3xy
-    b1xy = params.b1xy
-    b2xy = params.b2xy
-    b3xy = params.b3xy
+def evaluate_case_12_tfwz(
+    grid: Grid2D,
+    t: float = 0.0,
+    parameters: Case12SourceTermParameters | None = None,
+) -> FloatArray:
+    """Evaluate the ported ``tfwz`` source term for MMS Case 12."""
 
-    a1yy = params.a1yy
-    a2yy = params.a2yy
-    a3yy = params.a3yy
-    b1yy = params.b1yy
-    b2yy = params.b2yy
-    b3yy = params.b3yy
+    c = _case12_common(grid, t, parameters)
+    p: Case12SourceTermParameters = c["p"]  # type: ignore[assignment]
 
-    exp_at = np.exp(at * t)
-    exp_2at = np.exp(2.0 * at * t)
+    x: FloatArray = c["x"]  # type: ignore[assignment]
+    y: FloatArray = c["y"]  # type: ignore[assignment]
+    pi: float = c["pi"]  # type: ignore[assignment]
+    exp_at: FloatArray = c["exp_at"]  # type: ignore[assignment]
+    exp_2at: FloatArray = c["exp_2at"]  # type: ignore[assignment]
+    cos_px: FloatArray = c["cos_px"]  # type: ignore[assignment]
+    sin_px: FloatArray = c["sin_px"]  # type: ignore[assignment]
+    cos_py: FloatArray = c["cos_py"]  # type: ignore[assignment]
+    sin_py: FloatArray = c["sin_py"]  # type: ignore[assignment]
+    cos_2px: FloatArray = c["cos_2px"]  # type: ignore[assignment]
+    sin_2px: FloatArray = c["sin_2px"]  # type: ignore[assignment]
+    cos_2py: FloatArray = c["cos_2py"]  # type: ignore[assignment]
+    sin_2py: FloatArray = c["sin_2py"]  # type: ignore[assignment]
+    x_poly: FloatArray = c["x_poly"]  # type: ignore[assignment]
 
-    cos_px = np.cos(pi * x)
-    sin_px = np.sin(pi * x)
-    cos_py = np.cos(pi * y)
-    sin_py = np.sin(pi * y)
-
-    cos_2px = np.cos(2.0 * pi * x)
-    sin_2px = np.sin(2.0 * pi * x)
-    cos_2py = np.cos(2.0 * pi * y)
-    sin_2py = np.sin(2.0 * pi * y)
-
-    x_poly = (-1.0 + x) * x
+    Rey = p.reynolds
+    betann = p.beta
+    at = p.at
 
     term_base = (
         -(Rey * y)
@@ -229,9 +221,7 @@ def evaluate_case_12_tfwz(
                 (-1.0 + 2.0 * x)
                 * (1.0 + 2.0 * pi**2 * x_poly - cos_2px)
             )
-            + pi
-            * (-1.0 - 2.0 * x_poly)
-            * sin_2px
+            + pi * (-1.0 - 2.0 * x_poly) * sin_2px
         )
     )
 
@@ -241,72 +231,59 @@ def evaluate_case_12_tfwz(
         * pi
         * cos_px
         * (
-            -(a3xy * b1xy * (-1.0 + betann) * pi * Rey)
+            -(p.a3xy * p.b1xy * (-1.0 + betann) * pi * Rey)
             + pi
             * (
-                (a2xx * b2xx - a2yy * b2yy) * Rey
+                (p.a2xx * p.b2xx - p.a2yy * p.b2yy) * Rey
                 + betann
                 * (
                     -8.0
-                    - a2xx * b2xx * Rey
-                    + a2yy * b2yy * Rey
+                    - p.a2xx * p.b2xx * Rey
+                    + p.a2yy * p.b2yy * Rey
                     + 16.0 * x
                 )
             )
             * cos_py
             + (
-                (a2xx * b3xx - a2yy * b3yy)
+                (p.a2xx * p.b3xx - p.a2yy * p.b3yy)
                 * (-1.0 + betann)
                 * pi
                 * Rey
-                - 2.0
-                * (4.0 * betann * pi**2 - at * Rey)
-                * (-1.0 + 2.0 * x)
-                * y
+                - 2.0 * (4.0 * betann * pi**2 - at * Rey) * (-1.0 + 2.0 * x) * y
             )
             * sin_py
         )
     )
 
     term_exp = exp_at * (
-        -2.0
-        * a2xy
-        * b1xy
-        * (-1.0 + betann)
-        * pi**2
-        * Rey
-        * sin_px
+        -2.0 * p.a2xy * p.b1xy * (-1.0 + betann) * pi**2 * Rey * sin_px
         + 2.0
         * pi
         * cos_py
         * (
-            a1xy * b3xy * (-1.0 + betann) * pi * Rey
+            p.a1xy * p.b3xy * (-1.0 + betann) * pi * Rey
             + (
                 Rey
                 * (
-                    -(a3xx * b2xx * pi)
-                    + a3yy * b2yy * pi
+                    -(p.a3xx * p.b2xx * pi)
+                    + p.a3yy * p.b2yy * pi
                     + 2.0 * at * x_poly
                 )
                 + betann
                 * (
                     8.0
-                    + a3xx * b2xx * pi * Rey
-                    - pi
-                    * (
-                        a3yy * b2yy * Rey
-                        + 8.0 * pi * x_poly
-                    )
+                    + p.a3xx * p.b2xx * pi * Rey
+                    - pi * (p.a3yy * p.b2yy * Rey + 8.0 * pi * x_poly)
                 )
             )
             * sin_px
         )
         + 2.0
         * (
-            a1xy * b2xy * (-1.0 + betann) * pi**2 * Rey
+            p.a1xy * p.b2xy * (-1.0 + betann) * pi**2 * Rey
             + (
                 -(
-                    (a3xx * b3xx - a3yy * b3yy)
+                    (p.a3xx * p.b3xx - p.a3yy * p.b3yy)
                     * (-1.0 + betann)
                     * pi**2
                     * Rey
@@ -333,22 +310,118 @@ def evaluate_case_12_tfwz(
         * (
             (-1.0 + 2.0 * x)
             * (y**2 + x_poly * (-1.0 + 2.0 * pi**2 * y**2))
-            + (-1.0 + 2.0 * x)
-            * (x_poly - y**2)
-            * cos_2px
+            + (-1.0 + 2.0 * x) * (x_poly - y**2) * cos_2px
             - pi
-            * (
-                ((-1.0 + x) ** 2) * x**2
-                + (-1.0 - 2.0 * x_poly) * y**2
-            )
+            * (((-1.0 + x) ** 2) * x**2 + (-1.0 - 2.0 * x_poly) * y**2)
             * sin_2px
         )
         * sin_2py
     )
 
     numerator = term_base + term_cos2y + term_cosx + term_exp + term_sin2y
-
     return numerator / (2.0 * exp_2at * Rey)
+
+
+def evaluate_case_12_tfTxx(
+    grid: Grid2D,
+    t: float = 0.0,
+    parameters: Case12SourceTermParameters | None = None,
+) -> FloatArray:
+    """Evaluate the ported ``tfTxx`` source term for MMS Case 12.
+
+    This is a NumPy translation of the original Fortran assignment
+    ``tfTxx(i,j) = ...`` in ``source_term_case_12(t)``.
+    """
+
+    c = _case12_common(grid, t, parameters)
+    p: Case12SourceTermParameters = c["p"]  # type: ignore[assignment]
+
+    x: FloatArray = c["x"]  # type: ignore[assignment]
+    y: FloatArray = c["y"]  # type: ignore[assignment]
+    pi: float = c["pi"]  # type: ignore[assignment]
+    exp_at: FloatArray = c["exp_at"]  # type: ignore[assignment]
+    exp_2at: FloatArray = c["exp_2at"]  # type: ignore[assignment]
+    cos_px: FloatArray = c["cos_px"]  # type: ignore[assignment]
+    sin_px: FloatArray = c["sin_px"]  # type: ignore[assignment]
+    cos_py: FloatArray = c["cos_py"]  # type: ignore[assignment]
+    sin_py: FloatArray = c["sin_py"]  # type: ignore[assignment]
+    x_poly: FloatArray = c["x_poly"]  # type: ignore[assignment]
+
+    Rey = p.reynolds
+    Wi = p.wi
+    betann = p.beta
+    epsylon = p.epsilon
+    xi = p.xi
+    alphaG = p.alpha_g
+    at = p.at
+
+    Ax = p.a1xx + p.a3xx * cos_px + p.a2xx * sin_px
+    Bx = p.b1xx + p.b3xx * cos_py + p.b2xx * sin_py
+    Axy = p.a1xy + p.a3xy * cos_px + p.a2xy * sin_px
+    Bxy = p.b1xy + p.b3xy * cos_py + p.b2xy * sin_py
+    Ayy = p.a1yy + p.a3yy * cos_px + p.a2yy * sin_px
+    Byy = p.b1yy + p.b3yy * cos_py + p.b2yy * sin_py
+
+    dpsi_dy_like = pi * y * cos_py + sin_py
+    dudx_shape = pi * x_poly * cos_px + (-1.0 + 2.0 * x) * sin_px
+    x_derivative_shape = -(p.a2xx * cos_px) + p.a3xx * sin_px
+    y_derivative_shape = p.b2xx * cos_py - p.b3xx * sin_py
+    mixed_xy_shape = -2.0 * cos_py + pi * y * sin_py
+    uxx_shape = (
+        2.0 * pi * (1.0 - 2.0 * x) * cos_px
+        + (-2.0 + pi**2 * x_poly) * sin_px
+    )
+
+    first = (
+        2.0
+        * (-1.0 + betann)
+        * exp_at
+        * dudx_shape
+        * dpsi_dy_like
+        / Rey
+    )
+
+    giesekus = (
+        alphaG
+        * (1.0 - betann)
+        * Rey
+        * Wi
+        * (Ax**2 * Bx**2 + Axy**2 * Bxy**2)
+    )
+
+    relaxation = (
+        (1.0 - betann)
+        * exp_at
+        * Ax
+        * Bx
+        * (
+            1.0
+            + (epsylon * Rey * Wi * Ax * Bx) / exp_at
+            + (epsylon * Rey * Wi * Ayy * Byy) / exp_at
+        )
+    )
+
+    wi_inner = (
+        at * (-1.0 + betann) * exp_at * Ax * Bx
+        + (-1.0 + betann) * pi * y * cos_py * Ax * dudx_shape * Bx
+        + (-1.0 + betann) * Ax * dudx_shape * sin_py * Bx
+        - (-1.0 + betann) * pi * x_poly * cos_px * Ax * dpsi_dy_like * Bx
+        - (-1.0 + betann) * (-1.0 + x) * sin_px * Ax * dpsi_dy_like * Bx
+        - (-1.0 + betann) * x * sin_px * Ax * dpsi_dy_like * Bx
+        + (-1.0 + betann) * pi * x_poly * sin_px * x_derivative_shape * dpsi_dy_like * Bx
+        + 2.0 * (-1.0 + betann) * Ax * dudx_shape * dpsi_dy_like * Bx
+        + (-1.0 + betann) * pi * y * Ax * dudx_shape * sin_py * y_derivative_shape
+        - 2.0 * (-1.0 + betann) * pi * x_poly * sin_px * Axy * Bxy * mixed_xy_shape
+        + (1.0 - betann)
+        * xi
+        * (
+            2.0 * Ax * dudx_shape * dpsi_dy_like * Bx
+            + y * Axy * uxx_shape * sin_py * Bxy
+            - pi * x_poly * sin_px * Axy * Bxy * mixed_xy_shape
+        )
+    )
+
+    return (first + giesekus + relaxation + Wi * wi_inner) / exp_2at
 
 
 def evaluate_case_12_source_terms(
@@ -360,16 +433,15 @@ def evaluate_case_12_source_terms(
 ) -> Case12SourceTerms:
     """Evaluate MMS Case 12 source terms.
 
-    By default this function still raises ``NotImplementedError`` because only
-    ``tfwz`` has been ported. Use ``allow_partial=True`` when the caller
-    explicitly accepts a partial result with pending tensor terms set to
-    ``None``.
+    By default this function still raises ``NotImplementedError`` because
+    ``tfTxy`` and ``tfTyy`` are pending. Use ``allow_partial=True`` when the
+    caller explicitly accepts a partial result.
     """
 
     if not allow_partial:
         raise NotImplementedError(
             "MMS Case 12 full source terms are not fully ported yet. "
-            "Only tfwz is currently available through evaluate_case_12_tfwz(...). "
+            "Currently available: tfwz and tfTxx. "
             "Use evaluate_case_12_source_terms(..., allow_partial=True) only "
             "when a partial source-term object is intentional."
         )
@@ -377,8 +449,12 @@ def evaluate_case_12_source_terms(
     if grid is None:
         raise ValueError("grid is required when allow_partial=True.")
 
-    tfwz = evaluate_case_12_tfwz(grid, t=t, parameters=parameters)
-    return Case12SourceTerms(tfwz=tfwz, tfTxx=None, tfTxy=None, tfTyy=None)
+    return Case12SourceTerms(
+        tfwz=evaluate_case_12_tfwz(grid, t=t, parameters=parameters),
+        tfTxx=evaluate_case_12_tfTxx(grid, t=t, parameters=parameters),
+        tfTxy=None,
+        tfTyy=None,
+    )
 
 
 __all__ = [
@@ -390,6 +466,7 @@ __all__ = [
     "available_case12_source_terms",
     "case12_source_term_status",
     "evaluate_case_12_source_terms",
+    "evaluate_case_12_tfTxx",
     "evaluate_case_12_tfwz",
     "pending_case12_source_terms",
     "ported_case12_source_terms",
