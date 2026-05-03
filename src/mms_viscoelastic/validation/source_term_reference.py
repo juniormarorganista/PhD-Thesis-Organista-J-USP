@@ -13,6 +13,7 @@ from mms_viscoelastic.grids import Grid2D
 from mms_viscoelastic.source_terms import (
     Case12SourceTermParameters,
     evaluate_case_12_tfTxx,
+    evaluate_case_12_tfTxy,
     evaluate_case_12_tfwz,
 )
 
@@ -122,26 +123,6 @@ def compare_case12_reference_csv(
     )
 
 
-def compare_case12_tftxx_reference(
-    path: str | Path,
-    *,
-    parameters: Case12SourceTermParameters | None = None,
-    atol: float = 1.0e-10,
-    rtol: float = 1.0e-10,
-) -> SourceTermReferenceComparison:
-    """Compare Python ``tfTxx`` against a Fortran-generated CSV."""
-
-    params = parameters or Case12SourceTermParameters()
-
-    return compare_case12_reference_csv(
-        path,
-        component="tfTxx",
-        evaluator=lambda grid: evaluate_case_12_tfTxx(grid, parameters=params),
-        atol=atol,
-        rtol=rtol,
-    )
-
-
 def compare_case12_tfwz_reference(
     path: str | Path,
     *,
@@ -149,10 +130,7 @@ def compare_case12_tfwz_reference(
     atol: float = 1.0e-10,
     rtol: float = 1.0e-10,
 ) -> SourceTermReferenceComparison:
-    """Compare Python ``tfwz`` against a Fortran-generated CSV."""
-
     params = parameters or Case12SourceTermParameters()
-
     return compare_case12_reference_csv(
         path,
         component="tfwz",
@@ -162,10 +140,45 @@ def compare_case12_tfwz_reference(
     )
 
 
+def compare_case12_tftxx_reference(
+    path: str | Path,
+    *,
+    parameters: Case12SourceTermParameters | None = None,
+    atol: float = 1.0e-10,
+    rtol: float = 1.0e-10,
+) -> SourceTermReferenceComparison:
+    params = parameters or Case12SourceTermParameters()
+    return compare_case12_reference_csv(
+        path,
+        component="tfTxx",
+        evaluator=lambda grid: evaluate_case_12_tfTxx(grid, parameters=params),
+        atol=atol,
+        rtol=rtol,
+    )
+
+
+def compare_case12_tftxy_reference(
+    path: str | Path,
+    *,
+    parameters: Case12SourceTermParameters | None = None,
+    atol: float = 1.0e-10,
+    rtol: float = 1.0e-10,
+) -> SourceTermReferenceComparison:
+    params = parameters or Case12SourceTermParameters()
+    return compare_case12_reference_csv(
+        path,
+        component="tfTxy",
+        evaluator=lambda grid: evaluate_case_12_tfTxy(grid, parameters=params),
+        atol=atol,
+        rtol=rtol,
+    )
+
+
 __all__ = [
     "SourceTermReferenceComparison",
     "compare_case12_reference_csv",
     "compare_case12_tftxx_reference",
+    "compare_case12_tftxy_reference",
     "compare_case12_tfwz_reference",
     "load_source_term_reference_csv",
 ]
