@@ -1,16 +1,6 @@
-# Thesis USP Codes — MMS Verification and Python Modernization
-
-> **Verificação numérica, transcrição Python e preparação para Machine Learning de códigos de alta ordem para escoamentos viscoelásticos usando o Método das Soluções Manufaturadas.**
+# Thesis USP Codes - MMS Verification and Python Modernization
 
 Repository associated with the doctoral thesis of **Juniormar Organista**, focused on the numerical verification of high-order solvers for incompressible viscoelastic flows using the **Method of Manufactured Solutions (MMS)**.
-
-Este repositório preserva o material original da tese — códigos Fortran, notebooks Mathematica, arquivos LaTeX e materiais associados — e constrói uma camada moderna em Python para:
-
-- reprodutibilidade científica;
-- visualização dos campos manufaturados;
-- validação Fortran × Python;
-- geração de datasets tabulares;
-- preparação futura para aprendizado de máquina científico.
 
 ---
 
@@ -21,9 +11,9 @@ Este repositório preserva o material original da tese — códigos Fortran, not
 3. [Mathematical formulation](#mathematical-formulation)
 4. [Method of Manufactured Solutions](#method-of-manufactured-solutions)
 5. [Numerical verification](#numerical-verification)
-6. [Current Python status](#current-python-status)
-7. [Case 12 status](#case-12-status)
-8. [Figures and visual material](#figures-and-visual-material)
+6. [Thesis figures in this README](#thesis-figures-in-this-readme)
+7. [Current Python status](#current-python-status)
+8. [Case 12 status](#case-12-status)
 9. [Repository structure](#repository-structure)
 10. [Installation](#installation)
 11. [Tests and validation](#tests-and-validation)
@@ -31,11 +21,10 @@ Este repositório preserva o material original da tese — códigos Fortran, not
 13. [Generated outputs](#generated-outputs)
 14. [Machine Learning preparation](#machine-learning-preparation)
 15. [Local Git workflow](#local-git-workflow)
-16. [Roadmap](#roadmap)
-17. [GitHub About](#github-about)
-18. [Citation](#citation)
-19. [Author](#author)
-20. [README maintenance rule](#readme-maintenance-rule)
+16. [GitHub About](#github-about)
+17. [Citation](#citation)
+18. [Author](#author)
+19. [README maintenance rule](#readme-maintenance-rule)
 
 ---
 
@@ -58,7 +47,7 @@ Second, it builds a modern Python package:
 src/mms_viscoelastic/
 ```
 
-The Python layer is not a superficial wrapper. It is being organized as a real scientific package with tests, validation data, examples, source-term ports, visualization utilities and future ML-ready datasets.
+The Python layer is being organized as a real scientific package with tests, validation data, examples, source-term ports, visualization utilities and future ML-ready datasets.
 
 The long-term objective is to transform a thesis codebase into a reproducible scientific computing framework.
 
@@ -83,7 +72,7 @@ The central scientific question is:
 
 > Given an exact manufactured solution, does the implemented numerical method recover the expected theoretical order of accuracy?
 
-This is a code-verification problem, not merely a simulation problem. The aim is to verify whether the discretized equations and implementation are mathematically consistent with the expected convergence behavior.
+This is a code-verification problem, not merely a simulation problem.
 
 ---
 
@@ -113,8 +102,6 @@ Thus:
 0.
 ```
 
----
-
 ### Streamfunction formulation
 
 For two-dimensional incompressible flows, a streamfunction $\psi$ can be introduced so that:
@@ -127,23 +114,7 @@ v =
 -\frac{\partial \psi}{\partial x}.
 ```
 
-This automatically satisfies incompressibility:
-
-```math
-\frac{\partial}{\partial x}
-\left(
-\frac{\partial \psi}{\partial y}
-\right)
-+
-\frac{\partial}{\partial y}
-\left(
--\frac{\partial \psi}{\partial x}
-\right)
-=
-0.
-```
-
----
+This automatically satisfies incompressibility.
 
 ### Vorticity
 
@@ -159,19 +130,10 @@ The scalar vorticity is defined as:
 Using the streamfunction definition:
 
 ```math
-\omega_z =
--\nabla^2 \psi.
-```
-
-Equivalently:
-
-```math
+\omega_z = -\nabla^2 \psi,
+\qquad
 \nabla^2 \psi = -\omega_z.
 ```
-
-This Poisson-type equation is central in the vorticity-streamfunction formulation.
-
----
 
 ### Rate-of-deformation tensor
 
@@ -214,8 +176,6 @@ For two-dimensional velocity fields:
 \end{bmatrix}.
 ```
 
----
-
 ### Generic viscoelastic constitutive structure
 
 A broad representation of the viscoelastic stress equation may be written as:
@@ -247,11 +207,7 @@ The thesis framework involves models such as:
 - Giesekus;
 - LPTT.
 
----
-
 ### Stress tensor components
-
-In two-dimensional form, the stress tensor is represented by:
 
 ```math
 \boldsymbol{\tau}
@@ -261,16 +217,6 @@ T_{xx} & T_{xy}
 \\
 T_{xy} & T_{yy}
 \end{bmatrix}.
-```
-
-The manufactured fields therefore include:
-
-```math
-T_{xx,e}(x,y,t),
-\qquad
-T_{xy,e}(x,y,t),
-\qquad
-T_{yy,e}(x,y,t).
 ```
 
 ---
@@ -334,8 +280,6 @@ The Python port keeps the same scientific meaning while using NumPy array conven
 (ny, nx)
 ```
 
-instead of the Fortran indexing convention.
-
 ---
 
 ## Numerical verification
@@ -376,27 +320,97 @@ The observed order of convergence is estimated by:
 p
 =
 \frac{
-\log(E_h/E_{h/2})
+\log(E_{h1}/E_{h2})
 }{
-\log(2)
+\log(h1/h2)
 }.
 ```
 
 For a fourth-order method, the expected behavior is approximately:
 
 ```math
-E_h
-=
-C h^4,
-```
-
-so that:
-
-```math
+E_h = C h^4,
+\qquad
 p \approx 4.
 ```
 
-This is the key diagnostic for numerical code verification.
+---
+
+## Thesis figures in this README
+
+The figures below come from the thesis/slides material. The original files were mostly EPS, converted to PNG only so GitHub can render them. The original thesis assets remain preserved separately.
+
+Documentation for the selected figures is available in:
+
+```text
+docs/thesis-figures-used-in-readme.md
+```
+
+### Visual intuition
+
+<p align="center">
+  <img src="assets/thesis/case12/thesis_streamlines.png" width="70%" alt="Streamlines from thesis material">
+</p>
+
+### MMS validation pipeline
+
+<p align="center">
+  <img src="assets/preview/mms_validation_pipeline.svg" width="90%" alt="MMS validation pipeline">
+</p>
+
+### Case 12 exact maps
+
+| $\psi$ | $u$ |
+|---|---|
+| <img src="assets/thesis/case12/exact_map_psi.png" width="420"> | <img src="assets/thesis/case12/exact_map_u.png" width="420"> |
+
+| $v$ | $\omega_z$ |
+|---|---|
+| <img src="assets/thesis/case12/exact_map_v.png" width="420"> | <img src="assets/thesis/case12/exact_map_wz.png" width="420"> |
+
+| $T_{xx}$ | $T_{xy}$ | $T_{yy}$ |
+|---|---|---|
+| <img src="assets/thesis/case12/exact_map_txx.png" width="300"> | <img src="assets/thesis/case12/exact_map_txy.png" width="300"> | <img src="assets/thesis/case12/exact_map_tyy.png" width="300"> |
+
+### Case 12 exact surfaces
+
+| $\psi$ | $u$ |
+|---|---|
+| <img src="assets/thesis/case12/exact_surface_psi.png" width="420"> | <img src="assets/thesis/case12/exact_surface_u.png" width="420"> |
+
+| $\omega_z$ | $T_{xx}$ |
+|---|---|
+| <img src="assets/thesis/case12/exact_surface_wz.png" width="420"> | <img src="assets/thesis/case12/exact_surface_txx.png" width="420"> |
+
+### Convergence curves from thesis material
+
+| $\psi$ | $u$ |
+|---|---|
+| <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_psi.png" width="420"> | <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_u.png" width="420"> |
+
+| $v$ | $\omega_z$ |
+|---|---|
+| <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_v.png" width="420"> | <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_wz.png" width="420"> |
+
+| $T_{xx}$ | $T_{xy}$ | $T_{yy}$ |
+|---|---|---|
+| <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_txx.png" width="300"> | <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_txy.png" width="300"> | <img src="assets/thesis/case12/convergence_re100_wi1_alphaG0_tyy.png" width="300"> |
+
+### Numerical slices
+
+| Slice in $x$ for $u$ | Slice in $y$ for $\omega_z$ |
+|---|---|
+| <img src="assets/thesis/case12/slice_x_u.png" width="420"> | <img src="assets/thesis/case12/slice_y_wz.png" width="420"> |
+
+### Repository architecture and current source-term status
+
+<p align="center">
+  <img src="assets/preview/repository_architecture.svg" width="90%" alt="Repository architecture">
+</p>
+
+<p align="center">
+  <img src="assets/preview/case12_source_terms_status.svg" width="90%" alt="Case 12 source-term status">
+</p>
 
 ---
 
@@ -457,8 +471,6 @@ src/mms_viscoelastic/validation/source_term_reference.py
 
 ### Exact fields
 
-The exact manufactured fields include:
-
 ```text
 u
 v
@@ -469,19 +481,7 @@ txy
 tyy
 ```
 
-### Source terms
-
-The source-term interface provides:
-
-```python
-evaluate_case_12_tfwz(...)
-evaluate_case_12_tfTxx(...)
-evaluate_case_12_tfTxy(...)
-evaluate_case_12_tfTyy(...)
-evaluate_case_12_source_terms(...)
-```
-
-The full object is:
+### Source-term API
 
 ```python
 from mms_viscoelastic.grids import Grid2D
@@ -494,63 +494,6 @@ terms.tfwz
 terms.tfTxx
 terms.tfTxy
 terms.tfTyy
-```
-
----
-
-## Figures and visual material
-
-The README uses curated figures under:
-
-```text
-assets/preview/
-```
-
-Do not commit the entire `outputs/` directory. Generate outputs locally, then copy only selected figures into `assets/preview/`.
-
-### MMS pipeline
-
-![MMS validation pipeline](assets/preview/mms_validation_pipeline.svg)
-
-### Repository architecture
-
-![Repository architecture](assets/preview/repository_architecture.svg)
-
-### Case 12 source-term status
-
-![Case 12 source-term status](assets/preview/case12_source_terms_status.svg)
-
-### Case 12 manufactured fields
-
-Generate the figure:
-
-```powershell
-python examples\03_case12_visualization_and_ml_dataset.py
-```
-
-Then copy the selected panel:
-
-```powershell
-New-Item -ItemType Directory -Force assets\preview
-Copy-Item outputs\case12\figures\case12_panel.png assets\preview\case12_panel.png -Force
-```
-
-If available, GitHub renders it here:
-
-![Case 12 manufactured fields](assets/preview/case12_panel.png)
-
-### Additional useful figures
-
-After generation, these may also be copied:
-
-```powershell
-Copy-Item outputs\case12\figures\case12_u.png assets\preview\case12_u.png -Force
-Copy-Item outputs\case12\figures\case12_v.png assets\preview\case12_v.png -Force
-Copy-Item outputs\case12\figures\case12_psi.png assets\preview\case12_psi.png -Force
-Copy-Item outputs\case12\figures\case12_wz.png assets\preview\case12_wz.png -Force
-Copy-Item outputs\case12\figures\case12_txx.png assets\preview\case12_txx.png -Force
-Copy-Item outputs\case12\figures\case12_txy.png assets\preview\case12_txy.png -Force
-Copy-Item outputs\case12\figures\case12_tyy.png assets\preview\case12_tyy.png -Force
 ```
 
 ---
@@ -591,11 +534,11 @@ Copy-Item outputs\case12\figures\case12_tyy.png assets\preview\case12_tyy.png -F
 ├── tests/
 ├── docs/
 ├── assets/
-│   └── preview/
+│   ├── preview/
+│   └── thesis/
+│       └── case12/
 └── outputs/
 ```
-
-### Preserved original material
 
 The following folders are scientific reference material and should not be edited casually:
 
@@ -606,16 +549,6 @@ thesis/original/
 papers/original/
 ```
 
-### Python package
-
-The active Python package is:
-
-```text
-src/mms_viscoelastic/
-```
-
-This is the only part intended for systematic modernization and extension.
-
 ---
 
 ## Installation
@@ -623,8 +556,6 @@ This is the only part intended for systematic modernization and extension.
 Recommended PowerShell workflow:
 
 ```powershell
-cd C:\dev\Thesis_USP_Codes_Organista_J
-
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
@@ -670,7 +601,7 @@ Expected result:
 passed:        True
 ```
 
-### Current validation status
+Current validation status:
 
 ```text
 tfwz   validated
@@ -746,16 +677,16 @@ Curated figures for the README should be copied to:
 
 ```text
 assets/preview/
+assets/thesis/
 ```
 
 Recommended rule:
 
 ```text
 outputs/        → generated, not committed
-assets/preview/ → selected figures, committed
+assets/preview/ → selected diagrams, committed
+assets/thesis/  → selected thesis figures, committed
 ```
-
-This keeps the repository clean while preserving visual documentation.
 
 ---
 
@@ -850,22 +781,6 @@ git push origin --tags
 
 ---
 
-## Roadmap
-
-```text
-v0.6.7.3 — restore reference-comparison mean error metrics
-v0.6.8   — validate tfTyy against Fortran reference
-v0.7.0   — complete Case 12 source-term validation report
-v0.7.1   — improve README and thesis visual documentation
-v0.8.0   — expanded ML datasets
-v0.8.1   — source-term datasets with validated labels
-v0.9.0   — scientific notebooks
-v0.9.1   — thesis-presentation figures and explanatory diagrams
-v1.0.0   — first reproducible scientific release
-```
-
----
-
 ## GitHub About
 
 Suggested short description:
@@ -934,7 +849,7 @@ New phases may add sections, update status tables and improve explanations, but 
 - mathematical formulation;
 - MMS explanation;
 - verification equations;
-- figure references;
+- thesis figures;
 - installation commands;
 - validation commands;
 - Git workflow;
