@@ -5,14 +5,28 @@ outputs/
 __pycache__/
 *.py[cod]
 *.egg-info/
+.eggs/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .venv/
+venv/
+env/
 
 # Build/distribution
 build/
 dist/
+
+# Data and models
+*.pkl
+*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
+
+# AI local tools
+.claude/
+.codex/
 
 # Temporary generated phase scripts - not part of repository anymore
 criar_*.py

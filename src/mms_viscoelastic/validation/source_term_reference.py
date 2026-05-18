@@ -30,6 +30,7 @@ from mms_viscoelastic.source_terms import (
     Case12SourceTermParameters,
     evaluate_case_12_tfTxx,
     evaluate_case_12_tfTxy,
+    evaluate_case_12_tfTyy,
     evaluate_case_12_tfwz,
 )
 
@@ -236,11 +237,32 @@ def compare_case12_tftxy_reference(
     )
 
 
+def compare_case12_tftyy_reference(
+    path: str | Path,
+    *,
+    parameters: Case12SourceTermParameters | None = None,
+    atol: float = 1.0e-10,
+    rtol: float = 1.0e-10,
+) -> SourceTermReferenceComparison:
+    """Compare Python ``tfTyy`` against a Fortran-generated CSV."""
+
+    params = parameters or Case12SourceTermParameters()
+
+    return compare_case12_reference_csv(
+        path,
+        component="tfTyy",
+        evaluator=lambda grid: evaluate_case_12_tfTyy(grid, parameters=params),
+        atol=atol,
+        rtol=rtol,
+    )
+
+
 __all__ = [
     "SourceTermReferenceComparison",
     "compare_case12_reference_csv",
     "compare_case12_tftxx_reference",
     "compare_case12_tftxy_reference",
+    "compare_case12_tftyy_reference",
     "compare_case12_tfwz_reference",
     "load_source_term_reference_csv",
 ]
