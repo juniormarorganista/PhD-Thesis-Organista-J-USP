@@ -1,2 +1,0 @@
-# Arquivos da tese
-

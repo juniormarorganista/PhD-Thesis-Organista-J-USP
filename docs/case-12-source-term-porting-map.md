@@ -40,7 +40,7 @@ tfTyy
 
 ## Python target
 
-The Python source-term interface is now located at:
+The Python source-term interface is located at:
 
 ```text
 src/mms_viscoelastic/source_terms/case_12.py
@@ -49,30 +49,14 @@ src/mms_viscoelastic/source_terms/case_12.py
 Current status:
 
 ```text
-tfwz   mapped, algebraic port pending
-tfTxx  mapped, algebraic port pending
-tfTxy  mapped, algebraic port pending
-tfTyy  mapped, algebraic port pending
+tfwz   ✓ portado e validado contra referência Fortran (v0.6.1 / v0.6.2)
+tfTxx  ✓ portado e validado contra referência Fortran (v0.6.3 / v0.6.4)
+tfTxy  ✓ portado e validado contra referência Fortran (v0.6.5 / v0.6.6)
+tfTyy  ✓ portado e validado contra referência Fortran (v0.6.7 / PR #5)
 ```
 
-## Why this phase does not return placeholders
-
-The source terms are part of the manufactured-equation residual. Returning zeros
-or incomplete expressions would make later verification scientifically invalid.
-
-For this reason:
-
-```python
-evaluate_case_12_source_terms()
-```
-
-raises:
-
-```python
-NotImplementedError
-```
-
-until the full expressions are ported and tested.
+Todos os quatro termos fonte do Case 12 estão implementados e validados.
+`evaluate_case_12_source_terms()` retorna um `Case12SourceTerms` completo.
 
 ## Porting order
 

@@ -13,11 +13,15 @@ Implemented:
 - train/validation split;
 - automated tests.
 
-Not implemented yet:
+Implementado desde v0.6.7 / PR #5:
 
-- full source-term port from Fortran;
-- numerical solver equivalence with the original Fortran implementation;
-- convergence-order validation for the Python solver.
+- port completo dos quatro termos fonte do Fortran (`tfwz`, `tfTxx`, `tfTxy`, `tfTyy`);
+- validação de cada termo contra CSVs gerados pelo Fortran original (max\_abs\_error < 1e-10).
+
+Ainda pendente:
+
+- equivalência a nível de solver Fortran × Python para o Case 12;
+- verificação de ordem de convergência do solver Python.
 
 ## Generated fields
 
