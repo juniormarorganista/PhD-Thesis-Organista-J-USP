@@ -1,4 +1,4 @@
-# MMS Case 12 — `tfwz` Python port
+# MMS Case 12 - `tfwz` Python port
 
 This document records the first algebraic source-term port from the original
 Fortran file:
@@ -94,7 +94,7 @@ Still required:
 The next recommended phase is:
 
 ```text
-v0.6.2 — port tfTxx
+v0.6.2 - port tfTxx
 ```
 
 However, before porting the tensor source terms, it is better to create a small

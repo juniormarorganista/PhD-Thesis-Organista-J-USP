@@ -1,4 +1,4 @@
-# Fase 4 — Visualização do case 12 e datasets para Machine Learning
+# Fase 4 - Visualização do case 12 e datasets para Machine Learning
 
 Esta fase adiciona uma camada prática sobre o port Python do caso manufaturado 12.
 O objetivo é transformar a solução exata em dois produtos úteis:

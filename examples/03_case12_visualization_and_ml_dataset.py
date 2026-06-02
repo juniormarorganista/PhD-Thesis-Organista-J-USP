@@ -59,7 +59,7 @@ def main() -> None:
             grid,
             getattr(fields, name),
             output_path=figures_dir / f"case12_{name}.png",
-            title=f"Case 12 — {name}",
+            title=f"Case 12 - {name}",
             label=name,
         )
         plt.close(fig)

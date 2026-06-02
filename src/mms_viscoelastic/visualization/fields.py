@@ -85,7 +85,7 @@ def plot_case12_panel(
     *,
     components: Iterable[str] = ("u", "v", "psi", "wz", "txx", "txy", "tyy"),
     output_path: str | Path | None = None,
-    title: str = "MMS case 12 — exact manufactured fields",
+    title: str = "MMS case 12 - exact manufactured fields",
     dpi: int = 180,
 ) -> Figure:
     """Create a compact panel figure for selected Case 12 components."""
@@ -165,7 +165,7 @@ def save_case12_component_maps(
         fig, _ = plot_scalar_field(
             grid,
             values,
-            title=f"Case 12 — {name}",
+            title=f"Case 12 - {name}",
             label=name,
             output_path=path,
             dpi=dpi,
@@ -202,7 +202,7 @@ def plot_field_panel(
     field: object,
     *,
     output_path: str | Path | None = None,
-    title: str = "MMS case 12 — exact manufactured fields",
+    title: str = "MMS case 12 - exact manufactured fields",
     dpi: int = 180,
 ) -> Figure:
     """Backward-compatible alias for :func:`plot_case12_panel`."""

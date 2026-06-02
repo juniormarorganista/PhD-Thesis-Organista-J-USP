@@ -1,4 +1,4 @@
-# MMS Case 12 — `tfTxx` Python port
+# MMS Case 12 - `tfTxx` Python port
 
 This document records the second source-term port from the original Fortran
 file:

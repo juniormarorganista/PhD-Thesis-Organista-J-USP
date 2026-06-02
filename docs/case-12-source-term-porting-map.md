@@ -1,4 +1,4 @@
-# MMS Case 12 — source-term porting map
+# MMS Case 12 - source-term porting map
 
 This document maps the original Fortran routine
 
