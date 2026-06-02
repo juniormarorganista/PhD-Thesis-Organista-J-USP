@@ -1,4 +1,4 @@
-# MMS Case 12 — Fortran reference validation for `tfwz`
+# MMS Case 12 - Fortran reference validation for `tfwz`
 
 This phase adds a small Fortran reference exporter and Python comparison tools
 for the first ported source term:
@@ -93,5 +93,5 @@ all trigonometric tensor coefficients = 1
 After this validation passes locally, proceed to:
 
 ```text
-v0.6.3 — port tfTxx
+v0.6.3 - port tfTxx
 ```

@@ -6,7 +6,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.6.7.5] — 2026-05-03
+## [0.6.7.5] - 2026-05-03
 
 ### Adicionado
 - `assets/thesis/case12/` com figuras selecionadas da tese (campos exatos, superfícies de erro, curvas de convergência, slices numéricos).
@@ -15,26 +15,26 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.6.7.4] — 2026-05-03
+## [0.6.7.4] - 2026-05-03
 
 ### Adicionado
 - README científico completo com: visão geral, formulação matemática, explicação do MMS, equações de verificação numérica, status do Case 12, validação dos termos fonte, figuras, comandos de instalação/teste/exemplos, fluxo Git local e roadmap.
 - SVGs: `assets/preview/mms_validation_pipeline.svg`, `assets/preview/repository_architecture.svg`, `assets/preview/case12_source_terms_status.svg`.
-- `docs/readme-maintenance-policy.md` — política de manutenção do README.
+- `docs/readme-maintenance-policy.md` - política de manutenção do README.
 
 ### Regra
 O README não deve ser reduzido. Fases futuras podem expandir ou melhorar, nunca substituir por versão mínima.
 
 ---
 
-## [0.6.7.3] — 2026-05-03
+## [0.6.7.3] - 2026-05-03
 
 ### Corrigido
 - Restaurados `mean_abs_error` e `mean_rel_error` em `SourceTermReferenceComparison`.
 
 ---
 
-## [0.6.7.2] — 2026-05-03
+## [0.6.7.2] - 2026-05-03
 
 ### Corrigido
 - Restaurados `nx` e `ny` em `SourceTermReferenceComparison`.
@@ -42,7 +42,7 @@ O README não deve ser reduzido. Fases futuras podem expandir ou melhorar, nunca
 
 ---
 
-## [0.6.7.1] — 2026-05-03
+## [0.6.7.1] - 2026-05-03
 
 ### Corrigido
 - Removidos argumentos `x0`, `x1`, `y0`, `y1` da reconstrução do grid de validação (API `Grid2D.from_bounds` não os aceita).
@@ -51,10 +51,10 @@ O README não deve ser reduzido. Fases futuras podem expandir ou melhorar, nunca
 
 ---
 
-## [0.6.7] — 2026-05-02
+## [0.6.7] - 2026-05-02
 
 ### Adicionado
-- `evaluate_case_12_tfTyy` — quarto e último termo fonte do Case 12.
+- `evaluate_case_12_tfTyy` - quarto e último termo fonte do Case 12.
 - `Case12SourceTerms` completo com `tfwz`, `tfTxx`, `tfTxy`, `tfTyy`.
 - Registro atualizado de termos fonte.
 - Testes de shape, valores finitos e referência padrão para `tfTyy`.
@@ -65,7 +65,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.6] — 2026-05-02
+## [0.6.6] - 2026-05-02
 
 ### Adicionado
 - Programa Fortran isolado de referência para `tfTxy`.
@@ -77,7 +77,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.5] — 2026-05-02
+## [0.6.5] - 2026-05-02
 
 ### Adicionado
 - `evaluate_case_12_tfTxy`.
@@ -88,7 +88,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.4] — 2026-05-02
+## [0.6.4] - 2026-05-02
 
 ### Adicionado
 - Programa Fortran isolado de referência para `tfTxx`.
@@ -100,7 +100,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.3] — 2026-05-02
+## [0.6.3] - 2026-05-02
 
 ### Adicionado
 - `evaluate_case_12_tfTxx`.
@@ -108,7 +108,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.2] — 2026-05-02
+## [0.6.2] - 2026-05-02
 
 ### Adicionado
 - Exportador Fortran isolado para `tfwz`.
@@ -120,10 +120,10 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.1] — 2026-05-02
+## [0.6.1] - 2026-05-02
 
 ### Adicionado
-- `evaluate_case_12_tfwz` — primeiro termo fonte portado do Fortran.
+- `evaluate_case_12_tfwz` - primeiro termo fonte portado do Fortran.
 - Suporte parcial de termos fonte via `allow_partial=True`.
 - Registro explícito de componentes portados e pendentes.
 - `examples/04_case12_tfwz_source_term.py`.
@@ -132,11 +132,11 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.6.0] — 2026-05-02
+## [0.6.0] - 2026-05-02
 
 ### Adicionado
 - `src/mms_viscoelastic/source_terms/__init__.py`
-- `src/mms_viscoelastic/source_terms/case_12.py` — contrato público de termos fonte (levanta `NotImplementedError` até que as expressões sejam portadas).
+- `src/mms_viscoelastic/source_terms/case_12.py` - contrato público de termos fonte (levanta `NotImplementedError` até que as expressões sejam portadas).
 - `tests/test_source_terms_case12_contract.py`.
 - `docs/case-12-source-term-porting-map.md`.
 - `docs/thesis-equations-overview.md`.
@@ -146,7 +146,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.5.4] — 2026-05-02
+## [0.5.4] - 2026-05-02
 
 ### Corrigido
 - `Grid2D` agora instanciado via `Grid2D.from_bounds(nx=..., ny=...)`.
@@ -157,7 +157,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.5.3] — 2026-05-02
+## [0.5.3] - 2026-05-02
 
 ### Adicionado
 - `src/mms_viscoelastic/ml/features.py`.
@@ -170,7 +170,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.5.0] — 2026-05-02
+## [0.5.0] - 2026-05-02
 
 ### Adicionado
 - README profissional com estrutura visual para o GitHub.
@@ -182,7 +182,7 @@ Todos os quatro termos fonte do Case 12 estão implementados em Python.
 
 ---
 
-## [0.1.0] — 2026-05-02
+## [0.1.0] - 2026-05-02
 
 ### Adicionado
 - Reorganização inicial do repositório.

@@ -1,4 +1,4 @@
-# Case 12 — Preliminary Results and ML Dataset
+# Case 12 - Preliminary Results and ML Dataset
 
 This document summarizes the current Python-side status of MMS Case 12.
 

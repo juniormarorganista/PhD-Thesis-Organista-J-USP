@@ -1,4 +1,4 @@
-# MMS Case 12 — `tfTyy` Python port
+# MMS Case 12 - `tfTyy` Python port
 
 This document records the fourth source-term port from the original Fortran file:
 

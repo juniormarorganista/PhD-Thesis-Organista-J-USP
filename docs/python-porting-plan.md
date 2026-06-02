@@ -59,7 +59,7 @@ mms_viscoelastic/
 
 ## Fases
 
-### Fase 1 — Fundação
+### Fase 1 - Fundação
 
 Já iniciada:
 
@@ -70,7 +70,7 @@ Já iniciada:
 - conversão campo → tabela;
 - testes mínimos.
 
-### Fase 2 — Documentação e mapa do Fortran
+### Fase 2 - Documentação e mapa do Fortran
 
 Atual:
 
@@ -80,7 +80,7 @@ Atual:
 - plano de transcrição;
 - instruções GitHub.
 
-### Fase 3 — Primeiro caso MMS
+### Fase 3 - Primeiro caso MMS
 
 Implementar `case_12.f` como primeiro caso Python:
 
@@ -97,11 +97,11 @@ Deve conter funções para:
 - `stress_exact(x, y, t, params)`;
 - termos fonte quando transcritos.
 
-### Fase 4 — Derivadas e verificação
+### Fase 4 - Derivadas e verificação
 
 Implementar derivadas com diferenças finitas e testar usando funções analíticas suaves.
 
-### Fase 5 — Dados para Machine Learning
+### Fase 5 - Dados para Machine Learning
 
 Criar um pipeline que gere tabelas com colunas como:
 
