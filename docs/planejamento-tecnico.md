@@ -1,4 +1,4 @@
-# Planejamento Técnico — mms_viscoelastic
+# Planejamento Técnico - mms_viscoelastic
 
 > Documento de referência estratégica para o desenvolvimento da biblioteca.
 > Atualizado em: 2026-06-03.
@@ -11,10 +11,10 @@
 |---|---|
 | Testes | ✅ 36/36 passam |
 | Local ↔ GitHub | ✅ Sincronizado |
-| PRs abertos | — nenhum |
+| PRs abertos | - nenhum |
 | Fundação Python | ✅ `grids`, `fields`, `parameters`, `numerics`, `ml`, `io`, `visualization` |
-| Case 12 — solução manufaturada | ✅ portada e testada |
-| Case 12 — termos fonte (tfwz, tfTxx, tfTxy, tfTyy) | ✅ portados e validados vs Fortran |
+| Case 12 - solução manufaturada | ✅ portada e testada |
+| Case 12 - termos fonte (tfwz, tfTxx, tfTxy, tfTyy) | ✅ portados e validados vs Fortran |
 | Módulo de convergência | ⏳ `numerics/errors.py` existe, mas pipeline de convergência está ausente |
 | Modelos constitutivos | ⏳ enum `ConstitutiveModel` existe; física ainda não implementada |
 | Relatório científico do Case 12 | ⏳ pendente |
@@ -46,7 +46,7 @@
 
 ## Fases de desenvolvimento
 
-### ▸ FASE I — Organização e baseline de qualidade
+### ▸ FASE I - Organização e baseline de qualidade
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** garantir que o projeto está limpo, lint-free e com CI sólido antes de qualquer expansão.
@@ -57,11 +57,11 @@
 | Rodar mypy e corrigir type errors | `mypy src/` | `chore/lint-and-type-check` |
 | Verificar se GitHub Actions roda corretamente em push | `.github/workflows/tests.yml` | `chore/lint-and-type-check` |
 | Adicionar ruff ao CI | `.github/workflows/tests.yml` | `chore/lint-and-type-check` |
-| PR + merge via GitHub | — | — |
+| PR + merge via GitHub | - | - |
 
 ---
 
-### ▸ FASE II — Verificação de convergência numérica (núcleo do MMS)
+### ▸ FASE II - Verificação de convergência numérica (núcleo do MMS)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev`**
 
 **Objetivo:** implementar e demonstrar que os operadores de diferenças finitas convergem com a ordem correta quando aplicados às soluções manufaturadas do Case 12.
@@ -75,11 +75,11 @@
 | Criar `examples/09_case12_convergence_verification.py` | `examples/09_case12_convergence_verification.py` | idem |
 | Testes: verificar ordem ≥ 1.8 para grids 8→16→32→64 | `tests/test_case12_convergence.py` | idem |
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/case-12-convergence-verification.md` | idem |
-| PR + merge via GitHub | — | — |
+| PR + merge via GitHub | - | - |
 
 ---
 
-### ▸ FASE III — Relatório científico e notebook do Case 12
+### ▸ FASE III - Relatório científico e notebook do Case 12
 **Modelo: sonnet** | **Skills: `escritor` + `doutor-em-matematica` + `git-github`**
 
 **Objetivo:** consolidar toda a evidência científica do Case 12 em um documento e notebook reprodutíveis.
@@ -89,13 +89,13 @@
 | Criar relatório completo de validação | `docs/case-12-complete-validation-report.md` | `docs/case12-scientific-report` |
 | Criar notebook científico reprodutível | `examples/notebooks/Case12_MMS_Pipeline.ipynb` | idem |
 | Atualizar README com seção "Convergence results" | `README.md` | idem |
-| PR + merge via GitHub | — | — |
+| PR + merge via GitHub | - | - |
 
 > **Regra do `escritor`:** redigir na voz do pesquisador. Evitar fraseado genérico de IA. Citar a tese e os papers originais quando mencionar equações.
 
 ---
 
-### ▸ FASE IV — Expansão dos datasets ML
+### ▸ FASE IV - Expansão dos datasets ML
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** ampliar o pipeline de datasets para cobrir múltiplos regimes de parâmetros, habilitando treinamento de modelos surrogates.
@@ -106,11 +106,11 @@
 | Criar `ml/splits.py` com train/val/test stratificado | `src/mms_viscoelastic/ml/splits.py` | idem |
 | Criar `examples/10_case12_ml_dataset_parametric.py` | `examples/10_case12_ml_dataset_parametric.py` | idem |
 | Testes para datasets e splits | `tests/test_ml_parametric.py`, `tests/test_ml_splits.py` | idem |
-| PR + merge via GitHub | — | — |
+| PR + merge via GitHub | - | - |
 
 ---
 
-### ▸ FASE V — Modelos constitutivos (UCM e Oldroyd-B)
+### ▸ FASE V - Modelos constitutivos (UCM e Oldroyd-B)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev`**
 
 **Objetivo:** implementar os primeiros modelos constitutivos com física real, validados contra soluções analíticas de cisalhamento simples (Couette).
@@ -125,11 +125,11 @@
 | Implementar `models/oldroyd_b.py` | `src/mms_viscoelastic/models/oldroyd_b.py` | idem |
 | Validar contra solução analítica de Couette | `tests/test_model_ucm.py`, `tests/test_model_oldroyd_b.py` | idem |
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/constitutive-models.md` | idem |
-| PR + merge via GitHub | — | — |
+| PR + merge via GitHub | - | - |
 
 ---
 
-### ▸ FASE VI — Versioning e CI
+### ▸ FASE VI - Versioning e CI
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** versionar o primeiro ciclo completo de desenvolvimento e atualizar o CI.
@@ -139,12 +139,12 @@
 | Atualizar versão para `0.2.0` em `_version.py` e `pyproject.toml` | ambos | `chore/release-0.2.0` |
 | Adicionar CHANGELOG entry para 0.2.0 | `CHANGELOG.md` | idem |
 | Adicionar `ruff` e `mypy` ao GitHub Actions | `.github/workflows/tests.yml` | idem |
-| Criar tag `v0.2.0` no GitHub | — | — |
-| PR + merge via GitHub | — | — |
+| Criar tag `v0.2.0` no GitHub | - | - |
+| PR + merge via GitHub | - | - |
 
 ---
 
-### ▸ FASE VII — Comparação solver-level Fortran × Python
+### ▸ FASE VII - Comparação solver-level Fortran × Python
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
 
 **Objetivo:** demonstrar equivalência numérica entre o solver Fortran original e a implementação Python para o Case 12.
@@ -155,7 +155,7 @@
 | Executar Fortran reference e capturar outputs | `validation/fortran_reference/case12_solver/` | idem |
 | Comparar Python vs Fortran nos campos u, v, wz, psi, T | `examples/11_case12_solver_comparison.py` | idem |
 | Documentar divergências e justificar tolerâncias | `docs/case-12-solver-comparison.md` | idem |
-| PR + merge via GitHub | — | — |
+| PR + merge via GitHub | - | - |
 
 ---
 
@@ -178,16 +178,16 @@ refactor: refatoração sem mudança de comportamento
 
 ### Regras de preservação
 
-- `src/fortran_original/` — **nunca alterar**. Referência imutável.
-- `src/mathematica_original/` — **nunca alterar**. Referência imutável.
-- `Thesis/` — **nunca alterar**. Material original da tese.
+- `src/fortran_original/` - **nunca alterar**. Referência imutável.
+- `src/mathematica_original/` - **nunca alterar**. Referência imutável.
+- `Thesis/` - **nunca alterar**. Material original da tese.
 
 ---
 
 ## Checklist de início de sessão
 
-- [ ] `git pull origin main` — verificar sincronização
-- [ ] `python -m pytest -q` — confirmar que todos os testes passam
+- [ ] `git pull origin main` - verificar sincronização
+- [ ] `python -m pytest -q` - confirmar que todos os testes passam
 - [ ] Identificar a fase atual neste documento
 - [ ] Solicitar permissões necessárias (skill `dev`) antes de começar
 - [ ] Usar modelo indicado na fase
