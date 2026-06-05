@@ -73,7 +73,7 @@
 | Criar `numerics/convergence.py` com `run_convergence_study(case, grids)` | `src/mms_viscoelastic/numerics/convergence.py` | `feat/case12-convergence` |
 | Implementar tabela de convergência (h, L2, Linf, ordem estimada) | idem | idem |
 | Criar `examples/09_case12_convergence_verification.py` | `examples/09_case12_convergence_verification.py` | idem |
-| Testes: verificar ordem ≥ 1.8 para grids 8→16→32→64 | `tests/test_case12_convergence.py` | idem |
+| Testes: verificar ordem >= 1.8 para grids 8→16→32→64 | `tests/test_case12_convergence.py` | idem |
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/case-12-convergence-verification.md` | idem |
 | PR + merge via GitHub | - | - |
 
