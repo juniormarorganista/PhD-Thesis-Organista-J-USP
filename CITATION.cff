@@ -4,8 +4,8 @@ title: "Verification of High-Order Viscoelastic Flow Solvers Using Manufactured 
 authors:
   - family-names: "Organista"
     given-names: "Juniormar"
-version: "0.1.0"
-date-released: "2026-05-02"
+version: "0.2.0"
+date-released: "2026-06-13"
 keywords:
   - "computational fluid dynamics"
   - "viscoelastic flows"
