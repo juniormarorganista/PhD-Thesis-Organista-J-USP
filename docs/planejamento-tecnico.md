@@ -17,8 +17,8 @@
 | Case 12 - termos fonte (tfwz, tfTxx, tfTxy, tfTyy) | ✅ portados e validados vs Fortran |
 | Módulo de convergência | ✅ `numerics/convergence.py` com `run_convergence_study`, ordem L2 ≈ 2 verificada |
 | Modelos constitutivos | ⏳ enum `ConstitutiveModel` existe; física ainda não implementada |
-| Relatório científico do Case 12 | ⏳ pendente |
-| Notebook científico | ⏳ pendente |
+| Relatório científico do Case 12 | ✅ `docs/case-12-complete-validation-report.md` |
+| Notebook científico | ✅ `examples/notebooks/Case12_MMS_Pipeline.ipynb` |
 | CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
 | Versão do pacote | 0.1.0 |
 
@@ -83,7 +83,7 @@
 
 ---
 
-### ▸ FASE III - Relatório científico e notebook do Case 12 (PRÓXIMA FASE)
+### ▸ FASE III - Relatório científico e notebook do Case 12 ✅ CONCLUÍDA
 **Modelo: sonnet** | **Skills: `escritor` + `doutor-em-matematica` + `git-github`**
 
 **Objetivo:** consolidar toda a evidência científica do Case 12 em um documento e notebook reprodutíveis.
@@ -97,9 +97,11 @@
 
 > **Regra do `escritor`:** redigir na voz do pesquisador. Evitar fraseado genérico de IA. Citar a tese e os papers originais quando mencionar equações.
 
+**Status:** [PR #10](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/10) mergeada. Relatório consolidado em `docs/case-12-complete-validation-report.md` (solução exata, validação dos 4 termos fonte vs. Fortran, estudo de convergência e nota sobre a convenção de sinal de `wz`); notebook `examples/notebooks/Case12_MMS_Pipeline.ipynb` executado com saídas reais; README atualizado com a seção "Convergence results (Case 12)" e status do `tfTyy` corrigido para validado.
+
 ---
 
-### ▸ FASE IV - Expansão dos datasets ML
+### ▸ FASE IV - Expansão dos datasets ML (PRÓXIMA FASE)
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** ampliar o pipeline de datasets para cobrir múltiplos regimes de parâmetros, habilitando treinamento de modelos surrogates.
