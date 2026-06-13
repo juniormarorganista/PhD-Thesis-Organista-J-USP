@@ -21,7 +21,7 @@
 | Relatório científico do Case 12 | ✅ `docs/case-12-complete-validation-report.md` |
 | Notebook científico | ✅ `examples/notebooks/Case12_MMS_Pipeline.ipynb` |
 | CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
-| Versão do pacote | 0.1.0 |
+| Versão do pacote | [0.2.0](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/tree/v0.2.0) |
 
 ---
 
@@ -140,7 +140,7 @@
 
 ---
 
-### ▸ FASE VI - Versioning e CI (PRÓXIMA FASE)
+### ▸ FASE VI - Versioning e CI ✅ CONCLUÍDA
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** versionar o primeiro ciclo completo de desenvolvimento e atualizar o CI.
@@ -153,9 +153,11 @@
 | Criar tag `v0.2.0` no GitHub | - | - |
 | PR + merge via GitHub | - | - |
 
+**Status:** [PR #16](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/16) mergeada. Versão `0.2.0` em `pyproject.toml`, `_version.py` e `CITATION.cff`; entradas de `[Unreleased]` movidas para `[0.2.0] - 2026-06-13` no `CHANGELOG.md`; `ruff` e `mypy` já estavam habilitados no job `lint` do CI desde a Fase I. Tag [`v0.2.0`](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/tree/v0.2.0) criada.
+
 ---
 
-### ▸ FASE VII - Comparação solver-level Fortran × Python
+### ▸ FASE VII - Comparação solver-level Fortran × Python (PRÓXIMA FASE)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
 
 **Objetivo:** demonstrar equivalência numérica entre o solver Fortran original e a implementação Python para o Case 12.
