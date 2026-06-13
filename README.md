@@ -11,20 +11,21 @@ Repository associated with the doctoral thesis of **Juniormar Organista**, focus
 3. [Mathematical formulation](#mathematical-formulation)
 4. [Method of Manufactured Solutions](#method-of-manufactured-solutions)
 5. [Numerical verification](#numerical-verification)
-6. [Thesis figures in this README](#thesis-figures-in-this-readme)
-7. [Current Python status](#current-python-status)
-8. [Case 12 status](#case-12-status)
-9. [Repository structure](#repository-structure)
-10. [Installation](#installation)
-11. [Tests and validation](#tests-and-validation)
-12. [Examples](#examples)
-13. [Generated outputs](#generated-outputs)
-14. [Machine Learning preparation](#machine-learning-preparation)
-15. [Local Git workflow](#local-git-workflow)
-16. [GitHub About](#github-about)
-17. [Citation](#citation)
-18. [Author](#author)
-19. [README maintenance rule](#readme-maintenance-rule)
+6. [Convergence results (Case 12)](#convergence-results-case-12)
+7. [Thesis figures in this README](#thesis-figures-in-this-readme)
+8. [Current Python status](#current-python-status)
+9. [Case 12 status](#case-12-status)
+10. [Repository structure](#repository-structure)
+11. [Installation](#installation)
+12. [Tests and validation](#tests-and-validation)
+13. [Examples](#examples)
+14. [Generated outputs](#generated-outputs)
+15. [Machine Learning preparation](#machine-learning-preparation)
+16. [Local Git workflow](#local-git-workflow)
+17. [GitHub About](#github-about)
+18. [Citation](#citation)
+19. [Author](#author)
+20. [README maintenance rule](#readme-maintenance-rule)
 
 ---
 
@@ -336,6 +337,80 @@ p \approx 4.
 
 ---
 
+## Convergence results (Case 12)
+
+This section reports a concrete instance of the verification described above,
+applied to Case 12. It checks that the second-order operators in
+[`numerics/derivatives.py`](src/mms_viscoelastic/numerics/derivatives.py)
+reproduce the stream-function identities
+
+```math
+u = \frac{\partial \psi}{\partial y},
+\qquad
+v = -\frac{\partial \psi}{\partial x},
+\qquad
+w_z = \frac{\partial u}{\partial y} - \frac{\partial v}{\partial x}
+```
+
+at the expected order $p=2$, using
+[`run_convergence_study`](src/mms_viscoelastic/numerics/convergence.py). These
+three relations were verified symbolically with SymPy to hold exactly for the
+Case 12 manufactured solution - substituting the closed-form expressions for
+$u$, $v$, $\psi$ and $w_z$ and simplifying each residual gives `0` for
+arbitrary $x$, $y$, $t$ - so any nonzero error below is purely discretization
+error, not a defect in the manufactured fields.
+
+> **Sign convention.** The `wz` field used here, and in the original
+> `case_12.f`, equals $\partial u/\partial y - \partial v/\partial x =
+> +\nabla^2\psi$, which is the *negative* of the $\omega_z =
+> \partial v/\partial x - \partial u/\partial y = -\nabla^2\psi$ defined in
+> [Mathematical formulation](#mathematical-formulation). The Python port keeps
+> the convention of the original Fortran code so that field-by-field
+> comparisons against `case_12.f` remain direct. See
+> [`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md#12-a-note-on-the-sign-of-wz)
+> for the full discussion.
+
+Results for grids $n = 8, 16, 32, 64$ ($h = 1/n$):
+
+| $n$ | $h$ | $L_2(u)$ | $L_\infty(u)$ | $L_2(v)$ | $L_\infty(v)$ | $L_2(w_z)$ | $L_\infty(w_z)$ |
+|----|----------|----------|----------|----------|----------|----------|----------|
+| 8  | 1.25e-01 | 9.17e-03 | 2.37e-02 | 2.98e-02 | 8.05e-02 | 1.19e-01 | 2.84e-01 |
+| 16 | 6.25e-02 | 2.36e-03 | 8.08e-03 | 6.46e-03 | 1.79e-02 | 3.19e-02 | 7.31e-02 |
+| 32 | 3.13e-02 | 5.83e-04 | 2.28e-03 | 1.50e-03 | 4.06e-03 | 7.89e-03 | 2.05e-02 |
+| 64 | 1.56e-02 | 1.43e-04 | 6.01e-04 | 3.62e-04 | 9.54e-04 | 1.93e-03 | 5.50e-03 |
+
+Estimated order of accuracy (log-log fit across all four grids):
+
+| Quantity | $p$ ($L_2$) | $p$ ($L_\infty$) |
+|----------|----------|------------|
+| $u$      | 2.0021   | 1.7726     |
+| $v$      | 2.1198   | 2.1332     |
+| $w_z$    | 1.9854   | 1.8902     |
+
+All three $L_2$ orders are within 6% of the theoretical value $p=2$. The
+lower $L_\infty(u)$ order (1.77) comes from the one-sided boundary stencil,
+whose truncation-error constant is larger than the interior
+central-difference constant; it does not affect the $L_2$ rate, which
+averages over the much larger set of interior points and recovers
+$p\approx2.00$.
+
+Reproduce with:
+
+```powershell
+python examples\09_case12_convergence_verification.py
+python -m pytest tests\test_case12_convergence.py -v
+```
+
+Full derivations (symbolic verification, truncation-error analysis) and the
+consolidated source-term validation results are in
+[`docs/case-12-convergence-verification.md`](docs/case-12-convergence-verification.md)
+and
+[`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md).
+A reproducible end-to-end notebook is available at
+[`examples/notebooks/Case12_MMS_Pipeline.ipynb`](examples/notebooks/Case12_MMS_Pipeline.ipynb).
+
+---
+
 ## Thesis figures in this README
 
 The figures below come from the thesis/slides material. The original files were mostly EPS, converted to PNG only so GitHub can render them. The original thesis assets remain preserved separately.
@@ -421,13 +496,14 @@ The Python modernization currently includes:
 - package foundation under `src/mms_viscoelastic`;
 - grid utilities;
 - manufactured solution utilities;
-- numerical derivative and error utilities;
+- numerical derivative, error and convergence utilities;
 - visualization utilities;
 - ML-ready dataset construction;
 - source-term ports for Case 12;
-- Fortran-reference validation for several source terms;
+- Fortran-reference validation for all four Case 12 source terms;
+- grid-convergence verification for the stream-function identities;
 - regression tests with `pytest`;
-- examples for reproducible execution.
+- examples and a reproducible notebook for Case 12.
 
 ### Implemented source terms
 
@@ -435,17 +511,15 @@ The Python modernization currently includes:
 tfwz   ported and validated against Fortran reference
 tfTxx  ported and validated against Fortran reference
 tfTxy  ported and validated against Fortran reference
-tfTyy  ported; Fortran-reference validation pending
+tfTyy  ported and validated against Fortran reference
 ```
 
 ### Pending work
 
 ```text
-tfTyy reference validation
-complete Case 12 source-term validation report
 solver-level Fortran × Python comparisons
 expanded datasets for ML workflows
-scientific notebooks
+constitutive models (UCM, Oldroyd-B) with physics
 presentation material for thesis defense
 ```
 
@@ -593,6 +667,7 @@ python -m pytest -q
 python examples\05_validate_case12_tfwz_reference.py
 python examples\06_validate_case12_tfTxx_reference.py
 python examples\07_validate_case12_tfTxy_reference.py
+python examples\08_validate_case12_tfTyy_reference.py
 ```
 
 Expected result:
@@ -607,8 +682,18 @@ Current validation status:
 tfwz   validated
 tfTxx  validated
 tfTxy  validated
-tfTyy  pending validation
+tfTyy  validated
 ```
+
+### Convergence verification
+
+```powershell
+python examples\09_case12_convergence_verification.py
+python -m pytest tests\test_case12_convergence.py -v
+```
+
+See [Convergence results (Case 12)](#convergence-results-case-12) for the
+expected output.
 
 ---
 
@@ -661,7 +746,26 @@ tfTyy
 python examples\05_validate_case12_tfwz_reference.py
 python examples\06_validate_case12_tfTxx_reference.py
 python examples\07_validate_case12_tfTxy_reference.py
+python examples\08_validate_case12_tfTyy_reference.py
 ```
+
+### Case 12 grid-convergence verification
+
+```powershell
+python examples\09_case12_convergence_verification.py
+```
+
+### Case 12 notebook pipeline
+
+```powershell
+jupyter nbconvert --to notebook --execute --inplace `
+  examples\notebooks\Case12_MMS_Pipeline.ipynb
+```
+
+This notebook runs the exact-field evaluation, source-term validation and
+grid-convergence study end to end; see
+[`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md)
+for the consolidated results.
 
 ---
 
