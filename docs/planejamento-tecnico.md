@@ -9,13 +9,14 @@
 
 | Item | Estado |
 |---|---|
-| Testes | ✅ 41/41 passam |
+| Testes | ✅ 53/53 passam |
 | Local ↔ GitHub | ✅ Sincronizado |
 | PRs abertos | - nenhum |
 | Fundação Python | ✅ `grids`, `fields`, `parameters`, `numerics`, `ml`, `io`, `visualization` |
 | Case 12 - solução manufaturada | ✅ portada e testada |
 | Case 12 - termos fonte (tfwz, tfTxx, tfTxy, tfTyy) | ✅ portados e validados vs Fortran |
 | Módulo de convergência | ✅ `numerics/convergence.py` com `run_convergence_study`, ordem L2 ≈ 2 verificada |
+| Dataset ML paramétrico | ✅ `ml/datasets.py` com `build_case12_parametric_dataset` e `ml/splits.py` com split estratificado por `case_id` |
 | Modelos constitutivos | ⏳ enum `ConstitutiveModel` existe; física ainda não implementada |
 | Relatório científico do Case 12 | ✅ `docs/case-12-complete-validation-report.md` |
 | Notebook científico | ✅ `examples/notebooks/Case12_MMS_Pipeline.ipynb` |
@@ -101,7 +102,7 @@
 
 ---
 
-### ▸ FASE IV - Expansão dos datasets ML (PRÓXIMA FASE)
+### ▸ FASE IV - Expansão dos datasets ML ✅ CONCLUÍDA
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** ampliar o pipeline de datasets para cobrir múltiplos regimes de parâmetros, habilitando treinamento de modelos surrogates.
@@ -114,9 +115,11 @@
 | Testes para datasets e splits | `tests/test_ml_parametric.py`, `tests/test_ml_splits.py` | idem |
 | PR + merge via GitHub | - | - |
 
+**Status:** [PR #12](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/12) mergeada. `build_case12_parametric_dataset` varre combinações de `(Re, Wi, beta, t)`, combina os campos exatos do Case 12 com os quatro termos fonte em uma única tabela por combinação e retorna um `ParametricDatasetBundle`; `ml/splits.py` adiciona `stratified_train_validation_test_split`, garantindo que train/validation/test contenham amostras de cada `case_id`.
+
 ---
 
-### ▸ FASE V - Modelos constitutivos (UCM e Oldroyd-B)
+### ▸ FASE V - Modelos constitutivos (UCM e Oldroyd-B) (PRÓXIMA FASE)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev`**
 
 **Objetivo:** implementar os primeiros modelos constitutivos com física real, validados contra soluções analíticas de cisalhamento simples (Couette).
