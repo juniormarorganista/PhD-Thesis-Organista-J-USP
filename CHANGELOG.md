@@ -20,6 +20,14 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Adicionado
 - Job `lint` no CI (`ruff check` + `mypy`) executado antes da matriz de testes.
+- `numerics/convergence.py` com `run_convergence_study`, verificando a ordem
+  de convergência (L2 e Linf) das relações `u = d(psi)/dy`, `v = -d(psi)/dx`
+  e `wz = d(u)/dy - d(v)/dx` para o Case 12.
+- `examples/09_case12_convergence_verification.py`.
+- `tests/test_case12_convergence.py` (ordem L2 >= 1.8 e Linf >= 1.5 para
+  grids 8->16->32->64).
+- `docs/case-12-convergence-verification.md` com a verificação simbólica das
+  identidades e a análise de erro de truncamento dos operadores.
 
 ---
 
