@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from enum import StrEnum
+from enum import Enum
 
 
-class ConstitutiveModel(StrEnum):
+class ConstitutiveModel(str, Enum):
     """Supported model labels."""
 
     NEWTONIAN = "newtonian"

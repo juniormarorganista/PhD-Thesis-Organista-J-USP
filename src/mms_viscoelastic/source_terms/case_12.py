@@ -462,7 +462,6 @@ def evaluate_case_12_tfTxy(
     x_poly: FloatArray = c["x_poly"]  # type: ignore[assignment]
     dpsi_dy_like: FloatArray = c["dpsi_dy_like"]  # type: ignore[assignment]
     dudx_shape: FloatArray = c["dudx_shape"]  # type: ignore[assignment]
-    mixed_xy_shape: FloatArray = c["mixed_xy_shape"]  # type: ignore[assignment]
     uxx_shape: FloatArray = c["uxx_shape"]  # type: ignore[assignment]
 
     Rey = p.reynolds
