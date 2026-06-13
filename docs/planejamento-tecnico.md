@@ -9,7 +9,7 @@
 
 | Item | Estado |
 |---|---|
-| Testes | ✅ 53/53 passam |
+| Testes | ✅ 349/349 passam |
 | Local ↔ GitHub | ✅ Sincronizado |
 | PRs abertos | - nenhum |
 | Fundação Python | ✅ `grids`, `fields`, `parameters`, `numerics`, `ml`, `io`, `visualization` |
@@ -17,7 +17,7 @@
 | Case 12 - termos fonte (tfwz, tfTxx, tfTxy, tfTyy) | ✅ portados e validados vs Fortran |
 | Módulo de convergência | ✅ `numerics/convergence.py` com `run_convergence_study`, ordem L2 ≈ 2 verificada |
 | Dataset ML paramétrico | ✅ `ml/datasets.py` com `build_case12_parametric_dataset` e `ml/splits.py` com split estratificado por `case_id` |
-| Modelos constitutivos | ⏳ enum `ConstitutiveModel` existe; física ainda não implementada |
+| Modelos constitutivos | ✅ `models/ucm.py` (UCM) e `models/oldroyd_b.py` (Oldroyd-B), validados contra solução analítica de cisalhamento simples (Couette) |
 | Relatório científico do Case 12 | ✅ `docs/case-12-complete-validation-report.md` |
 | Notebook científico | ✅ `examples/notebooks/Case12_MMS_Pipeline.ipynb` |
 | CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
@@ -119,7 +119,7 @@
 
 ---
 
-### ▸ FASE V - Modelos constitutivos (UCM e Oldroyd-B) (PRÓXIMA FASE)
+### ▸ FASE V - Modelos constitutivos (UCM e Oldroyd-B) ✅ CONCLUÍDA
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev`**
 
 **Objetivo:** implementar os primeiros modelos constitutivos com física real, validados contra soluções analíticas de cisalhamento simples (Couette).
@@ -136,9 +136,11 @@
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/constitutive-models.md` | idem |
 | PR + merge via GitHub | - | - |
 
+**Status:** [PR #14](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/14) mergeada. `models/ucm.py` implementa a derivada upper-convected em forma de componentes, o resíduo `ucm_residual` e a solução analítica `ucm_steady_simple_shear`; `models/oldroyd_b.py` decompõe `tau = tau_p + tau_s` com `solvent_stress`, `total_stress`, `oldroyd_b_residual` e `oldroyd_b_steady_simple_shear`. `docs/constitutive-models.md` documenta a derivação completa, e os testes verificam as soluções de Couette e o resíduo nulo (`atol=1e-12`) para uma grade de `(Wi, beta, shear_rate)`, incluindo `beta=0` e `beta=1`.
+
 ---
 
-### ▸ FASE VI - Versioning e CI
+### ▸ FASE VI - Versioning e CI (PRÓXIMA FASE)
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** versionar o primeiro ciclo completo de desenvolvimento e atualizar o CI.
