@@ -49,12 +49,12 @@ def plot_scalar_field(
     """Plot one scalar field on the physical ``x-y`` domain."""
 
     array = _validate_component_array(grid, values)
-    extent = [
+    extent = (
         float(grid.x.min()),
         float(grid.x.max()),
         float(grid.y.min()),
         float(grid.y.max()),
-    ]
+    )
 
     fig, ax = plt.subplots(figsize=(6.0, 4.8), constrained_layout=True)
     image = ax.imshow(
