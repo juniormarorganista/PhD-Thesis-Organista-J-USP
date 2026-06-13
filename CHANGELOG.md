@@ -19,6 +19,25 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `evaluate_case_12_tfTxy`.
 
 ### Adicionado
+- `ml/splits.py` com `stratified_train_validation_test_split`, dividindo um
+  dataframe em train/validation/test estratificado por uma coluna (ex.:
+  `case_id`), garantindo que cada split contenha amostras de todas as
+  combinações de parâmetros.
+- `ml/datasets.py`: `build_case12_parametric_dataset`, que varre combinações
+  de `(Re, Wi, beta, t)` via `itertools.product`, combina os campos exatos do
+  Case 12 com os quatro termos fonte (`tfwz`, `tfTxx`, `tfTxy`, `tfTyy`) em
+  uma única tabela de features por combinação, e retorna um
+  `ParametricDatasetBundle` com splits estratificados por `case_id`.
+- `ml/datasets.py`: `save_parametric_dataset_bundle`, `ParametricDatasetBundle`,
+  `PARAMETRIC_TARGET_COLUMNS` e `SOURCE_TERM_COLUMNS`.
+- `infer_feature_columns` agora aceita `exclude_columns`, usado para remover
+  identificadores como `case_id` das features sem removê-los do dataframe.
+- `examples/10_case12_ml_dataset_parametric.py`, exemplo que gera o dataset
+  paramétrico e exporta os CSVs de full/train/validation/test.
+- `tests/test_ml_splits.py` e `tests/test_ml_parametric.py`, cobrindo a
+  validação das frações do split estratificado, a cobertura de todas as
+  combinações de parâmetros nos três splits e a reprodutibilidade via
+  `random_state`.
 - Job `lint` no CI (`ruff check` + `mypy`) executado antes da matriz de testes.
 - `numerics/convergence.py` com `run_convergence_study`, verificando a ordem
   de convergência (L2 e Linf) das relações `u = d(psi)/dy`, `v = -d(psi)/dx`
