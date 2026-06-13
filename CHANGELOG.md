@@ -8,6 +8,8 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-13
+
 ### Corrigido
 - `models/constitutive.py`: `ConstitutiveModel` agora usa `str, Enum` em vez de
   `enum.StrEnum` (incompatível com Python 3.10).
