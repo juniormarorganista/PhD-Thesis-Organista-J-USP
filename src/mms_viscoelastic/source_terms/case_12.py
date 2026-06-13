@@ -12,7 +12,12 @@ Current implementation status:
 - ``tfTxy``: ported to NumPy;
 - ``tfTyy``: ported to NumPy.
 
-All four Case 12 source-term components are now available in Python. The tensor term ``tfTyy`` still needs independent Fortran-reference validation in the next phase.
+All four Case 12 source-term components are now available in Python and
+validated against the independent Fortran reference (see
+``docs/case-12-tfwz-fortran-reference-validation.md``,
+``docs/case-12-tfTxx-fortran-reference-validation.md``,
+``docs/case-12-tfTxy-fortran-reference-validation.md`` and
+``docs/case-12-tfTyy-fortran-reference-validation.md``).
 """
 
 from __future__ import annotations
