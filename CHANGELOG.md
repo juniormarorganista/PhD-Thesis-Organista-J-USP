@@ -6,6 +6,23 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased]
+
+### Corrigido
+- `models/constitutive.py`: `ConstitutiveModel` agora usa `str, Enum` em vez de
+  `enum.StrEnum` (incompatível com Python 3.10).
+- `ml/features.py`: `field_to_feature_table` agora estreita corretamente o tipo
+  de dataclass antes de chamar `asdict`.
+- `visualization/fields.py`: `extent` do `imshow` agora é uma tupla, conforme
+  esperado pelos stubs do Matplotlib.
+- `source_terms/case_12.py`: removida variável local não utilizada em
+  `evaluate_case_12_tfTxy`.
+
+### Adicionado
+- Job `lint` no CI (`ruff check` + `mypy`) executado antes da matriz de testes.
+
+---
+
 ## [0.6.7.5] - 2026-05-03
 
 ### Adicionado

@@ -75,7 +75,7 @@ def field_mapping(fields: Any) -> dict[str, np.ndarray]:
 
     if isinstance(fields, Mapping):
         raw = dict(fields)
-    elif is_dataclass(fields):
+    elif is_dataclass(fields) and not isinstance(fields, type):
         raw = asdict(fields)
     else:
         raw = {
