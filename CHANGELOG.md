@@ -28,6 +28,22 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   grids 8->16->32->64).
 - `docs/case-12-convergence-verification.md` com a verificação simbólica das
   identidades e a análise de erro de truncamento dos operadores.
+- `docs/case-12-complete-validation-report.md`, consolidando a solução exata,
+  a validação dos quatro termos fonte (tfwz, tfTxx, tfTxy, tfTyy) contra a
+  referência Fortran e o estudo de convergência, incluindo a discussão da
+  convenção de sinal de `wz` em relação à formulação geral do README.
+- `examples/notebooks/Case12_MMS_Pipeline.ipynb`, notebook reprodutível que
+  executa a solução exata, os termos fonte, a validação Fortran e o estudo
+  de convergência do Case 12.
+- Seção "Convergence results (Case 12)" no README, com a tabela de
+  convergência e a nota sobre a convenção de sinal de `wz`.
+
+### Alterado
+- `source_terms/case_12.py`: docstring do módulo atualizada para refletir que
+  os quatro termos fonte do Case 12 (tfwz, tfTxx, tfTxy, tfTyy) já estão
+  validados contra a referência Fortran.
+- README: status do `tfTyy` atualizado de "pending validation" para
+  "validated"; seção "Pending work" atualizada.
 
 ---
 
