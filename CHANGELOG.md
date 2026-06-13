@@ -19,6 +19,22 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `evaluate_case_12_tfTxy`.
 
 ### Adicionado
+- `models/ucm.py` com `VelocityGradient2D`, `StressTensor2D`,
+  `rate_of_deformation_tensor`, `upper_convected_derivative`, `ucm_residual`
+  e `ucm_steady_simple_shear`, implementando o modelo constitutivo
+  Upper-Convected Maxwell (UCM) adimensional e sua solução analítica de
+  cisalhamento simples (Couette).
+- `models/oldroyd_b.py` com `solvent_stress`, `total_stress`,
+  `oldroyd_b_residual` e `oldroyd_b_steady_simple_shear`, implementando o
+  modelo Oldroyd-B como decomposição `tau = tau_p + tau_s` sobre o UCM.
+- `docs/constitutive-models.md` com a derivação rigorosa da derivada
+  upper-convected em forma de componentes e das soluções analíticas de UCM e
+  Oldroyd-B em cisalhamento simples, usadas na validação dos novos modelos.
+- `tests/test_model_ucm.py` e `tests/test_model_oldroyd_b.py`, validando os
+  modelos UCM e Oldroyd-B contra as soluções analíticas de Couette e
+  verificando que o resíduo das equações constitutivas é nulo (`atol=1e-12`)
+  para uma grade de `(Wi, beta, shear_rate)`, incluindo os limites
+  newtonianos `beta=0` e `beta=1`.
 - `ml/splits.py` com `stratified_train_validation_test_split`, dividindo um
   dataframe em train/validation/test estratificado por uma coluna (ex.:
   `case_id`), garantindo que cada split contenha amostras de todas as
