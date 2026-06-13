@@ -1,7 +1,7 @@
 # Planejamento Técnico - mms_viscoelastic
 
 > Documento de referência estratégica para o desenvolvimento da biblioteca.
-> Atualizado em: 2026-06-03.
+> Atualizado em: 2026-06-13.
 
 ---
 
@@ -9,17 +9,17 @@
 
 | Item | Estado |
 |---|---|
-| Testes | ✅ 36/36 passam |
+| Testes | ✅ 41/41 passam |
 | Local ↔ GitHub | ✅ Sincronizado |
 | PRs abertos | - nenhum |
 | Fundação Python | ✅ `grids`, `fields`, `parameters`, `numerics`, `ml`, `io`, `visualization` |
 | Case 12 - solução manufaturada | ✅ portada e testada |
 | Case 12 - termos fonte (tfwz, tfTxx, tfTxy, tfTyy) | ✅ portados e validados vs Fortran |
-| Módulo de convergência | ⏳ `numerics/errors.py` existe, mas pipeline de convergência está ausente |
+| Módulo de convergência | ✅ `numerics/convergence.py` com `run_convergence_study`, ordem L2 ≈ 2 verificada |
 | Modelos constitutivos | ⏳ enum `ConstitutiveModel` existe; física ainda não implementada |
 | Relatório científico do Case 12 | ⏳ pendente |
 | Notebook científico | ⏳ pendente |
-| CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 |
+| CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
 | Versão do pacote | 0.1.0 |
 
 ---
@@ -46,7 +46,7 @@
 
 ## Fases de desenvolvimento
 
-### ▸ FASE I - Organização e baseline de qualidade
+### ▸ FASE I - Organização e baseline de qualidade ✅ CONCLUÍDA
 **Modelo: haiku** | **Skills: `dev` + `git-github`**
 
 **Objetivo:** garantir que o projeto está limpo, lint-free e com CI sólido antes de qualquer expansão.
@@ -59,9 +59,11 @@
 | Adicionar ruff ao CI | `.github/workflows/tests.yml` | `chore/lint-and-type-check` |
 | PR + merge via GitHub | - | - |
 
+**Status:** [PR #7](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/7) mergeada. `ruff check` e `mypy src/` limpos; job `lint` adicionado ao CI.
+
 ---
 
-### ▸ FASE II - Verificação de convergência numérica (núcleo do MMS)
+### ▸ FASE II - Verificação de convergência numérica (núcleo do MMS) ✅ CONCLUÍDA
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev`**
 
 **Objetivo:** implementar e demonstrar que os operadores de diferenças finitas convergem com a ordem correta quando aplicados às soluções manufaturadas do Case 12.
@@ -77,9 +79,11 @@
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/case-12-convergence-verification.md` | idem |
 | PR + merge via GitHub | - | - |
 
+**Status:** [PR #8](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/8) mergeada. Identidades `u = d(psi)/dy`, `v = -d(psi)/dx`, `wz = d(u)/dy - d(v)/dx` verificadas simbolicamente (SymPy) e numericamente: ordem L2 ≈ 2.00-2.12 para grids 8→16→32→64.
+
 ---
 
-### ▸ FASE III - Relatório científico e notebook do Case 12
+### ▸ FASE III - Relatório científico e notebook do Case 12 (PRÓXIMA FASE)
 **Modelo: sonnet** | **Skills: `escritor` + `doutor-em-matematica` + `git-github`**
 
 **Objetivo:** consolidar toda a evidência científica do Case 12 em um documento e notebook reprodutíveis.
