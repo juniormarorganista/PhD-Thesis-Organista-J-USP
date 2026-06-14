@@ -8,6 +8,21 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Adicionado
+- Programa Fortran isolado de referência para os campos exatos do Case 12
+  (`u`, `v`, `wz`, `psi`, `txx`, `txy`, `tyy`) no instante `t=0`, porta
+  verbatim de `exact_solutions_case_12(t)`.
+- CSVs de referência 3x3 e 5x5 para os campos exatos do Case 12.
+- `validation/solver_comparison.py` com `CASE12_FIELD_COMPONENTS` e
+  `compare_case12_field_reference`, comparando `evaluate_case_12_exact`
+  contra a referência Fortran.
+- `examples/11_case12_solver_comparison.py`.
+- `tests/test_case12_solver_comparison.py`, cobrindo os sete campos para as
+  referências 3x3 e 5x5 (`max_abs_error < 1e-10`, `max_rel_error < 1e-10`).
+- `docs/case-12-solver-comparison.md`, documentando o escopo reduzido da
+  FASE VII (comparação dos campos exatos no instante t=0) e o trabalho futuro
+  de comparação completa do solver.
+
 ## [0.2.0] - 2026-06-13
 
 ### Corrigido
