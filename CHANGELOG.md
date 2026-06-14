@@ -63,6 +63,31 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   o escopo (discretização de segunda ordem, atualização apenas dos pontos
   internos).
 
+- `numerics/time_marching.py` com `TimeMarchingState` e `case12_time_step`,
+  combinando o passo de Euler (Etapa 9) com a reimposição das condições de
+  contorno de Dirichlet em `t+dt`, a nova resolução de
+  `laplacian(psi) = wz` (Etapa 8) e o recálculo de `u`/`v` a partir do `psi`
+  atualizado. A condição de contorno de `wz` é reimposta a partir da solução
+  exata em `t+dt` (em vez do stencil unilateral de 4ª ordem de
+  `boundarie_vorticity_cavity_flow.f`), simplificação documentada e
+  consistente com as Etapas 8 e 9.
+- Programa Fortran isolado de referência para um passo completo de marcha no
+  tempo do Case 12 (`validation/fortran_reference/case12_time_step/`):
+  passo de Euler + reimposição de condições de contorno em `t+dt` + resolução
+  densa do sistema de Poisson (eliminação gaussiana) + recálculo de `u`/`v`.
+- Gerador de CSV de entrada com a coluna `psi`
+  (`validation/fortran_reference/case12_time_step/generate_input_csv.py`) e
+  CSV de referência 9x9 para o passo completo do Case 12 (`dt = 1e-5`).
+- `validation/solver_comparison.py` com `CASE12_TIME_STEP_COMPONENTS` e
+  `compare_case12_time_step_reference`.
+- `examples/14_case12_time_step_comparison.py`.
+- `tests/test_case12_time_step.py`, cobrindo `wz`, `Txx`, `Txy`, `Tyy`, `psi`,
+  `u`, `v` (`max_abs_error < 1e-12`, `max_rel_error < 1e-12`).
+- `docs/case-12-time-marching-comparison.md`, documentando a sequência
+  portada (Euler + condições de contorno + Poisson + `u`/`v`), a decisão de
+  reimpor `wz` na fronteira a partir da solução exata e o trabalho futuro de
+  marcha multi-passo.
+
 ## [0.2.0] - 2026-06-13
 
 ### Corrigido
