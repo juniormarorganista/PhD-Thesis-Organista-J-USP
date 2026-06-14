@@ -124,6 +124,8 @@ python examples\12_case12_poisson_solver.py --grid-sizes 8 16 32 64 128
 
 ## 7. Deferred work
 
-- Etapa 9 (single Euler time step) and Etapa 10 (multi-step time marching)
-  build on this solver to compute `psi` from the evolving `wz` field, as
-  described in `.claude/PLANEJAMENTO.md`.
+- Etapa 9 (single Euler time step) and Etapa 10 (one full time-marching step)
+  build on this solver to compute `psi` from the evolving `wz` field. See
+  [`docs/case-12-euler-step-comparison.md`](case-12-euler-step-comparison.md)
+  and
+  [`docs/case-12-time-marching-comparison.md`](case-12-time-marching-comparison.md).
