@@ -4,8 +4,8 @@ Este repositório está sendo reorganizado para preservar o material original da
 
 ## Regras principais
 
-1. Não alterar diretamente os arquivos originais em `src/fortran_original/`.
-2. Não alterar diretamente os arquivos originais da tese em `thesis/` sem branch específica.
+1. Não alterar diretamente os arquivos originais em `src/fortran_original/` e `src/mathematica_original/`.
+2. Não alterar diretamente os arquivos originais da tese em `Thesis/`.
 3. Toda nova funcionalidade Python deve ter teste.
 4. Toda transcrição Fortran → Python deve indicar o arquivo Fortran de origem.
 5. Commits devem ser pequenos e descritivos.
