@@ -1,7 +1,7 @@
 # Planejamento Técnico - mms_viscoelastic
 
 > Documento de referência estratégica para o desenvolvimento da biblioteca.
-> Atualizado em: 2026-06-13.
+> Atualizado em: 2026-06-14.
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Item | Estado |
 |---|---|
-| Testes | ✅ 363/363 passam |
+| Testes | ✅ 389/389 passam |
 | Local ↔ GitHub | ✅ Sincronizado |
 | PRs abertos | - nenhum |
 | Fundação Python | ✅ `grids`, `fields`, `parameters`, `numerics`, `ml`, `io`, `visualization` |
@@ -23,6 +23,7 @@
 | CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
 | Versão do pacote | [0.2.0](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/tree/v0.2.0) |
 | Comparação Fortran x Python - campos exatos do Case 12 (t=0) | ✅ `validation/solver_comparison.py`, ver `docs/case-12-solver-comparison.md` |
+| Solver time-marching Python (`case12_time_step`, `case12_multistep_march`) | ✅ Poisson (Etapa 8) + Euler (Etapa 9) + passo completo (Etapa 10) + marcha multi-passo (Etapa 11), validados a erro de arredondamento vs referências Fortran isoladas (grade 9x9, 10 passos) |
 
 ---
 
@@ -175,7 +176,7 @@
 
 ---
 
-### ▸ FASE VIII - Solver time-marching Python e comparação completa com Fortran (EM ANDAMENTO)
+### ▸ FASE VIII - Solver time-marching Python e comparação completa com Fortran ✅ CONCLUÍDA (escopo reduzido)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
 
 **Objetivo:** portar o laço de integração temporal do Case 12 (`src/fortran_original/4Order_LPOG_Euler/`) para Python e comparar a evolução temporal dos campos `u, v, wz, psi, T` contra o solver Fortran original.
@@ -187,7 +188,9 @@
 | Etapa 8 - solver de Poisson para `psi` (`solve_poisson_dirichlet`) | `src/mms_viscoelastic/numerics/poisson.py`, `docs/case-12-poisson-solver.md` | `feat/case12-poisson-solver` | ✅ PR #20 |
 | Etapa 9 - passo de Euler explícito (`wz`, `Txx`, `Txy`, `Tyy`) vs Fortran | `src/mms_viscoelastic/numerics/time_stepping.py`, `docs/case-12-euler-step-comparison.md` | `feat/case12-euler-step` | ✅ PR #21 |
 | Etapa 10 - um passo completo de marcha no tempo (Euler + BC + Poisson + `u`,`v`) vs Fortran | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-time-marching-comparison.md` | `feat/case12-time-marching` | ✅ PR #22 |
-| Etapa 11 - marcha multi-passo e comparação da evolução temporal completa | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-multistep-marching-comparison.md` | `feat/case12-multistep-marching` | em andamento |
+| Etapa 11 - marcha multi-passo (`case12_multistep_march`) vs Fortran | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-multistep-marching-comparison.md` | `feat/case12-multistep-marching` | ✅ PR #23 |
+
+**Status:** Etapas 8-11 mergeadas, com **escopo reduzido**: o solver Python de marcha no tempo (`case12_time_step` + `case12_multistep_march`) está implementado e validado a erro de arredondamento contra referências Fortran isoladas (passo único e 10 passos, grade 9x9, operadores de 2ª ordem, simplificação na condição de contorno de `wz`). A comparação da **evolução temporal completa contra o laço de tempo do solver Fortran original** (`euler_rk.f::solver_euler`, malhas maiores, horizonte de simulação completo) fica para uma fase futura (a definir), conforme `docs/case-12-multistep-marching-comparison.md` Seção 6.
 
 ---
 
