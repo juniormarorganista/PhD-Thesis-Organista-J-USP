@@ -20,7 +20,7 @@ from .poisson import (
     run_case12_poisson_convergence_study,
     solve_poisson_dirichlet,
 )
-from .time_marching import TimeMarchingState, case12_time_step
+from .time_marching import TimeMarchingState, case12_multistep_march, case12_time_step
 from .time_stepping import (
     EulerStepParameters,
     euler_step_stress,
@@ -37,6 +37,7 @@ __all__ = [
     "PoissonConvergenceLevel",
     "PoissonConvergenceReport",
     "TimeMarchingState",
+    "case12_multistep_march",
     "case12_time_step",
     "derivative_x",
     "derivative_y",
