@@ -15,17 +15,18 @@ Repository associated with the doctoral thesis of **Juniormar Organista**, focus
 7. [Thesis figures in this README](#thesis-figures-in-this-readme)
 8. [Current Python status](#current-python-status)
 9. [Case 12 status](#case-12-status)
-10. [Repository structure](#repository-structure)
-11. [Installation](#installation)
-12. [Tests and validation](#tests-and-validation)
-13. [Examples](#examples)
-14. [Generated outputs](#generated-outputs)
-15. [Machine Learning preparation](#machine-learning-preparation)
-16. [Local Git workflow](#local-git-workflow)
-17. [GitHub About](#github-about)
-18. [Citation](#citation)
-19. [Author](#author)
-20. [README maintenance rule](#readme-maintenance-rule)
+10. [Time-marching solver (Case 12)](#time-marching-solver-case-12)
+11. [Repository structure](#repository-structure)
+12. [Installation](#installation)
+13. [Tests and validation](#tests-and-validation)
+14. [Examples](#examples)
+15. [Generated outputs](#generated-outputs)
+16. [Machine Learning preparation](#machine-learning-preparation)
+17. [GitHub workflow](#github-workflow)
+18. [GitHub About](#github-about)
+19. [Citation](#citation)
+20. [Author](#author)
+21. [README maintenance rule](#readme-maintenance-rule)
 
 ---
 
@@ -502,6 +503,12 @@ The Python modernization currently includes:
 - source-term ports for Case 12;
 - Fortran-reference validation for all four Case 12 source terms;
 - grid-convergence verification for the stream-function identities;
+- constitutive models (UCM, Oldroyd-B), validated against closed-form steady
+  Couette solutions (see [Constitutive models](docs/constitutive-models.md));
+- a direct Poisson solver for `psi`, an explicit Euler time step for `wz` and
+  the stress tensor, and a full single/multi-step time-marching update for
+  Case 12, each validated against isolated Fortran reference programs (see
+  [Time-marching solver (Case 12)](#time-marching-solver-case-12));
 - regression tests with `pytest`;
 - examples and a reproducible notebook for Case 12.
 
@@ -517,9 +524,11 @@ tfTyy  ported and validated against Fortran reference
 ### Pending work
 
 ```text
-solver-level Fortran × Python comparisons
 expanded datasets for ML workflows
-constitutive models (UCM, Oldroyd-B) with physics
+full temporal-evolution comparison against the original Fortran solver's
+  own time loop (full simulation horizon, finer grids)
+4th-order LPOG compact operators and the Lele compact filter
+  (currently out of scope; 2nd-order operators are used instead)
 presentation material for thesis defense
 ```
 
@@ -572,6 +581,30 @@ terms.tfTyy
 
 ---
 
+## Time-marching solver (Case 12)
+
+`src/mms_viscoelastic/numerics/` ports, with 2nd-order finite-difference
+operators, the building blocks of the Case 12 time-marching loop from
+`src/fortran_original/4Order_LPOG_Euler/`. Each step is validated against an
+isolated Fortran reference program written for this project (it does not
+modify the original thesis Fortran sources).
+
+| Step | Module | Documentation |
+|---|---|---|
+| Direct Poisson solve for `psi` (`laplacian(psi) = wz`, Dirichlet BCs) | [`numerics/poisson.py`](src/mms_viscoelastic/numerics/poisson.py) | [`docs/case-12-poisson-solver.md`](docs/case-12-poisson-solver.md) |
+| Explicit Euler step for `wz`, `Txx`, `Txy`, `Tyy` | [`numerics/time_stepping.py`](src/mms_viscoelastic/numerics/time_stepping.py) | [`docs/case-12-euler-step-comparison.md`](docs/case-12-euler-step-comparison.md) |
+| Full step: Euler update + boundary conditions at `t+dt` + Poisson re-solve + `u`,`v` recomputation | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_time_step`) | [`docs/case-12-time-marching-comparison.md`](docs/case-12-time-marching-comparison.md) |
+| Multi-step march (`n_steps` chained full steps) | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_multistep_march`) | [`docs/case-12-multistep-marching-comparison.md`](docs/case-12-multistep-marching-comparison.md) |
+
+All four steps agree with their Fortran references to within machine
+precision (`~1e-15`). The 4th-order LPOG compact derivative operators, the
+one-sided `wz`-boundary stencil and the Lele compact filter remain out of
+scope, as documented in each step's comparison report. A full
+temporal-evolution comparison against the original Fortran solver's own time
+loop, over the complete simulation horizon and on finer grids, is future work.
+
+---
+
 ## Repository structure
 
 ```text
@@ -589,16 +622,22 @@ terms.tfTyy
 │       ├── parameters.py
 │       ├── manufactured_solutions/
 │       ├── source_terms/
+│       ├── models/
+│       ├── numerics/
 │       ├── validation/
 │       ├── visualization/
 │       ├── ml/
-│       └── numerics/
+│       └── io/
 │
-├── thesis/
-│   └── original/
+├── Thesis/
+│   ├── LICENSE
+│   ├── OrganistaJ_Thesis.tex
+│   ├── tex/
+│   ├── Slides/
+│   └── figures/
 │
-├── papers/
-│   └── original/
+├── Papers/
+│   └── <journal-submission-folder>/
 │
 ├── validation/
 │   ├── fortran_reference/
@@ -607,11 +646,12 @@ terms.tfTyy
 ├── examples/
 ├── tests/
 ├── docs/
+├── scripts/
 ├── assets/
 │   ├── preview/
 │   └── thesis/
 │       └── case12/
-└── outputs/
+└── outputs/        (generated, not tracked)
 ```
 
 The following folders are scientific reference material and should not be edited casually:
@@ -619,8 +659,8 @@ The following folders are scientific reference material and should not be edited
 ```text
 src/fortran_original/
 src/mathematica_original/
-thesis/original/
-papers/original/
+Thesis/
+Papers/
 ```
 
 ---
@@ -835,15 +875,19 @@ Potential future ML tasks:
 
 ---
 
-## Local Git workflow
+## GitHub workflow
 
-This project is currently maintained with a local branch/merge/tag workflow.
+Every change goes through a pull request:
+
+```text
+main → branch → commits → push → PR on GitHub → merge via GitHub → main
+```
 
 ### Start a new phase
 
 ```powershell
 git checkout main
-git status
+git pull --ff-only origin main
 git checkout -b feat/name-of-phase
 ```
 
@@ -854,70 +898,65 @@ python -m compileall src\mms_viscoelastic
 python -m pytest -q
 ```
 
-### Commit
+### Commit and push
 
 ```powershell
 git status
 git diff --stat
-git add -A
+git add <files>
 git commit -m "feat: objective message"
+git push -u origin feat/name-of-phase
 ```
 
-### Merge locally
+### Open, check and merge the pull request
 
 ```powershell
-git checkout main
-git merge --no-ff feat/name-of-phase -m "merge: objective message"
+gh pr create --base main --fill
+gh pr checks --watch
+gh pr merge --merge --delete-branch
 ```
 
-### Tag
-
-```powershell
-git tag -a v0.X.Y -m "v0.X.Y: release summary"
-```
-
-### Synchronize later
-
-```powershell
-git push origin main
-git push origin --tags
-```
+Commit messages use the prefixes `feat:` (new functionality), `fix:` (bug
+fix), `docs:` (documentation only), `chore:` (maintenance/infrastructure),
+`test:` (tests only) and `refactor:` (refactor without behavior change).
 
 ---
 
 ## GitHub About
 
-Suggested short description:
+The repository "About" section on GitHub is configured as follows.
+
+Short description:
 
 ```text
-Verification and Python modernization of high-order viscoelastic flow solvers using MMS.
+Doctoral thesis (USP): numerical verification of high-order solvers for
+incompressible viscoelastic flows via the Method of Manufactured Solutions.
+Fortran reference programs, Python library, and ML-ready datasets.
 ```
 
-Suggested topics:
+Topics:
 
 ```text
-computational-fluid-dynamics
-viscoelastic-flows
-non-newtonian-fluids
-manufactured-solutions
-method-of-manufactured-solutions
-mms
-oldroyd-b
-giesekus
-lptt
-ucm
-finite-differences
+applied-mathematics
 compact-schemes
+computational-fluid-dynamics
+doctoral-thesis
+finite-differences
 fortran
+giesekus
+log-conformation
+lptt
+manufactured-solutions
+mms
+navier-stokes
+non-newtonian-fluids
+numerical-verification
+oldroyd-b
 python
 scientific-computing
-numerical-methods
-numerical-verification
-machine-learning
 scientific-machine-learning
-applied-mathematics
-doctoral-thesis
-usp
+ucm
+viscoelastic-flows
 ```
 
 ---
@@ -932,7 +971,9 @@ Recommended citation text:
 Organista, J. Codes and numerical verification material associated with a doctoral thesis on high-order methods for incompressible viscoelastic flows using the Method of Manufactured Solutions.
 ```
 
-A `CITATION.cff` file should be maintained as the project approaches a stable release.
+Machine-readable citation metadata is kept in [`CITATION.cff`](CITATION.cff)
+at the repository root, which GitHub surfaces through its "Cite this
+repository" button on the repository home page.
 
 ---
 

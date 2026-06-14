@@ -1,22 +1,22 @@
-# Fluxo Git Local do Projeto
+# GitHub workflow of the project
 
-Este projeto está sendo conduzido com fluxo local, sem Pull Request obrigatório.
+This project is conducted through pull requests on GitHub.
 
-## Regra
+## Rule
 
 ```text
-branch → alterações → testes → commit → merge local → tag → push posterior
+main → branch → commits → push → PR on GitHub → merge via GitHub → main
 ```
 
-## Nova fase
+## New phase
 
 ```powershell
 git checkout main
-git status
+git pull --ff-only origin main
 git checkout -b tipo/nome-da-fase
 ```
 
-Exemplos:
+Examples:
 
 ```powershell
 git checkout -b docs/readme-thesis-summary
@@ -24,50 +24,40 @@ git checkout -b feat/case12-source-terms
 git checkout -b chore/remove-generated-files
 ```
 
-## Testes antes do commit
+## Tests before committing
 
 ```powershell
 python -m compileall src\mms_viscoelastic
 python -m pytest -q
 ```
 
-Quando houver visualização/dataset:
+When there is visualization/dataset work:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
-## Commit
+## Commit and push
 
 ```powershell
-git add -A
+git add <files>
 git commit -m "docs: add thesis README with equations and figures"
+git push -u origin docs/readme-thesis-summary
 ```
 
-## Merge local
+## Pull request
 
 ```powershell
-git checkout main
-git merge --no-ff docs/readme-thesis-summary -m "merge: add thesis README with equations and figures"
+gh pr create --base main --fill
+gh pr checks --watch
+gh pr merge --merge --delete-branch
 ```
 
-## Tag
-
-```powershell
-git tag -a v0.5.2 -m "v0.5.2: thesis README with equations and figures"
-```
-
-## Push posterior
-
-```powershell
-git push origin main
-git push origin --tags
-```
-
-## Não usar agora
+## Not used
 
 ```powershell
 git push --force
 ```
 
-Sem necessidade. `--force` é a motosserra do Git: útil quando se sabe exatamente o que está cortando; perigoso quando só se queria podar uma roseira.
+Not needed. `--force` is the chainsaw of Git: useful when you know exactly
+what you are cutting; dangerous when you only wanted to prune a rose bush.

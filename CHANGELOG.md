@@ -106,6 +106,38 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   do Case 12 para `at=0` e o trabalho futuro de comparação da evolução
   temporal completa.
 
+### Corrigido
+- `CITATION.cff`: `repository-code` apontava para um placeholder
+  (`SEU_USUARIO/SEU_REPOSITORIO`); corrigido para a URL real do repositório.
+- `CONTRIBUTING.md`: regras de preservação referenciavam `thesis/` (minúsculo,
+  inexistente); corrigido para `Thesis/` e para incluir
+  `src/mathematica_original/`.
+
+### Alterado
+- `README.md`: seção "Repository structure" corrigida para refletir os
+  diretórios reais (`Thesis/`, `Papers/<...>/`, e os subpacotes `models/` e
+  `io/` de `src/mms_viscoelastic`).
+- `README.md`: "Current Python status" e "Pending work" atualizados para
+  refletir os modelos constitutivos (UCM, Oldroyd-B) e o solver de marcha no
+  tempo do Case 12 (Etapas 8-11).
+- `README.md`: nova seção "Time-marching solver (Case 12)" com uma tabela
+  resumindo o Poisson solver, o passo de Euler, o passo completo e a marcha
+  multi-passo, com links para a documentação de cada etapa.
+- `README.md`: seção "Local Git workflow" reescrita como "GitHub workflow",
+  refletindo o fluxo real baseado em pull requests
+  (`main → branch → commits → push → PR → merge via GitHub → main`).
+- `README.md`: seção "GitHub About" atualizada para refletir a descrição e os
+  tópicos já configurados no repositório, em vez de apresentá-los como
+  sugestão.
+- `README.md`: seção "Citation" atualizada para referenciar o `CITATION.cff`
+  existente e o recurso "Cite this repository" do GitHub.
+- `docs/local-git-workflow.md` e `docs/github-about.md` atualizados para o
+  mesmo fluxo baseado em PR e para os tópicos/descrição configurados.
+
+### Removido
+- 22 artefatos de build (`__pycache__/*.pyc`) versionados por engano,
+  já cobertos por `.gitignore`.
+
 ## [0.2.0] - 2026-06-13
 
 ### Corrigido
