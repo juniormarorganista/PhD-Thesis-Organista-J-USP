@@ -9,6 +9,21 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Adicionado
+- `numerics/poisson.py` com `solve_poisson_dirichlet`, um solver direto
+  (`scipy.sparse` + `spsolve`) para `laplacian(phi) = source` com condições
+  de contorno de Dirichlet, usando o operador de cinco pontos de segunda
+  ordem.
+- `numerics/poisson.py` com `run_case12_poisson_convergence_study`,
+  verificando `solve_poisson_dirichlet` contra a MMS do Case 12
+  (`laplacian(psi) = wz`, BC = `psi_exact`), com ordem observada ≈ 2 para
+  `L2` e `Linf`.
+- `examples/12_case12_poisson_solver.py`.
+- `tests/test_case12_poisson_solver.py`.
+- `docs/case-12-poisson-solver.md`, documentando a discretização, a
+  convenção de sinal `wz = laplacian(psi)` e a simplificação de não portar o
+  solver multigrid do Fortran (`poisson.f`).
+- `scipy>=1.11` adicionado como dependência principal (antes apenas em `ml`).
+
 - Programa Fortran isolado de referência para os campos exatos do Case 12
   (`u`, `v`, `wz`, `psi`, `txx`, `txy`, `tyy`) no instante `t=0`, porta
   verbatim de `exact_solutions_case_12(t)`.
