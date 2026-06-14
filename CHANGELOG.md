@@ -88,6 +88,24 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   reimpor `wz` na fronteira a partir da solução exata e o trabalho futuro de
   marcha multi-passo.
 
+- `numerics/time_marching.py` com `case12_multistep_march`, encadeando
+  `case12_time_step` (Etapa 10) por `n_steps` incrementos de `dt`.
+- Programa Fortran isolado de referência para a marcha multi-passo do Case 12
+  (`validation/fortran_reference/case12_multistep/`), reaproveitando o CSV de
+  entrada `t=0` da Etapa 10 a cada passo (válido para o parâmetro padrão
+  `at=0`, sob o qual os campos exatos e os termos fonte manufaturados são
+  independentes do tempo).
+- CSV de referência 9x9 para 10 passos (`dt = 1e-5`).
+- `validation/solver_comparison.py` com `compare_case12_multistep_reference`.
+- `examples/15_case12_multistep_comparison.py`.
+- `tests/test_case12_multistep_march.py`, cobrindo `wz`, `Txx`, `Txy`, `Tyy`,
+  `psi`, `u`, `v` após 10 passos (`max_abs_error < 1e-12`,
+  `max_rel_error < 1e-12`).
+- `docs/case-12-multistep-marching-comparison.md`, documentando
+  `case12_multistep_march`, a independência temporal dos campos/termos fonte
+  do Case 12 para `at=0` e o trabalho futuro de comparação da evolução
+  temporal completa.
+
 ## [0.2.0] - 2026-06-13
 
 ### Corrigido
