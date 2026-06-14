@@ -172,12 +172,10 @@ python examples\14_case12_time_step_comparison.py
 
 ## 7. Deferred work
 
-- **Multi-step time marching**: `case12_time_step` advances the state by one
-  `dt`; chaining repeated calls (and comparing the resulting trajectory
-  against the Fortran solver over many steps) is left to future work. A
-  multi-step Fortran reference would additionally need the manufactured
-  source terms `tfwz`/`tfTxx`/`tfTxy`/`tfTyy` at each intermediate time,
-  generated the same way as the `t=0` input CSV.
+- **Multi-step time marching**: implemented in Etapa 11
+  ([`docs/case-12-multistep-marching-comparison.md`](case-12-multistep-marching-comparison.md)).
+  `case12_multistep_march` chains `case12_time_step` over `n_steps`
+  increments of `dt`, and is compared against a multi-step Fortran reference.
 - Porting the 4th-order LPOG compact derivative operators, the
   `boundarie_vorticity_cavity_flow` one-sided `wz`-boundary stencil, and the
   Lele compact filter remains out of scope, as noted in Sections 2 and 3.

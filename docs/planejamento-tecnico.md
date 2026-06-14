@@ -186,8 +186,8 @@
 |---|---|---|---|
 | Etapa 8 - solver de Poisson para `psi` (`solve_poisson_dirichlet`) | `src/mms_viscoelastic/numerics/poisson.py`, `docs/case-12-poisson-solver.md` | `feat/case12-poisson-solver` | ✅ PR #20 |
 | Etapa 9 - passo de Euler explícito (`wz`, `Txx`, `Txy`, `Tyy`) vs Fortran | `src/mms_viscoelastic/numerics/time_stepping.py`, `docs/case-12-euler-step-comparison.md` | `feat/case12-euler-step` | ✅ PR #21 |
-| Etapa 10 - um passo completo de marcha no tempo (Euler + BC + Poisson + `u`,`v`) vs Fortran | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-time-marching-comparison.md` | `feat/case12-time-marching` | em andamento |
-| Etapa 11 (futuro) - marcha multi-passo e comparação da evolução temporal completa | `examples/`, `docs/case-12-solver-comparison.md` | a definir | pendente |
+| Etapa 10 - um passo completo de marcha no tempo (Euler + BC + Poisson + `u`,`v`) vs Fortran | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-time-marching-comparison.md` | `feat/case12-time-marching` | ✅ PR #22 |
+| Etapa 11 - marcha multi-passo e comparação da evolução temporal completa | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-multistep-marching-comparison.md` | `feat/case12-multistep-marching` | em andamento |
 
 ---
 
