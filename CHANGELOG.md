@@ -38,6 +38,31 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   FASE VII (comparação dos campos exatos no instante t=0) e o trabalho futuro
   de comparação completa do solver.
 
+- `numerics/derivatives.py` com `second_derivative_x` e `second_derivative_y`
+  (derivada segunda de segunda ordem, com fronteiras zeradas).
+- `numerics/time_stepping.py` com `EulerStepParameters`, `wz_time_derivative`,
+  `stress_time_derivatives`, `euler_step_wz` e `euler_step_stress`, porta
+  verbatim de `subroutine drv` (`drvs.f`) e do passo de Euler explícito de
+  `subroutine solver_euler` (`euler_rk.f`) para `wz`, `Txx`, `Txy` e `Tyy`.
+  Apenas os pontos internos da malha são atualizados; a reimposição das
+  condições de contorno e o recálculo de `psi`/`ux`/`uy` em `t=dt` ficam para
+  a Etapa 10.
+- Programa Fortran isolado de referência para um passo de Euler do Case 12
+  (`validation/fortran_reference/case12_euler_step/`), com gerador de CSV de
+  entrada em Python (`generate_input_csv.py`) a partir dos campos exatos e
+  termos fonte já validados, evitando re-transcrever `tfTxx`/`tfTxy`/`tfTyy`.
+- CSV de referência 9x9 para o passo de Euler do Case 12
+  (`dt = 1e-5`).
+- `validation/solver_comparison.py` com `CASE12_EULER_STEP_COMPONENTS` e
+  `compare_case12_euler_step_reference`.
+- `examples/13_case12_euler_step_comparison.py`.
+- `tests/test_case12_euler_step.py`, cobrindo `wz`, `Txx`, `Txy`, `Tyy`
+  (`max_abs_error < 1e-12`, `max_rel_error < 1e-12`).
+- `docs/case-12-euler-step-comparison.md`, documentando a formulação do passo
+  de Euler, a escolha de parâmetros (`Re=1`, `Wi=1`, `beta=0.5`, `dt=1e-5`) e
+  o escopo (discretização de segunda ordem, atualização apenas dos pontos
+  internos).
+
 ## [0.2.0] - 2026-06-13
 
 ### Corrigido
