@@ -34,7 +34,8 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.26",
-    "pandas>=2.0"
+    "pandas>=2.0",
+    "scipy>=1.11"
 ]
 
 [project.optional-dependencies]
@@ -46,8 +47,7 @@ dev = [
 ]
 ml = [
     "scikit-learn>=1.4",
-    "matplotlib>=3.8",
-    "scipy>=1.11"
+    "matplotlib>=3.8"
 ]
 
 [tool.setuptools]
