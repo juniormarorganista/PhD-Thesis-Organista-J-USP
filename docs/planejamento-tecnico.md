@@ -9,7 +9,7 @@
 
 | Item | Estado |
 |---|---|
-| Testes | ✅ 349/349 passam |
+| Testes | ✅ 363/363 passam |
 | Local ↔ GitHub | ✅ Sincronizado |
 | PRs abertos | - nenhum |
 | Fundação Python | ✅ `grids`, `fields`, `parameters`, `numerics`, `ml`, `io`, `visualization` |
@@ -22,6 +22,7 @@
 | Notebook científico | ✅ `examples/notebooks/Case12_MMS_Pipeline.ipynb` |
 | CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
 | Versão do pacote | [0.2.0](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/tree/v0.2.0) |
+| Comparação Fortran x Python - campos exatos do Case 12 (t=0) | ✅ `validation/solver_comparison.py`, ver `docs/case-12-solver-comparison.md` |
 
 ---
 
@@ -157,7 +158,7 @@
 
 ---
 
-### ▸ FASE VII - Comparação solver-level Fortran × Python (PRÓXIMA FASE)
+### ▸ FASE VII - Comparação solver-level Fortran × Python ✅ CONCLUÍDA (escopo reduzido)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
 
 **Objetivo:** demonstrar equivalência numérica entre o solver Fortran original e a implementação Python para o Case 12.
@@ -165,9 +166,28 @@
 | Tarefa | Arquivo | Branch |
 |---|---|---|
 | Criar pipeline de comparação campo a campo | `src/mms_viscoelastic/validation/solver_comparison.py` | `feat/solver-comparison` |
-| Executar Fortran reference e capturar outputs | `validation/fortran_reference/case12_solver/` | idem |
+| Executar Fortran reference e capturar outputs | `validation/fortran_reference/case12_fields/` | idem |
 | Comparar Python vs Fortran nos campos u, v, wz, psi, T | `examples/11_case12_solver_comparison.py` | idem |
 | Documentar divergências e justificar tolerâncias | `docs/case-12-solver-comparison.md` | idem |
+| PR + merge via GitHub | - | - |
+
+**Status:** [PR #18](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/pull/18) mergeada, com **escopo reduzido**: o pacote `mms_viscoelastic` ainda não possui um solver time-marching (sem solver de Poisson para `psi`, sem integração temporal da vorticidade e do tensor extra-tensão), então a comparação solver-level completa não era viável nesta fase. Em vez disso, foi implementada a comparação dos **campos exatos do Case 12 no instante inicial t=0**: um programa Fortran isolado (`validation/fortran_reference/case12_fields/case12_fields_reference.f90`) porta verbatim `exact_solutions_case_12(t)` e é comparado contra `evaluate_case_12_exact` para os sete campos (`u, v, wz, psi, txx, txy, tyy`), com erro de arredondamento de ponto flutuante (~1e-16 a 1e-21). A comparação completa do solver time-marching fica para a Fase VIII.
+
+---
+
+### ▸ FASE VIII - Solver time-marching Python e comparação completa com Fortran (PRÓXIMA FASE)
+**Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
+
+**Objetivo:** portar o laço de integração temporal do Case 12 (`src/fortran_original/4Order_LPOG_Euler/`) para Python e comparar a evolução temporal dos campos `u, v, wz, psi, T` contra o solver Fortran original.
+
+**Contexto:** esta fase foi adiada a partir da FASE VII (ver status acima). Requer, no mínimo, um solver de Poisson para `psi`, a integração temporal da equação de transporte da vorticidade e do tensor extra-tensão, e a injeção dos termos fonte manufaturados (`tfwz`, `tfTxx`, `tfTxy`, `tfTyy`) já portados. É um esforço substancialmente maior que as fases anteriores e pode justificar divisão em sub-fases (ex.: solver de Poisson isolado, depois integração temporal, depois comparação completa).
+
+| Tarefa | Arquivo | Branch |
+|---|---|---|
+| Avaliar e planejar sub-fases do solver time-marching | `docs/planejamento-tecnico.md` | `docs/plan-phase8-solver` |
+| Portar solver de Poisson para `psi` | `src/mms_viscoelastic/numerics/` | a definir |
+| Portar integração temporal (vorticidade, tensor extra-tensão) | `src/mms_viscoelastic/numerics/` | a definir |
+| Comparar evolução temporal Python vs Fortran | `examples/`, `docs/case-12-solver-comparison.md` | a definir |
 | PR + merge via GitHub | - | - |
 
 ---
