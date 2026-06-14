@@ -6,6 +6,7 @@ from mms_viscoelastic.validation.solver_comparison import (
     CASE12_TIME_STEP_COMPONENTS,
     compare_case12_euler_step_reference,
     compare_case12_field_reference,
+    compare_case12_multistep_reference,
     compare_case12_time_step_reference,
 )
 from mms_viscoelastic.validation.source_term_reference import (
@@ -25,6 +26,7 @@ __all__ = [
     "SourceTermReferenceComparison",
     "compare_case12_euler_step_reference",
     "compare_case12_field_reference",
+    "compare_case12_multistep_reference",
     "compare_case12_reference_csv",
     "compare_case12_tftxx_reference",
     "compare_case12_tftxy_reference",

@@ -44,6 +44,12 @@ Fortran one-sided stencil is simply a discrete approximation of it that is
 consistent with the 4th-order interior operators. This is a deliberate
 deviation from the Fortran reference and is documented in
 ``docs/case-12-time-marching-comparison.md``.
+
+Multi-step marching (Etapa 11)
+-------------------------------
+:func:`case12_multistep_march` chains :func:`case12_time_step` over several
+``dt`` increments, advancing the physical time by ``step_parameters.dt`` at
+each iteration. See ``docs/case-12-multistep-marching-comparison.md``.
 """
 
 from __future__ import annotations
@@ -180,7 +186,61 @@ def case12_time_step(
     )
 
 
+def case12_multistep_march(
+    state: TimeMarchingState,
+    t0: float,
+    n_steps: int,
+    grid: Grid2D,
+    step_parameters: EulerStepParameters | None = None,
+    field_parameters: Case12Parameters | None = None,
+    source_parameters: Case12SourceTermParameters | None = None,
+) -> TimeMarchingState:
+    """Advance ``state`` from ``t0`` by ``n_steps`` full time-marching steps.
+
+    Repeatedly applies :func:`case12_time_step`, advancing the physical time
+    by ``step_parameters.dt`` at each iteration.
+
+    Parameters
+    ----------
+    state:
+        Field state at time ``t0``.
+    t0:
+        Initial physical time.
+    n_steps:
+        Number of full time-marching steps to perform. Must be non-negative.
+    grid:
+        Uniform Cartesian grid.
+    step_parameters, field_parameters, source_parameters:
+        Forwarded to :func:`case12_time_step` at every step. Defaults match
+        :class:`EulerStepParameters`, :class:`Case12Parameters` and
+        :class:`Case12SourceTermParameters`.
+
+    Returns
+    -------
+    TimeMarchingState
+        Field state at time ``t0 + n_steps * step_parameters.dt``.
+    """
+    if n_steps < 0:
+        raise ValueError(f"n_steps must be non-negative, got {n_steps}.")
+
+    step_params = step_parameters or EulerStepParameters()
+    step_params.validate()
+
+    current = state
+    for n in range(n_steps):
+        current = case12_time_step(
+            current,
+            t0 + n * step_params.dt,
+            grid,
+            step_parameters=step_params,
+            field_parameters=field_parameters,
+            source_parameters=source_parameters,
+        )
+    return current
+
+
 __all__ = [
     "TimeMarchingState",
+    "case12_multistep_march",
     "case12_time_step",
 ]
