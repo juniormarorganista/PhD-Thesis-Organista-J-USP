@@ -208,8 +208,9 @@ python examples\13_case12_euler_step_comparison.py
 
 ## 8. Deferred work
 
-- Etapa 10 (multi-step time marching) re-imposes boundary conditions and
-  recomputes `psi`/`ux`/`uy` (via the Poisson solver from Etapa 8) at each
-  time step, building on `euler_step_wz` and `euler_step_stress`.
+- Etapa 10 (one full time-marching step) re-imposes boundary conditions and
+  recomputes `psi`/`u`/`v` (via the Poisson solver from Etapa 8) after this
+  Euler step, building on `euler_step_wz` and `euler_step_stress`. See
+  [`docs/case-12-time-marching-comparison.md`](case-12-time-marching-comparison.md).
 - Porting the 4th-order LPOG compact derivative operators and the Lele
   compact filter remains out of scope, as noted in Section 3.

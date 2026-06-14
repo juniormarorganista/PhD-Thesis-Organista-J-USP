@@ -175,20 +175,19 @@
 
 ---
 
-### ▸ FASE VIII - Solver time-marching Python e comparação completa com Fortran (PRÓXIMA FASE)
+### ▸ FASE VIII - Solver time-marching Python e comparação completa com Fortran (EM ANDAMENTO)
 **Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
 
 **Objetivo:** portar o laço de integração temporal do Case 12 (`src/fortran_original/4Order_LPOG_Euler/`) para Python e comparar a evolução temporal dos campos `u, v, wz, psi, T` contra o solver Fortran original.
 
-**Contexto:** esta fase foi adiada a partir da FASE VII (ver status acima). Requer, no mínimo, um solver de Poisson para `psi`, a integração temporal da equação de transporte da vorticidade e do tensor extra-tensão, e a injeção dos termos fonte manufaturados (`tfwz`, `tfTxx`, `tfTxy`, `tfTyy`) já portados. É um esforço substancialmente maior que as fases anteriores e pode justificar divisão em sub-fases (ex.: solver de Poisson isolado, depois integração temporal, depois comparação completa).
+**Contexto:** esta fase foi adiada a partir da FASE VII (ver status acima). Requer, no mínimo, um solver de Poisson para `psi`, a integração temporal da equação de transporte da vorticidade e do tensor extra-tensão, e a injeção dos termos fonte manufaturados (`tfwz`, `tfTxx`, `tfTxy`, `tfTyy`) já portados. É um esforço substancialmente maior que as fases anteriores e foi dividida em sub-etapas.
 
-| Tarefa | Arquivo | Branch |
-|---|---|---|
-| Avaliar e planejar sub-fases do solver time-marching | `docs/planejamento-tecnico.md` | `docs/plan-phase8-solver` |
-| Portar solver de Poisson para `psi` | `src/mms_viscoelastic/numerics/` | a definir |
-| Portar integração temporal (vorticidade, tensor extra-tensão) | `src/mms_viscoelastic/numerics/` | a definir |
-| Comparar evolução temporal Python vs Fortran | `examples/`, `docs/case-12-solver-comparison.md` | a definir |
-| PR + merge via GitHub | - | - |
+| Tarefa | Arquivo | Branch | Status |
+|---|---|---|---|
+| Etapa 8 - solver de Poisson para `psi` (`solve_poisson_dirichlet`) | `src/mms_viscoelastic/numerics/poisson.py`, `docs/case-12-poisson-solver.md` | `feat/case12-poisson-solver` | ✅ PR #20 |
+| Etapa 9 - passo de Euler explícito (`wz`, `Txx`, `Txy`, `Tyy`) vs Fortran | `src/mms_viscoelastic/numerics/time_stepping.py`, `docs/case-12-euler-step-comparison.md` | `feat/case12-euler-step` | ✅ PR #21 |
+| Etapa 10 - um passo completo de marcha no tempo (Euler + BC + Poisson + `u`,`v`) vs Fortran | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-time-marching-comparison.md` | `feat/case12-time-marching` | em andamento |
+| Etapa 11 (futuro) - marcha multi-passo e comparação da evolução temporal completa | `examples/`, `docs/case-12-solver-comparison.md` | a definir | pendente |
 
 ---
 
