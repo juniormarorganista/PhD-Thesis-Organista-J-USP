@@ -1,23 +1,23 @@
-# Imagens do README
+# README images
 
-Esta pasta contém imagens usadas diretamente no `README.md`.
+This folder contains images used directly in `README.md`.
 
-## Imagens incluídas neste pacote
+## Images included in this package
 
 ```text
 mms_pipeline.svg
 repository_layout.svg
 ```
 
-## Imagens geradas localmente
+## Locally generated images
 
-Depois de executar:
+After running:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
-copie:
+copy:
 
 ```powershell
 Copy-Item outputs\case12\figures\case12_panel.png assets\preview\case12_panel.png -Force
@@ -27,4 +27,4 @@ Copy-Item outputs\case12\figures\case12_psi.png assets\preview\case12_psi.png -F
 Copy-Item outputs\case12\figures\case12_wz.png assets\preview\case12_wz.png -Force
 ```
 
-Essas imagens aparecerão na galeria do README.
+These images will appear in the README gallery.

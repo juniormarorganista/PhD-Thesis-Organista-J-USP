@@ -1,52 +1,52 @@
-# Mapa Inicial do Código Fortran
+# Initial Fortran Code Map
 
-Diretório original reorganizado:
+Reorganized original directory:
 
 ```text
 src/fortran_original/4Order_LPOG_Euler/
 ```
 
-Este mapa orienta a futura transcrição para Python.
+This map guides the future port to Python.
 
-## Arquivos principais
+## Main files
 
-| Arquivo | Papel no código original | Destino Python planejado |
+| File | Role in the original code | Planned Python destination |
 |---|---|---|
-| `main.f` | programa principal e orquestração da simulação | `mms_viscoelastic.runners` |
-| `comm.var`, `comm.vare` | variáveis comuns/parâmetros globais | `mms_viscoelastic.parameters` |
-| `par.nn`, `par.nn.template` | parâmetros de execução | `mms_viscoelastic.config` |
-| `case_01.f`--`case_14.f` | casos MMS e termos fonte | `mms_viscoelastic.manufactured.cases` |
-| `derivs.f` | derivadas e operadores diferenciais | `mms_viscoelastic.numerics.derivatives` |
-| `drvs.f` | possível variante/auxiliar de derivadas | avaliar antes da transcrição |
-| `poisson.f` | solução da equação de Poisson | `mms_viscoelastic.solvers.poisson` |
-| `solvers.f` | rotinas auxiliares de solução | `mms_viscoelastic.solvers.linear` |
-| `euler_rk.f` | integração temporal Euler/RK | `mms_viscoelastic.solvers.time` |
-| `conform.f` | transformação log-conformação | `mms_viscoelastic.models.log_conformation` |
-| `condictions.f` | condições iniciais/de contorno | `mms_viscoelastic.boundary` |
-| `boundarie_vorticity_cavity_flow.f` | condições de vorticidade no problema da cavidade | `mms_viscoelastic.boundary.vorticity` |
-| `normerror.f` | cálculo de normas de erro | `mms_viscoelastic.numerics.errors` |
-| `write_solutions.f` | escrita de resultados | `mms_viscoelastic.io` |
-| `loop.f` | laços principais da simulação | `mms_viscoelastic.runners` |
-| `formatted.f` | formatação/saída auxiliar | `mms_viscoelastic.io` |
-| `makefile` | compilação Fortran | manter em `src/fortran_original` |
+| `main.f` | main program and simulation orchestration | `mms_viscoelastic.runners` |
+| `comm.var`, `comm.vare` | common variables/global parameters | `mms_viscoelastic.parameters` |
+| `par.nn`, `par.nn.template` | run parameters | `mms_viscoelastic.config` |
+| `case_01.f`--`case_14.f` | MMS cases and source terms | `mms_viscoelastic.manufactured.cases` |
+| `derivs.f` | derivatives and differential operators | `mms_viscoelastic.numerics.derivatives` |
+| `drvs.f` | possible derivative variant/helper | evaluate before porting |
+| `poisson.f` | Poisson equation solver | `mms_viscoelastic.solvers.poisson` |
+| `solvers.f` | auxiliary solver routines | `mms_viscoelastic.solvers.linear` |
+| `euler_rk.f` | Euler/RK time integration | `mms_viscoelastic.solvers.time` |
+| `conform.f` | log-conformation transformation | `mms_viscoelastic.models.log_conformation` |
+| `condictions.f` | initial/boundary conditions | `mms_viscoelastic.boundary` |
+| `boundarie_vorticity_cavity_flow.f` | vorticity boundary conditions for the cavity problem | `mms_viscoelastic.boundary.vorticity` |
+| `normerror.f` | error norm computation | `mms_viscoelastic.numerics.errors` |
+| `write_solutions.f` | results output | `mms_viscoelastic.io` |
+| `loop.f` | main simulation loops | `mms_viscoelastic.runners` |
+| `formatted.f` | auxiliary formatting/output | `mms_viscoelastic.io` |
+| `makefile` | Fortran build | keep in `src/fortran_original` |
 
-## Ordem recomendada de transcrição
+## Recommended porting order
 
-1. `comm.var`, `comm.vare`, `par.nn` → parâmetros Python;
-2. `case_12.f` → primeiro caso MMS de referência;
-3. `normerror.f` → erros e ordem de convergência;
-4. `derivs.f` → derivadas de segunda ordem inicialmente;
-5. `poisson.f` → solver de Poisson simplificado;
-6. `euler_rk.f` → integração temporal;
-7. `conform.f` → log-conformação;
-8. demais casos `case_01.f`--`case_14.f`.
+1. `comm.var`, `comm.vare`, `par.nn` -> Python parameters;
+2. `case_12.f` -> first reference MMS case;
+3. `normerror.f` -> errors and convergence order;
+4. `derivs.f` -> second-order derivatives first;
+5. `poisson.f` -> simplified Poisson solver;
+6. `euler_rk.f` -> time integration;
+7. `conform.f` -> log-conformation;
+8. remaining cases `case_01.f`--`case_14.f`.
 
-## Critério de aceite por módulo
+## Module acceptance criteria
 
-Um módulo transcrito só deve ser considerado aceito quando:
+A ported module should only be considered accepted when it:
 
-- possuir teste unitário;
-- possuir exemplo mínimo;
-- tiver documentação curta;
-- reproduzir uma saída conhecida ou uma propriedade matemática esperada;
-- não alterar os arquivos Fortran originais.
+- has a unit test;
+- has a minimal example;
+- has short documentation;
+- reproduces a known output or an expected mathematical property;
+- does not change the original Fortran files.

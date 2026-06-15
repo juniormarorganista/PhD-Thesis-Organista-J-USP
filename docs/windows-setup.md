@@ -1,16 +1,17 @@
-# Configuração no Windows
+# Windows Setup
 
-Este projeto contém muitos arquivos LaTeX, imagens e caminhos longos. No Windows, isso pode causar falhas no clone ou na extração.
+This project contains many LaTeX files, images and long paths. On Windows,
+this can cause failures during clone or extraction.
 
-## 1. Ativar caminhos longos no Git
+## 1. Enable long paths in Git
 
 ```powershell
 git config --global core.longpaths true
 ```
 
-## 2. Ativar caminhos longos no Windows
+## 2. Enable long paths in Windows
 
-Abra o PowerShell como administrador:
+Open PowerShell as administrator:
 
 ```powershell
 New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
@@ -20,11 +21,11 @@ New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
   -Force
 ```
 
-Reinicie o computador.
+Restart the computer.
 
-## 3. Clonar em caminho curto
+## 3. Clone into a short path
 
-Evite OneDrive, Área de Trabalho e pastas com nomes longos.
+Avoid OneDrive, Desktop and folders with long names.
 
 Use:
 
@@ -32,11 +33,11 @@ Use:
 cd C:\
 mkdir dev
 cd C:\dev
-git clone URL_DO_REPOSITORIO tese
-cd tese
+git clone REPOSITORY_URL thesis
+cd thesis
 ```
 
-## 4. Instalar camada Python
+## 4. Install the Python layer
 
 ```powershell
 python -m venv .venv
@@ -47,7 +48,7 @@ python -m pip install -e .
 python -m pytest -q
 ```
 
-Se a ativação do ambiente virtual for bloqueada:
+If virtual-environment activation is blocked:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
