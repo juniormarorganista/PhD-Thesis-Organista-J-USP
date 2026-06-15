@@ -1,29 +1,29 @@
-# Contribuindo
+# Contributing
 
-Este repositório está sendo reorganizado para preservar o material original da tese e construir uma camada Python moderna.
+This repository is being reorganized to preserve the original thesis material and build a modern Python layer.
 
-## Regras principais
+## Main rules
 
-1. Não alterar diretamente os arquivos originais em `src/fortran_original/` e `src/mathematica_original/`.
-2. Não alterar diretamente os arquivos originais da tese em `Thesis/`.
-3. Toda nova funcionalidade Python deve ter teste.
-4. Toda transcrição Fortran → Python deve indicar o arquivo Fortran de origem.
-5. Commits devem ser pequenos e descritivos.
+1. Do not directly modify the original files in `src/fortran_original/` and `src/mathematica_original/`.
+2. Do not directly modify the original thesis files in `Thesis/`.
+3. Every new Python feature must have a test.
+4. Every Fortran → Python transcription must indicate the source Fortran file.
+5. Commits should be small and descriptive.
 
-## Convenção de branches
+## Branch convention
 
 ```text
-chore/...   organização e manutenção
-docs/...    documentação
-feat/...    novas funcionalidades
-fix/...     correções
-tests/...   testes
-slides/...  apresentação da tese
+chore/...   organization and maintenance
+docs/...    documentation
+feat/...    new features
+fix/...     bug fixes
+tests/...   tests
+slides/...  thesis presentation
 ```
 
-## Convenção de commits
+## Commit convention
 
-Exemplos:
+Examples:
 
 ```text
 docs: add Fortran code map

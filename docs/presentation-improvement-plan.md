@@ -1,49 +1,53 @@
-# Plano de Melhoria da Apresentação da Tese
+# Thesis Presentation Improvement Plan
 
-## Diagnóstico
+## Diagnosis
 
-A apresentação original contém muito material técnico e segue de perto a estrutura da tese. Para defesa ou apresentação pública, a narrativa deve ser mais seletiva.
+The original presentation contains a lot of technical material and closely
+follows the structure of the thesis. For a defense or public talk, the
+narrative should be more selective.
 
-A apresentação melhorada deve enfatizar:
+The improved presentation should emphasize:
 
-1. problema científico;
-2. dificuldade numérica;
-3. estratégia MMS;
-4. formulação mínima necessária;
-5. método numérico;
-6. resultados centrais;
-7. contribuição científica.
+1. scientific problem;
+2. numerical difficulty;
+3. MMS strategy;
+4. minimal required formulation;
+5. numerical method;
+6. central results;
+7. scientific contribution.
 
-## Estrutura recomendada
+## Recommended structure
 
 ```text
-1. Título
-2. Mensagem central da tese
-3. Problema físico e numérico
-4. Por que escoamentos viscoelásticos são difíceis
-5. Objetivos
-6. Formulação incompressível
-7. Modelos constitutivos
-8. Método numérico
-9. Método das Soluções Manufaturadas
-10. Pipeline de verificação
-11. Resultados principais
-12. Comparativo de modelos
-13. Contribuições
-14. Limitações
-15. Trabalhos futuros
-16. Conclusão
-17. Agradecimentos
+1. Title
+2. Central message of the thesis
+3. Physical and numerical problem
+4. Why viscoelastic flows are hard
+5. Objectives
+6. Incompressible formulation
+7. Constitutive models
+8. Numerical method
+9. Method of Manufactured Solutions
+10. Verification pipeline
+11. Main results
+12. Model comparison
+13. Contributions
+14. Limitations
+15. Future work
+16. Conclusion
+17. Acknowledgments
 ```
 
-## Regra de ouro
+## Golden rule
 
-Cada slide deve responder a uma pergunta. Se um slide exige cinco minutos de explicação antes de fazer sentido, ele provavelmente precisa virar três slides ou ir para backup.
+Each slide should answer one question. If a slide needs five minutes of
+explanation before it makes sense, it probably needs to become three slides
+or move to backup.
 
-## Próximas ações
+## Next actions
 
-- criar `presentation/improved/`;
-- criar versão limpa da defesa;
-- mover slides longos para backup;
-- converter figuras importantes para PNG;
-- criar uma narrativa visual com menos equações e mais fluxos.
+- create `presentation/improved/`;
+- create a clean version of the defense;
+- move long slides to backup;
+- convert important figures to PNG;
+- create a visual narrative with fewer equations and more flow.

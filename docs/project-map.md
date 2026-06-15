@@ -1,89 +1,97 @@
-# Mapa do Projeto
+# Project Map
 
-Este documento descreve a organização atual do repositório após a reorganização inicial.
+This document describes the current organization of the repository after the
+initial reorganization.
 
-## Princípio de organização
+## Organization principle
 
-A estrutura separa quatro camadas:
+The structure separates four layers:
 
-1. **fontes originais preservadas**: Fortran, Mathematica, LaTeX da tese e material do artigo;
-2. **documentação técnica**: mapas, planos e instruções de uso;
-3. **camada Python nova**: biblioteca em desenvolvimento;
-4. **testes e exemplos**: validação da nova camada Python.
+1. **preserved original sources**: Fortran, Mathematica, thesis LaTeX and
+   paper material;
+2. **technical documentation**: maps, plans and usage instructions;
+3. **new Python layer**: library under development;
+4. **tests and examples**: validation of the new Python layer.
 
-## Diretórios principais
+## Main directories
 
 ```text
 src/fortran_original/
 ```
 
-Contém o código Fortran original. Não deve ser alterado durante a reorganização. Qualquer melhoria deve ser feita em camada separada ou em branch específica de manutenção.
+Contains the original Fortran code. Must not be changed during the
+reorganization. Any improvement must be made in a separate layer or in a
+specific maintenance branch.
 
 ```text
 src/mathematica_original/
 ```
 
-Contém os notebooks Mathematica originais usados na geração de soluções manufaturadas e/ou termos simbólicos.
+Contains the original Mathematica notebooks used to generate manufactured
+solutions and/or symbolic terms.
 
 ```text
 src/mms_viscoelastic/
 ```
 
-Contém a nova biblioteca Python. Este diretório será expandido para comportar:
+Contains the new Python library. This directory will be expanded to hold:
 
-- parâmetros físicos;
-- malhas;
-- campos numéricos;
-- soluções manufaturadas;
-- operadores diferenciais;
-- solucionadores;
-- rotinas de erro;
-- exportação de dados;
-- integração com Machine Learning.
+- physical parameters;
+- grids;
+- numerical fields;
+- manufactured solutions;
+- differential operators;
+- solvers;
+- error routines;
+- data export;
+- Machine Learning integration.
 
 ```text
 thesis/
 ```
 
-Contém a tese e sua apresentação original. Os arquivos LaTeX originais devem ser preservados.
+Contains the thesis and its original presentation. The original LaTeX files
+must be preserved.
 
 ```text
 papers/
 ```
 
-Contém o material original de artigo científico e figuras associadas.
+Contains the original paper material and associated figures.
 
 ```text
 docs/
 ```
 
-Contém documentação técnica e planos de desenvolvimento.
+Contains technical documentation and development plans.
 
 ```text
 tests/
 ```
 
-Contém testes automatizados da camada Python.
+Contains automated tests for the Python layer.
 
 ```text
 examples/
 ```
 
-Contém exemplos mínimos executáveis.
+Contains minimal runnable examples.
 
-## Convenção de evolução
+## Evolution convention
 
-Novas mudanças devem ser feitas em branches temáticas:
+New changes must be made on thematic branches:
 
 ```text
-chore/...   reorganização, infraestrutura e manutenção
-docs/...    documentação
-feat/...    novas funcionalidades
-fix/...     correções
-tests/...   testes
-slides/...  apresentação da tese
+chore/...   reorganization, infrastructure and maintenance
+docs/...    documentation
+feat/...    new features
+fix/...     fixes
+tests/...   tests
+slides/...  thesis presentation
 ```
 
-## Regra de preservação
+## Preservation rule
 
-Arquivos originais de tese, Fortran e Mathematica devem ser considerados referência. A transcrição em Python deve ser validada contra esses arquivos, não substituí-los.
+Original thesis, Fortran and Mathematica files must be treated as reference
+material. The Python port must be validated against these files, not replace
+them.

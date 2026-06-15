@@ -13,26 +13,26 @@ assets/thesis/case12/
 | README asset | Description | Original source pattern |
 |---|---|---|
 | `assets/thesis/case12/thesis_streamlines.png` | Streamlines | `Thesis/Slides/AAUgraphics/streamslines.png` |
-| `assets/thesis/case12/exact_map_psi.png` | Mapa exato da função corrente psi | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Psi.eps` |
-| `assets/thesis/case12/exact_map_u.png` | Mapa exato da velocidade u | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_U.eps` |
-| `assets/thesis/case12/exact_map_v.png` | Mapa exato da velocidade v | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_V.eps` |
-| `assets/thesis/case12/exact_map_wz.png` | Mapa exato da vorticidade omega_z | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Wz.eps` |
-| `assets/thesis/case12/exact_map_txx.png` | Mapa exato de Txx | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Txx.eps` |
-| `assets/thesis/case12/exact_map_txy.png` | Mapa exato de Txy | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Txy.eps` |
-| `assets/thesis/case12/exact_map_tyy.png` | Mapa exato de Tyy | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Tyy.eps` |
-| `assets/thesis/case12/exact_surface_psi.png` | Superfície exata de psi | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_Psi.eps` |
-| `assets/thesis/case12/exact_surface_u.png` | Superfície exata de u | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_U.eps` |
-| `assets/thesis/case12/exact_surface_wz.png` | Superfície exata de omega_z | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_Wz.eps` |
-| `assets/thesis/case12/exact_surface_txx.png` | Superfície exata de Txx | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_Txx.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_psi.png` | Convergência de psi | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Psi.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_u.png` | Convergência de u | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_U.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_v.png` | Convergência de v | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_V.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_wz.png` | Convergência de omega_z | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Wz.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_txx.png` | Convergência de Txx | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Txx.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_txy.png` | Convergência de Txy | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Txy.eps` |
-| `assets/thesis/case12/convergence_re100_wi1_alphaG0_tyy.png` | Convergência de Tyy | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Tyy.eps` |
-| `assets/thesis/case12/slice_x_u.png` | Corte em x para u | `Thesis/Slides/Figures/Slice_x_Tog_Numerical_*_MMS_12_*_U.eps` |
-| `assets/thesis/case12/slice_y_wz.png` | Corte em y para omega_z | `Thesis/Slides/Figures/Slice_y_Tog_Numerical_*_MMS_12_*_Wz.eps` |
+| `assets/thesis/case12/exact_map_psi.png` | Exact map of the streamfunction psi | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Psi.eps` |
+| `assets/thesis/case12/exact_map_u.png` | Exact map of velocity u | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_U.eps` |
+| `assets/thesis/case12/exact_map_v.png` | Exact map of velocity v | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_V.eps` |
+| `assets/thesis/case12/exact_map_wz.png` | Exact map of vorticity omega_z | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Wz.eps` |
+| `assets/thesis/case12/exact_map_txx.png` | Exact map of Txx | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Txx.eps` |
+| `assets/thesis/case12/exact_map_txy.png` | Exact map of Txy | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Txy.eps` |
+| `assets/thesis/case12/exact_map_tyy.png` | Exact map of Tyy | `Thesis/Slides/Figures/Exact_Map_*_MMS_12_Tyy.eps` |
+| `assets/thesis/case12/exact_surface_psi.png` | Exact surface of psi | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_Psi.eps` |
+| `assets/thesis/case12/exact_surface_u.png` | Exact surface of u | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_U.eps` |
+| `assets/thesis/case12/exact_surface_wz.png` | Exact surface of omega_z | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_Wz.eps` |
+| `assets/thesis/case12/exact_surface_txx.png` | Exact surface of Txx | `Thesis/Slides/Figures/Exact_Surf_*_MMS_12_Txx.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_psi.png` | Convergence of psi | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Psi.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_u.png` | Convergence of u | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_U.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_v.png` | Convergence of v | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_V.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_wz.png` | Convergence of omega_z | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Wz.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_txx.png` | Convergence of Txx | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Txx.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_txy.png` | Convergence of Txy | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Txy.eps` |
+| `assets/thesis/case12/convergence_re100_wi1_alphaG0_tyy.png` | Convergence of Tyy | `Thesis/Slides/Figures/NormErr_2nd_Re_100_Wi_1_*_alphaG_0_*_MMS_12_Tyy.eps` |
+| `assets/thesis/case12/slice_x_u.png` | Slice in x for u | `Thesis/Slides/Figures/Slice_x_Tog_Numerical_*_MMS_12_*_U.eps` |
+| `assets/thesis/case12/slice_y_wz.png` | Slice in y for omega_z | `Thesis/Slides/Figures/Slice_y_Tog_Numerical_*_MMS_12_*_Wz.eps` |
 
 
 ## Maintenance rule

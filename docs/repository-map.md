@@ -1,34 +1,34 @@
-﻿# Mapa inicial do repositório
+# Initial Repository Map
 
-Este repositório reúne os arquivos originais da tese, códigos Fortran, notebooks
-Mathematica, artigo científico e a nova fundação Python.
+This repository brings together the original thesis files, Fortran codes,
+Mathematica notebooks, the scientific paper and the new Python foundation.
 
-## Regra de preservação
+## Preservation rule
 
-Os códigos Fortran e os arquivos LaTeX originais não devem ser alterados nesta
-fase. Eles foram apenas reorganizados com `git mv`, preservando o histórico do Git.
+The original Fortran codes and LaTeX files must not be changed at this stage.
+They have only been reorganized with `git mv`, preserving the Git history.
 
-## Estrutura após a reorganização
+## Structure after reorganization
 
 ```text
 src/
-  fortran_original/        # código Fortran original da tese
-  mathematica_original/    # notebooks Mathematica originais
-  mms_viscoelastic/        # nova biblioteca Python em construção
+  fortran_original/        # original thesis Fortran code
+  mathematica_original/    # original Mathematica notebooks
+  mms_viscoelastic/        # new Python library under construction
 
 thesis/
-  original/                # tese LaTeX original
+  original/                # original LaTeX thesis
 
 papers/
-  original/                # artigo e figuras originais
+  original/                # original paper and figures
 
-docs/                      # documentação técnica do repositório
-examples/                  # exemplos executáveis da biblioteca Python
-tests/                     # testes automatizados da biblioteca Python
+docs/                      # repository technical documentation
+examples/                  # runnable examples for the Python library
+tests/                     # automated tests for the Python library
 ```
 
-## Objetivo da fundação Python
+## Goal of the Python foundation
 
-A pasta `src/mms_viscoelastic` foi criada para evoluir para uma biblioteca Python.
-A transcrição Fortran -> Python deve ser incremental, testável e orientada por
-comparação contra a implementação original.
+The `src/mms_viscoelastic` folder was created to evolve into a Python library.
+The Fortran -> Python port must be incremental, testable and driven by
+comparison against the original implementation.

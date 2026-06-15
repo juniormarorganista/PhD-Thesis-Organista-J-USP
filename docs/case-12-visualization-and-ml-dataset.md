@@ -1,12 +1,12 @@
-# Fase 4 - Visualização do case 12 e datasets para Machine Learning
+# Phase 4 - Case 12 visualization and Machine Learning datasets
 
-Esta fase adiciona uma camada prática sobre o port Python do caso manufaturado 12.
-O objetivo é transformar a solução exata em dois produtos úteis:
+This phase adds a practical layer on top of the Python port of manufactured case 12.
+The goal is to turn the exact solution into two useful products:
 
-1. figuras de inspeção visual para a tese, apresentação e README;
-2. datasets tabulares para futuros experimentos de Machine Learning.
+1. visual-inspection figures for the thesis, presentation and README;
+2. tabular datasets for future Machine Learning experiments.
 
-## Arquivos criados
+## Files created
 
 ```text
 src/mms_viscoelastic/visualization/__init__.py
@@ -17,39 +17,39 @@ tests/test_case12_visualization.py
 tests/test_case12_datasets.py
 ```
 
-## Convenção de eixos
+## Axis convention
 
-A função `plot_scalar_field` valida explicitamente que o array tem forma:
+The `plot_scalar_field` function explicitly validates that the array has shape:
 
 ```text
 (ny, nx)
 ```
 
-Isso evita a troca acidental de eixos entre a convenção Fortran e a convenção
-NumPy/Matplotlib. Esse ponto é crítico para comparar corretamente os resultados
-numéricos com as figuras da tese.
+This avoids accidentally swapping axes between the Fortran convention and the
+NumPy/Matplotlib convention. This point is critical for correctly comparing
+numerical results with the thesis figures.
 
-## Como gerar figuras e datasets
+## How to generate figures and datasets
 
-Na raiz do repositório, após instalar o pacote em modo desenvolvimento:
+From the repository root, after installing the package in development mode:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py
 ```
 
-Com grade mais fina:
+With a finer grid:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py --nx 129 --ny 129
 ```
 
-Com pasta de saída personalizada:
+With a custom output folder:
 
 ```powershell
 python examples\03_case12_visualization_and_ml_dataset.py --output-dir outputs\case12
 ```
 
-## Saídas esperadas
+## Expected outputs
 
 ```text
 outputs/case12/figures/case12_panel.png
@@ -66,26 +66,27 @@ outputs/case12/datasets/case12_validation.csv
 outputs/case12/datasets/case12_metadata.txt
 ```
 
-## Colunas do dataset
+## Dataset columns
 
-As colunas de alvo são:
+The target columns are:
 
 ```text
 u, v, psi, wz, txx, txy, tyy
 ```
 
-As colunas de entrada incluem:
+The input columns include:
 
 ```text
 x, y, time, beta, x2, y2, xy, sin_pi_x, cos_pi_x, sin_pi_y, cos_pi_y
 ```
 
-Esse formato já permite treinar modelos de regressão supervisionada para campos
-manufaturados e, futuramente, comparar modelos clássicos de ML, PINNs e operadores
-neurais.
+This format already allows training supervised-regression models for
+manufactured fields and, in the future, comparing classical ML models, PINNs
+and neural operators.
 
-## Limitação
+## Limitation
 
-Esta fase ainda não usa dados produzidos pelo Fortran. Ela trabalha com a solução
-exata Python do `case_12`. A comparação Fortran vs Python deve vir em fase própria,
-após a exportação padronizada dos resultados de referência.
+This phase does not yet use data produced by Fortran. It works with the exact
+Python solution of `case_12`. The Fortran vs Python comparison should come in
+its own phase, after the reference results have been exported in a
+standardized format.
