@@ -15,7 +15,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `Thesis/` mantém os termos de `Thesis/LICENSE` (BSD-3-Clause,
   Copyright (c) 2015, Humberto Lidio Antonelli). Nova seção "License" no
   `README.md` esclarece essa distinção; necessário para o GitHub detectar
-  a licença do repositório.
+  a licença do repositório. O `LICENSE` contém apenas o texto padrão da MIT
+  (sem anexos), para que o detector de licenças do GitHub o reconheça como
+  "MIT" em vez de "Other".
 - `numerics/poisson.py` com `solve_poisson_dirichlet`, um solver direto
   (`scipy.sparse` + `spsolve`) para `laplacian(phi) = source` com condições
   de contorno de Dirichlet, usando o operador de cinco pontos de segunda
