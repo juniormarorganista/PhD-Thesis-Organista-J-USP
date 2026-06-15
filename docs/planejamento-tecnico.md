@@ -1,7 +1,7 @@
 # Planejamento Técnico - mms_viscoelastic
 
 > Documento de referência estratégica para o desenvolvimento da biblioteca.
-> Atualizado em: 2026-06-14.
+> Atualizado em: 2026-06-14 (FASE IX planejada).
 
 ---
 
@@ -24,6 +24,7 @@
 | Versão do pacote | [0.2.0](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/tree/v0.2.0) |
 | Comparação Fortran x Python - campos exatos do Case 12 (t=0) | ✅ `validation/solver_comparison.py`, ver `docs/case-12-solver-comparison.md` |
 | Solver time-marching Python (`case12_time_step`, `case12_multistep_march`) | ✅ Poisson (Etapa 8) + Euler (Etapa 9) + passo completo (Etapa 10) + marcha multi-passo (Etapa 11), validados a erro de arredondamento vs referências Fortran isoladas (grade 9x9, 10 passos) |
+| Marcha temporal completa (malhas maiores, comparação com `solver_euler`) | planejada - FASE IX |
 
 ---
 
@@ -191,6 +192,35 @@
 | Etapa 11 - marcha multi-passo (`case12_multistep_march`) vs Fortran | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-multistep-marching-comparison.md` | `feat/case12-multistep-marching` | ✅ PR #23 |
 
 **Status:** Etapas 8-11 mergeadas, com **escopo reduzido**: o solver Python de marcha no tempo (`case12_time_step` + `case12_multistep_march`) está implementado e validado a erro de arredondamento contra referências Fortran isoladas (passo único e 10 passos, grade 9x9, operadores de 2ª ordem, simplificação na condição de contorno de `wz`). A comparação da **evolução temporal completa contra o laço de tempo do solver Fortran original** (`euler_rk.f::solver_euler`, malhas maiores, horizonte de simulação completo) fica para uma fase futura (a definir), conforme `docs/case-12-multistep-marching-comparison.md` Seção 6.
+
+---
+
+### ▸ FASE IX - Marcha temporal completa: malhas maiores e comparação com `solver_euler`
+**Modelo: sonnet** | **Skills: `doutor-em-matematica` + `dev` + `escritor`**
+
+**Objetivo:** resolver o item deixado em aberto pela FASE VIII (`docs/case-12-multistep-marching-comparison.md`, Seção 6) - estender a marcha no tempo do Case 12 (`case12_time_step` / `case12_multistep_march`) para malhas maiores e para o horizonte completo de simulação, com uma comparação bem definida frente ao solver Fortran original (`euler_rk.f::solver_euler`).
+
+**Contexto matemático/técnico:**
+
+`solver_euler` (`src/fortran_original/4Order_LPOG_Euler/euler_rk.f`, linhas 326-417) executa, a cada passo: (1) `drv` - derivadas espaciais via operadores compactos LPOG de 4ª ordem; (2) atualização explícita de Euler de `wz, Txx, Txy, Tyy` com `dt`; (3) `source_term` e `boundaries_condictions` no novo tempo; (4) `loop(2)` - filtro compacto de Lele (`filter_trid_x`/`filter_trid_y`, `alphaf = 0.48`), solução de Poisson para `psi` por multigrid de 4ª ordem (`poi_psi4a`, `msh = 4` níveis) e recálculo de `u, v` (`calc_ux`/`calc_uy`). O laço usa `dt = 1.0d-5`, roda em princípio até `time < timef - dt` com `timef = 50.d0`, mas na prática converge antes: `emv = max(erro_wz, erro_Txx, erro_Txy, erro_Tyy) < 1.0d-7 .and. time > 0.01` (linha 401) interrompe o laço por convergência ao regime permanente. As malhas de produção da tese (`cas.sh`) variam `imax = jmax` em `{33, 65, 129, 257, 513, 1025}`.
+
+O port Python (Etapas 8-11) usa operadores de diferenças finitas de 2ª ordem, sem filtro compacto e sem multigrid, e simplifica a condição de contorno de `wz` (valor exato em vez do estêncil unilateral de 4ª ordem de `boundarie_vorticity_cavity_flow`). Por isso, uma comparação literal passo a passo contra o `solver_euler` real ao nível de arredondamento - como nas Etapas 8-11 contra referências Fortran isoladas de 2ª ordem - **não é matematicamente válida**: operadores de ordens diferentes não produzem a mesma trajetória discreta. Esta fase define "comparação" em dois eixos complementares, documentados separadamente, em vez de prometer uma equivalência que não existe:
+
+1. **Eixo de autoconsistência (mesma ordem):** estender a referência Fortran isolada de 2ª ordem (padrão das Etapas 9-11, `validation/fortran_reference/`) para implementar a estrutura completa do laço de `solver_euler` (passo de Euler + termo fonte + condições de contorno + `loop(2)` simplificado, com o mesmo critério de parada por convergência e `dt = 1e-5`) em malhas maiores que 9x9. `case12_multistep_march` é validada contra essa referência a erro de arredondamento. Isso entrega "malhas maiores" e "horizonte completo via critério de convergência" dentro de um par de implementações que de fato podem coincidir numericamente.
+
+2. **Eixo de validação cruzada (ordens diferentes, mesma solução manufaturada):** compilar e executar o `solver_euler` real e não modificado (regra de preservação) para o Case 12, em um subconjunto viável da malha de produção, extraindo o erro final em relação à solução exata manufaturada para cada malha. Repetir com a marcha Python de 2ª ordem nas mesmas malhas. Comparar as **taxas de convergência observadas** (≈4 para o Fortran, ≈2 para o Python) - ambas convergindo para a mesma solução exata, cada uma na sua ordem teórica. Esta é a forma rigorosa de "comparar contra o solver Fortran original" quando os operadores diferem.
+
+Dado o custo de `dt = 1e-5` em Python (milhares de passos por malha mesmo com `numpy` vetorizado), a Etapa 12 inclui uma medição de desempenho que define quais malhas da varredura de produção (`33, 65, 129, 257, 513, 1025`) são viáveis no eixo 2; malhas maiores ficam documentadas como trabalho futuro adicional se o tempo de execução for proibitivo.
+
+| Tarefa | Arquivo | Branch | Status |
+|---|---|---|---|
+| Etapa 12 - referência Fortran isolada com laço completo (estrutura de `solver_euler`, critério de convergência, malhas 9x9 e 17x17) + medição de desempenho | `validation/fortran_reference/case12_full_march/`, `docs/case-12-full-march-reference.md` | `feat/case12-full-march-reference` | pendente |
+| Etapa 13 - marcha Python com critério de parada por convergência, validada vs Etapa 12 | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-full-march-comparison.md` | `feat/case12-full-march-python` | pendente |
+| Etapa 14 - execução do `solver_euler` real (não modificado) para o Case 12 nas malhas viáveis da varredura de produção | `validation/run_original_solver_case12.*`, `docs/case-12-convergence-vs-fortran.md` | `feat/case12-original-solver-run` | pendente |
+| Etapa 15 - marcha Python (Etapa 13) nas mesmas malhas da Etapa 14 e comparação das taxas de convergência (Python ≈2ª ordem vs Fortran ≈4ª ordem) | `examples/12_case12_convergence_vs_fortran.py`, `docs/case-12-convergence-vs-fortran.md` | `feat/case12-convergence-comparison` | pendente |
+| Etapa 16 - síntese, atualização do README e fechamento da Seção 6 de `docs/case-12-multistep-marching-comparison.md` | `README.md`, `docs/case-12-multistep-marching-comparison.md`, `docs/planejamento-tecnico.md` | `docs/fase-ix-synthesis` | pendente |
+
+**Status:** planejada. Cada etapa segue o fluxo padrão (branch -> commits -> PR -> merge via GitHub). A Etapa 12 deve começar pela medição de desempenho que define o alcance realista das Etapas 14-15.
 
 ---
 
