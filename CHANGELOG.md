@@ -105,6 +105,17 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `case12_multistep_march`, a independência temporal dos campos/termos fonte
   do Case 12 para `at=0` e o trabalho futuro de comparação da evolução
   temporal completa.
+- Programa Fortran isolado de referência para a marcha completa do Case 12
+  até o critério de convergência de `solver_euler`
+  (`validation/fortran_reference/case12_full_march/`), com detecção de
+  divergência (`NaN`/overflow) e histórico opcional por passo
+  (`errowz`/`erroTxx`/`erroTxy`/`erroTyy`/`emv` + máximos absolutos dos
+  campos).
+- CSVs de referência de entrada e histórico para as malhas `9x9` e `17x17`
+  (`validation/reference_data/case12_full_march_*`).
+- `docs/case-12-full-march-reference.md` (Etapa 12 da FASE IX), documentando
+  o achado de que a referência de 2ª ordem diverge em `t~4.5506` (malha
+  `9x9`) em vez de convergir, e o re-escopo das Etapas 13-15.
 
 ### Corrigido
 - `CITATION.cff`: `repository-code` apontava para um placeholder

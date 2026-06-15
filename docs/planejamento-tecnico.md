@@ -1,7 +1,7 @@
 # Planejamento Técnico - mms_viscoelastic
 
 > Documento de referência estratégica para o desenvolvimento da biblioteca.
-> Atualizado em: 2026-06-14 (FASE IX planejada).
+> Atualizado em: 2026-06-14 (FASE IX: Etapa 12 concluída, Etapas 13-15 re-escopadas).
 
 ---
 
@@ -24,7 +24,7 @@
 | Versão do pacote | [0.2.0](https://github.com/juniormarorganista/Thesis_USP_Codes_Organista_J/tree/v0.2.0) |
 | Comparação Fortran x Python - campos exatos do Case 12 (t=0) | ✅ `validation/solver_comparison.py`, ver `docs/case-12-solver-comparison.md` |
 | Solver time-marching Python (`case12_time_step`, `case12_multistep_march`) | ✅ Poisson (Etapa 8) + Euler (Etapa 9) + passo completo (Etapa 10) + marcha multi-passo (Etapa 11), validados a erro de arredondamento vs referências Fortran isoladas (grade 9x9, 10 passos) |
-| Marcha temporal completa (malhas maiores, comparação com `solver_euler`) | planejada - FASE IX |
+| Marcha temporal completa (malhas maiores, comparação com `solver_euler`) | em andamento - FASE IX (Etapa 12 ✅: referência 2ª ordem diverge em t≈4.5506 em vez de convergir; Etapas 13-15 re-escopadas para horizonte estável) |
 
 ---
 
@@ -212,15 +212,17 @@ O port Python (Etapas 8-11) usa operadores de diferenças finitas de 2ª ordem, 
 
 Dado o custo de `dt = 1e-5` em Python (milhares de passos por malha mesmo com `numpy` vetorizado), a Etapa 12 inclui uma medição de desempenho que define quais malhas da varredura de produção (`33, 65, 129, 257, 513, 1025`) são viáveis no eixo 2; malhas maiores ficam documentadas como trabalho futuro adicional se o tempo de execução for proibitivo.
 
+**Achado da Etapa 12 (re-escopo do eixo 1):** a referência Fortran isolada de 2ª ordem, executada com o critério de parada de `solver_euler`, **não converge**: na malha `9x9`, `emv` decresce até `~2.6e-6` (mínimo, em `t~0.3-0.4`, já acima do limiar `1e-7`) e depois cresce até divergir (overflow) em `t~4.5506` (passo 455064). É uma instabilidade numérica genuína do esquema Euler explícito + diferenças centrais de 2ª ordem sem o filtro de Lele em `dt=1e-5`, não um bug de tradução (Etapas 9-11 já validaram as fórmulas por passo a `~1e-16`). Detalhes em `docs/case-12-full-march-reference.md`. Como consequência, o eixo 1 (Etapa 13) é re-escopado de "marcha até convergência" para "marcha sobre um horizonte temporal estável e limitado" (ex.: até `t=1.0-2.0`, `n_steps` 100000-200000), onde a comparação a erro de arredondamento ainda é significativa. O eixo 2 (Etapas 14-15) não é afetado, pois usa o `solver_euler` real (4ª ordem + filtro de Lele), que não compartilha essa instabilidade.
+
 | Tarefa | Arquivo | Branch | Status |
 |---|---|---|---|
-| Etapa 12 - referência Fortran isolada com laço completo (estrutura de `solver_euler`, critério de convergência, malhas 9x9 e 17x17) + medição de desempenho | `validation/fortran_reference/case12_full_march/`, `docs/case-12-full-march-reference.md` | `feat/case12-full-march-reference` | pendente |
-| Etapa 13 - marcha Python com critério de parada por convergência, validada vs Etapa 12 | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-full-march-comparison.md` | `feat/case12-full-march-python` | pendente |
+| Etapa 12 - referência Fortran isolada com laço completo (estrutura de `solver_euler`, critério de convergência, malhas 9x9 e 17x17) + medição de desempenho | `validation/fortran_reference/case12_full_march/`, `docs/case-12-full-march-reference.md` | `feat/case12-full-march-reference` | ✅ |
+| Etapa 13 - marcha Python sobre horizonte temporal estável (re-escopada; ver achado acima), validada vs Etapa 12 a erro de arredondamento | `src/mms_viscoelastic/numerics/time_marching.py`, `docs/case-12-full-march-comparison.md` | `feat/case12-full-march-python` | pendente |
 | Etapa 14 - execução do `solver_euler` real (não modificado) para o Case 12 nas malhas viáveis da varredura de produção | `validation/run_original_solver_case12.*`, `docs/case-12-convergence-vs-fortran.md` | `feat/case12-original-solver-run` | pendente |
 | Etapa 15 - marcha Python (Etapa 13) nas mesmas malhas da Etapa 14 e comparação das taxas de convergência (Python ≈2ª ordem vs Fortran ≈4ª ordem) | `examples/12_case12_convergence_vs_fortran.py`, `docs/case-12-convergence-vs-fortran.md` | `feat/case12-convergence-comparison` | pendente |
 | Etapa 16 - síntese, atualização do README e fechamento da Seção 6 de `docs/case-12-multistep-marching-comparison.md` | `README.md`, `docs/case-12-multistep-marching-comparison.md`, `docs/planejamento-tecnico.md` | `docs/fase-ix-synthesis` | pendente |
 
-**Status:** planejada. Cada etapa segue o fluxo padrão (branch -> commits -> PR -> merge via GitHub). A Etapa 12 deve começar pela medição de desempenho que define o alcance realista das Etapas 14-15.
+**Status:** Etapa 12 concluída (PR pendente nesta sessão). Etapas 13-15 re-escopadas conforme o achado acima; seguem o fluxo padrão (branch -> commits -> PR -> merge via GitHub).
 
 ---
 

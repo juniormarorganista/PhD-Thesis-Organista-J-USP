@@ -1,0 +1,7 @@
+grid = 17 x 17
+converged = F
+diverged = F
+steps = 150001
+final time =  1.50000E+00
+final emv =  2.53879E-06
+wall time =    257.022 s
