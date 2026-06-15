@@ -19,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-The original Fortran and Mathematica reference material under
-`src/fortran_original/`, `src/mathematica_original/`, and `Thesis/` is
-distributed under the terms in `Thesis/LICENSE` (BSD-3-Clause style,
-Copyright (c) 2015, Humberto Lidio Antonelli).
