@@ -1,26 +1,29 @@
-# Plano de Transcrição Fortran para Python
+# Fortran-to-Python Porting Plan
 
-## Objetivo
+## Goal
 
-Construir uma biblioteca Python chamada `mms_viscoelastic`, baseada nos códigos Fortran originais da tese, preparada para:
+Build a Python library called `mms_viscoelastic`, based on the original
+Fortran codes of the thesis, prepared for:
 
-- verificação numérica;
-- geração de dados;
-- análise de erro;
-- comparação Fortran/Python;
-- integração futura com Machine Learning e Scientific Machine Learning.
+- numerical verification;
+- data generation;
+- error analysis;
+- Fortran/Python comparison;
+- future integration with Machine Learning and Scientific Machine Learning.
 
-## Filosofia da transcrição
+## Porting philosophy
 
-A transcrição não deve ser uma cópia cega linha a linha. O Fortran original é procedural e orientado à execução numérica direta. A camada Python deve ser modular, testável e extensível.
+The port must not be a blind line-by-line copy. The original Fortran is
+procedural and oriented toward direct numerical execution. The Python layer
+must be modular, testable and extensible.
 
-Portanto, a tradução será conceitual:
+Therefore, the translation will be conceptual:
 
 ```text
-Fortran original -> interpretação matemática -> API Python limpa -> testes -> validação
+original Fortran -> mathematical interpretation -> clean Python API -> tests -> validation
 ```
 
-## Módulos planejados
+## Planned modules
 
 ```text
 mms_viscoelastic/
@@ -57,73 +60,75 @@ mms_viscoelastic/
     └── writers.py
 ```
 
-## Fases
+## Phases
 
-### Fase 1 - Fundação
+### Phase 1 - Foundation
 
-Já iniciada:
+Already started:
 
-- pacote instalável;
-- objetos de malha;
-- objetos de campo;
-- erros básicos;
-- conversão campo → tabela;
-- testes mínimos.
+- installable package;
+- grid objects;
+- field objects;
+- basic errors;
+- field -> table conversion;
+- minimal tests.
 
-### Fase 2 - Documentação e mapa do Fortran
+### Phase 2 - Documentation and Fortran map
 
-Atual:
+Current:
 
-- README profissional;
-- mapa do projeto;
-- mapa dos arquivos Fortran;
-- plano de transcrição;
-- instruções GitHub.
+- professional README;
+- project map;
+- Fortran file map;
+- porting plan;
+- GitHub instructions.
 
-### Fase 3 - Primeiro caso MMS
+### Phase 3 - First MMS case
 
-Implementar `case_12.f` como primeiro caso Python:
+Implement `case_12.f` as the first Python case:
 
 ```text
 src/mms_viscoelastic/manufactured/case_12.py
 ```
 
-Deve conter funções para:
+Must contain functions for:
 
 - `u_exact(x, y, t, params)`;
 - `v_exact(x, y, t, params)`;
 - `psi_exact(x, y, t, params)`;
 - `wz_exact(x, y, t, params)`;
 - `stress_exact(x, y, t, params)`;
-- termos fonte quando transcritos.
+- source terms once ported.
 
-### Fase 4 - Derivadas e verificação
+### Phase 4 - Derivatives and verification
 
-Implementar derivadas com diferenças finitas e testar usando funções analíticas suaves.
+Implement finite-difference derivatives and test them using smooth analytic
+functions.
 
-### Fase 5 - Dados para Machine Learning
+### Phase 5 - Machine Learning data
 
-Criar um pipeline que gere tabelas com colunas como:
+Create a pipeline that produces tables with columns such as:
 
 ```text
 x, y, t, Re, Wi, beta, alphaG, epsilon, u, v, psi, wz, Txx, Txy, Tyy
 ```
 
-Esses dados poderão alimentar:
+This data could feed:
 
-- regressão supervisionada;
-- modelos de erro;
+- supervised regression;
+- error models;
 - surrogates;
-- operadores neurais;
-- classificadores de regimes;
-- modelos híbridos físico-estatísticos.
+- neural operators;
+- regime classifiers;
+- hybrid physics/statistics models.
 
-## Regra de qualidade
+## Quality rule
 
-Toda transcrição deve seguir o ciclo:
+Every port must follow the cycle:
 
 ```text
-ler Fortran -> documentar função -> implementar Python -> testar -> comparar -> versionar
+read Fortran -> document the function -> implement Python -> test -> compare -> version
 ```
 
-Nada de transcrição heroica de madrugada sem teste. Isso é como resolver Navier-Stokes no guardanapo: romântico, mas perigoso.
+No heroic late-night transcriptions without tests. That is like solving
+Navier-Stokes on a napkin: romantic, but dangerous.
