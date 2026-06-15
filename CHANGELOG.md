@@ -9,6 +9,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Adicionado
+- `LICENSE` (MIT) na raiz do repositório, cobrindo a biblioteca Python,
+  exemplos, testes e documentação novos; o material Fortran/Mathematica
+  original em `src/fortran_original/`, `src/mathematica_original/` e
+  `Thesis/` mantém os termos de `Thesis/LICENSE` (BSD-3-Clause,
+  Copyright (c) 2015, Humberto Lidio Antonelli). Nova seção "License" no
+  `README.md` esclarece essa distinção; necessário para o GitHub detectar
+  a licença do repositório.
 - `numerics/poisson.py` com `solve_poisson_dirichlet`, um solver direto
   (`scipy.sparse` + `spsolve`) para `laplacian(phi) = source` com condições
   de contorno de Dirichlet, usando o operador de cinco pontos de segunda
