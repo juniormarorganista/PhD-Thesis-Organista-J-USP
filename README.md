@@ -25,8 +25,9 @@ Repository associated with the doctoral thesis of **Juniormar Organista**, focus
 17. [GitHub workflow](#github-workflow)
 18. [GitHub About](#github-about)
 19. [Citation](#citation)
-20. [Author](#author)
-21. [README maintenance rule](#readme-maintenance-rule)
+20. [License](#license)
+21. [Author](#author)
+22. [README maintenance rule](#readme-maintenance-rule)
 
 ---
 
@@ -609,6 +610,8 @@ loop, over the complete simulation horizon and on finer grids, is future work.
 
 ```text
 .
+├── LICENSE
+├── CITATION.cff
 ├── src/
 │   ├── fortran_original/
 │   │   └── 4Order_LPOG_Euler/
@@ -974,6 +977,18 @@ Organista, J. Codes and numerical verification material associated with a doctor
 Machine-readable citation metadata is kept in [`CITATION.cff`](CITATION.cff)
 at the repository root, which GitHub surfaces through its "Cite this
 repository" button on the repository home page.
+
+---
+
+## License
+
+The new Python library, examples, tests and documentation in this
+repository are released under the [MIT License](LICENSE).
+
+The original Fortran and Mathematica reference material under
+`src/fortran_original/`, `src/mathematica_original/` and `Thesis/` keeps its
+own terms, described in [`Thesis/LICENSE`](Thesis/LICENSE) (BSD-3-Clause
+style, Copyright (c) 2015, Humberto Lidio Antonelli).
 
 ---
 
