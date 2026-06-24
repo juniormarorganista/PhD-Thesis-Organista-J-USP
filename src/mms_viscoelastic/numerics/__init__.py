@@ -1,4 +1,4 @@
-﻿"""Numerical operators and verification utilities."""
+"""Numerical operators and verification utilities."""
 
 from .convergence import (
     QUANTITIES,

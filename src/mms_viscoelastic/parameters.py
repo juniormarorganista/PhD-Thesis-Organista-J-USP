@@ -1,4 +1,4 @@
-﻿"""Physical and numerical parameters used by the Python port."""
+"""Physical and numerical parameters used by the Python port."""
 
 from __future__ import annotations
 

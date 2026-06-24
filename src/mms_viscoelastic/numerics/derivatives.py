@@ -1,4 +1,4 @@
-﻿"""Finite-difference derivative operators.
+"""Finite-difference derivative operators.
 
 This module starts with robust second-order operators.  The compact high-order
 operators from the original Fortran implementation should be ported here in a

@@ -21,6 +21,15 @@ env/
 build/
 dist/
 
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+
 # Data and models
 *.pkl
 *.joblib

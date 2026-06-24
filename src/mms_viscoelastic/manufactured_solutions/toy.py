@@ -1,4 +1,4 @@
-﻿"""Small analytical manufactured field used for smoke tests.
+"""Small analytical manufactured field used for smoke tests.
 
 This is not yet one of the thesis Fortran cases.  It exists only to validate the
 Python package structure, grid conventions and derivative/error utilities before

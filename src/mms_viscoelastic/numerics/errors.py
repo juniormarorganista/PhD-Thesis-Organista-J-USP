@@ -1,4 +1,4 @@
-﻿"""Error norms and convergence-rate utilities."""
+"""Error norms and convergence-rate utilities."""
 
 from __future__ import annotations
 
