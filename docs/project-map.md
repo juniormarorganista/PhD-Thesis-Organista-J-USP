@@ -47,14 +47,14 @@ Contains the new Python library. This directory will be expanded to hold:
 - Machine Learning integration.
 
 ```text
-thesis/
+Thesis/
 ```
 
 Contains the thesis and its original presentation. The original LaTeX files
 must be preserved.
 
 ```text
-papers/
+Papers/
 ```
 
 Contains the original paper material and associated figures.

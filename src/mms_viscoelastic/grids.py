@@ -1,4 +1,4 @@
-﻿"""Structured Cartesian grids."""
+"""Structured Cartesian grids."""
 
 from __future__ import annotations
 

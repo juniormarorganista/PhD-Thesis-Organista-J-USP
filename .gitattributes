@@ -18,12 +18,10 @@
 *.eps binary
 *.nb binary
 
-# Suggested Git LFS patterns for future large assets.
-# Existing tracked files are not migrated automatically by these lines.
-*.eps filter=lfs diff=lfs merge=lfs -text
-*.pdf filter=lfs diff=lfs merge=lfs -text
-*.png filter=lfs diff=lfs merge=lfs -text
-*.jpg filter=lfs diff=lfs merge=lfs -text
-*.jpeg filter=lfs diff=lfs merge=lfs -text
-*.tif filter=lfs diff=lfs merge=lfs -text
-*.tiff filter=lfs diff=lfs merge=lfs -text
+# Git LFS for the generated README/assets preview images only.
+# Thesis and Papers figures (.eps, .pdf) and Thesis/Slides graphics are
+# committed directly, not through LFS; a blanket extension-based filter
+# here previously made Git treat those already-committed files as
+# perpetually "modified" (clean-filter mismatch) without any real change.
+assets/preview/*.png filter=lfs diff=lfs merge=lfs -text
+assets/thesis/**/*.png filter=lfs diff=lfs merge=lfs -text

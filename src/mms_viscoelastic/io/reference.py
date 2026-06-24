@@ -1,4 +1,4 @@
-﻿"""Reference-data loading utilities."""
+"""Reference-data loading utilities."""
 
 from __future__ import annotations
 

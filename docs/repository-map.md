@@ -16,12 +16,8 @@ src/
   mathematica_original/    # original Mathematica notebooks
   mms_viscoelastic/        # new Python library under construction
 
-thesis/
-  original/                # original LaTeX thesis
-
-papers/
-  original/                # original paper and figures
-
+Thesis/                   # original LaTeX thesis
+Papers/                    # original paper and figures
 docs/                      # repository technical documentation
 examples/                  # runnable examples for the Python library
 tests/                     # automated tests for the Python library
