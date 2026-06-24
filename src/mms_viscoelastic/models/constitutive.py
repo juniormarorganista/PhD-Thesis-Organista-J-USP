@@ -1,4 +1,4 @@
-﻿"""Constitutive model identifiers used during the Fortran-to-Python port."""
+"""Constitutive model identifiers used during the Fortran-to-Python port."""
 
 from __future__ import annotations
 
