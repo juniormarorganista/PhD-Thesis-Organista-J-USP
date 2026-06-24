@@ -1,4 +1,4 @@
-﻿"""Input/output helpers."""
+"""Input/output helpers."""
 
 from .reference import read_reference_csv
 

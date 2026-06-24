@@ -1,4 +1,4 @@
-﻿"""Containers for two-dimensional flow fields."""
+"""Containers for two-dimensional flow fields."""
 
 from __future__ import annotations
 

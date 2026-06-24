@@ -40,8 +40,8 @@ First, it preserves the scientific material associated with the doctoral thesis.
 ```text
 src/fortran_original/
 src/mathematica_original/
-thesis/original/
-papers/original/
+Thesis/
+Papers/
 ```
 
 Second, it builds a modern Python package:
