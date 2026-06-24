@@ -1,0 +1,155 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{hyperref}
+\bibliographystyle{unsrtnat}
+
+\newcounter{question}
+\newcommand{\name}{00}
+
+\renewcommand{\thefigure}{R\arabic{figure}}
+\renewcommand{\thetable}{R\arabic{table}}
+
+\newcommand{\question}[1]{\stepcounter{question} \noindent \textbf{Comment \name.\thequestion} \emph{#1} }
+\newcommand{\answer}[1]{\noindent \textbf{Answer to \name.\thequestion} #1 \mbox{}\\}
+\newcommand{\newperson}[2]{\renewcommand{\name}{#2} \setcounter{question}{0} \newpage \noindent \textbf{\Large Answers to #1} \\}
+
+\begin{document}
+
+{\large \textbf{Response letter to the manuscript
+-- \emph{Verification of an Incompressible Viscoelastic Flow Solver Using the Method of Manufactured Solutions for Oldroyd-B and Giesekus Constitutive Models}}}
+
+\vspace{0.8cm}
+We thank the reviewers for their careful reading of the manuscript and for the constructive and detailed comments. We have addressed all of them and modified the manuscript accordingly. Our detailed answers follow. Reviewers' comments are reproduced in italics; our responses are not.
+\vspace{0.8cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newperson{Reviewer \#1}{R1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Major Comment 1. The manuscript uses language that over-claims the novelty of the contribution: phrases such as ``innovative application'' and ``superior numerical accuracy compared to existing methods'' appear in the abstract and introduction.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for this observation. We agree that the original phrasing overstated the novelty of the work. Accordingly, we have removed the phrase ``innovative application'' from the abstract, replacing the opening sentence with a more precise description of what is actually being contributed: a compact fourth-order finite-difference scheme for two-dimensional incompressible viscoelastic flows in the vorticity-streamfunction formulation, together with its systematic verification via MMS. We have also removed the claim of ``superior numerical accuracy compared to existing methods'', replacing it with a statement that the verification results confirm the scheme attains the expected high-order accuracy, supporting its use as a reliable building block for high-fidelity viscoelastic flow simulations. The revised text reads: \emph{``The verification results confirm that the proposed compact finite-difference scheme attains the expected high-order accuracy across the range of parameters considered, supporting its use as a reliable building block for high-fidelity viscoelastic flow simulations.''}}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Major Comment 2. The manuscript does not clearly distinguish between code \emph{verification} (checking that the code correctly solves the mathematical equations) and physical \emph{validation} (checking that the model correctly describes the physical reality). The term ``validated'' is used in contexts where ``verified'' would be correct.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for raising this important methodological distinction. We have revised the manuscript throughout to use the term ``verification'' (or ``verified'') wherever the comparison is between the numerical solution and the manufactured analytical solution, reserving ``validation'' for the general sense used in prior-round discussion of the broader literature on comparing codes against experimental or benchmark data. Specifically, the following changes were made:
+\begin{itemize}
+\item Abstract, last sentences: ``validated'' replaced by ``verified''; the word ``validation'' has been removed where it referred to the MMS procedure.
+\item Section 4 (Results, introductory paragraph): ``validated using manufactured solutions'' revised to ``verified using manufactured solutions''.
+\item Section 4.2 (Giesekus results): ``validate the model's ability'' revised to ``verify the numerical scheme's ability to correctly reproduce the manufactured flow properties''.
+\item Section 5 (Conclusions): ``Validation through manufactured solutions'' revised to ``Verification against the manufactured solutions''; ``validates the accuracy of the high-order numerical schemes'' revised to ``verifies the accuracy of the high-order numerical schemes''.
+\end{itemize}}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Major Comment 3. The manuscript states that ``the convergence order approaches 4.5, which is expected for high-order numerical methods.'' However, both the compact spatial scheme and the classical RK4 time integrator are formally fourth-order; there is no rigorous justification for why an order in excess of 4 should be expected. The reviewer requests either a theoretical/mathematical explanation or a suitable qualification of the claim.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for this precise and important observation. The original statement was indeed not justified on theoretical grounds: both the compact finite-difference scheme (interior stencils and boundary closures, as described in Section~3) and the classical fourth-order Runge--Kutta integrator are formally $\mathcal{O}(h^4)$, so the asymptotic convergence order as $h\to0$ is $p=4$.
+
+We have revised the results discussion (Section~4.1) to remove the claim that $4.5$ is ``expected,'' replacing it with a statement that the two-point estimator (Equation~(25) of the manuscript) lies between 4 and 5 for the velocity and stress components for the mesh range tested. We have also added a ``Remark on the observed convergence orders'' paragraph in Section~4.1 that provides a rigorous explanation rooted in the asymptotic error expansion
+\[
+  e(h) = C_4\,h^4 + C_5\,h^5 + O(h^6),
+\]
+from which the two-point estimator can be shown to satisfy
+\[
+  \widehat{p}(h_N) = 4 + \frac{C_5}{C_4}\,\frac{1-r^{-1}}{\ln r}\,h_N + O(h_N^2),
+\]
+where $r = h_N/h_{N+1} > 1$ is the refinement ratio. This expression (which follows directly from the error expansion and the definition of $\widehat{p}$, following \citet{leveque2007finite}) shows that $\widehat{p}\to4$ as $h_N\to0$, but for finite mesh spacings the sign of $C_5/C_4$ determines whether the estimated order lies above or below 4. For the manufactured solution and parameter ranges considered, $C_5/C_4 > 0$ explains the observed $\widehat{p}\approx4.5$--$4.7$; the opposite sign ($C_5/C_4 < 0$) for the vorticity at higher Reynolds numbers is consistent with the observed decrease toward $\widehat{p}\approx3.5$--$4.0$.
+
+The remark also notes explicitly that confirming the asymptotic order $p=4$ numerically would require mesh resolutions beyond those reported here, and that the reported orders are therefore pre-asymptotic estimates rather than confirmed asymptotic rates.}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Major Comment 4. The study does not include a temporal ($\Delta t$) refinement study to isolate the time-discretization error from the spatial error. In addition, the reviewer asks for a discussion of the solver's expected behavior at Weissenberg numbers beyond the $Wi \leq 10$ range covered in the Appendix.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for raising both points.
+
+Regarding the temporal refinement study: the manuscript presents results for steady-state solutions computed until the temporal residual falls below $Er_\infty = 10^{-5}$ (Section~3). Under this criterion, and given that the Runge--Kutta integrator is also fourth-order, the spatial truncation error is expected to dominate the reported $\|e\|_2$ for the mesh resolutions and physical parameters considered. We have made this argument explicit in the new ``Remark on the observed convergence orders'' paragraph in Section~4.1. A fully dedicated $\Delta t$ refinement study (i.e., fixing the spatial mesh and varying $\Delta t$) is not included in the present revision, as it would require additional simulation campaigns; we regard this as a natural extension of the current work and plan to address it in follow-up studies.
+
+Regarding the behavior at $Wi > 10$: we have added a closing discussion paragraph to the Appendix that addresses the expected behavior at substantially larger Weissenberg numbers. In summary, the standard (non-log-conformation) formulation of the Oldroyd-B and Giesekus constitutive equations employed here is expected to become increasingly stiff and eventually numerically unstable at higher $Wi$, a phenomenon widely known as the high-Weissenberg-number problem (HWNP). Its onset is associated with the loss of positive-definiteness of the polymeric stress tensor and is governed primarily by the constitutive formulation rather than by the order of the spatial discretization. Extending the present verification to the regime where the HWNP becomes relevant would require recasting the constitutive equations in terms of the log-conformation tensor \citep{Fernandes2022}, which is identified as future work.}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Minor Comment 1. The Introduction consists largely of an extended literature survey with minimal connection to the paper's specific contribution. The reviewer recommends shortening it and focusing on aspects directly relevant to the manuscript.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We agree with the reviewer's assessment. The Introduction has been substantially shortened. The four main thematic paragraphs (on code verification, on the Method of Manufactured Solutions, on viscoelastic flow solvers, and on high-order schemes) have each been condensed to retain the essential citations and connections to the present work while removing the detailed per-paper summaries that were not necessary for establishing the context. The revised Introduction is approximately half the length of the original.}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Minor Comment 2. The notation is cumbersome: the solvent viscosity ratio $\beta_{nn}$, the error symbol $e_v$, and the vorticity symbol $\omega_{ez}/\omega_z$ should be simplified or standardized throughout.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for this observation. We have made the following changes:
+\begin{itemize}
+  \item $\beta_{nn}$: The subscript ``$nn$'' identifies this ratio as specific to the non-Newtonian formulation adopted in the present implementation, following the original notation of the source code \citep{souza2003}. We have added a parenthetical clarification at the first definition (Section~2) to make this explicit: ``the subscript $nn$ identifies this parameter as specific to the non-Newtonian formulation adopted in the present code, following \citealt{souza2003}.'' We have not renamed the symbol throughout in order to preserve internal consistency with the code and with the labelling used in all figures and tables.
+  \item $\omega_z$: The inconsistent abbreviation ``$w_z$'' (appearing once in Section~4.2) has been corrected to $\omega_z$ to match the notation used throughout the rest of the manuscript. A pre-existing inconsistency in the LaTeX typesetting of $\widetilde{\omega_z}$ (tilde placement) has also been standardized.
+\end{itemize}}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Minor Comment 3. The paper does not discuss the applicability of the vorticity-streamfunction approach to free-surface flows. The reviewer suggests citing \texttt{https://doi.org/10.1007/s40571-024-00730-1} (Rizzieri et al., 2024).}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for this relevant suggestion. We have added a sentence in Section~1 (Introduction), in the paragraph discussing the limitations of the vorticity-streamfunction formulation, explicitly noting that the formulation is not directly suited to problems with free or moving boundaries and pointing the reader to particle/Lagrangian frameworks (such as the Particle Finite Element Method) as the appropriate alternative for such flows \citep{Rizzieri2024}. The full reference has been added to the bibliography.}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Minor Comment 4. The reviewer asks for a discussion of the solver's expected behavior at Weissenberg numbers higher than those covered in the existing Appendix results ($Wi \leq 10$).}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{This point has been addressed jointly with Major Comment~4 above. A discussion paragraph has been added at the end of the Appendix, summarizing the expected onset of the high-Weissenberg-number problem and identifying the log-conformation reformulation as the appropriate approach for extending the present verification to higher $Wi$.}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newperson{Reviewer \#2}{R2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{Equations (16), (17), (20), and (21) use ``$n$'' for the grid size (boundary index), while Equation (25) uses ``$N$''. The notation should be made consistent; in addition, the node index ``$i$'' in these boundary equations should be given with an explicit range.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We thank the reviewer for pointing out this inconsistency. We have revised Equations~(16), (17), (20), and (21) to replace the lower-case ``$n$'' with the upper-case ``$N$'' for the grid size, and have added the explicit range for the index ``$i$'' (e.g., ``$i = 1, \dots, N$'' or ``at the boundary point $i = N$'') to match the convention established in the rest of the Numerical Method section and in Equation~(25). A pre-existing typo in the boundary stencil ($f_{n-4}$, which appeared at the right-hand side of Equation~(17) in the original but should be $f_{N-3}$) has also been corrected.}
+
+\vspace{3mm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\question{The sentence describing the Fortran compiler (p.~12) and the sentence about Mathematica software (p.~13) read as tool commentary/marketing rather than scientific description.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\answer{We agree. Both sentences have been rewritten to describe only the relevant technical information: the implementation language and its compilation environment, and the role of Mathematica in the derivation of the source terms. The revised sentences read:
+\begin{itemize}
+  \item (p.~12, formerly the ``Fortran compiler'' sentence): ``\emph{The numerical method was implemented in Fortran and compiled with GFortran (GNU Compiler Collection).}''
+  \item (p.~13, formerly the ``Mathematica software'' sentence): ``\emph{The source terms were obtained symbolically using Mathematica \cite{Mathematica}.}''
+\end{itemize}}
+
+\vspace{3mm}
+
+\bibliography{references_OrganistaJ}
+
+\end{document}
