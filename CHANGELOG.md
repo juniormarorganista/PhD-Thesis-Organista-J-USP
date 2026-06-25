@@ -4,6 +4,12 @@ Todas as mudanças relevantes deste projeto serão documentadas aqui.
 
 O formato segue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+As versões `0.1.0` a `0.6.7.5` cobrem a fase inicial de reorganização do
+repositório e da documentação, antes da existência de um pacote Python
+formal. A partir da criação do `pyproject.toml`, o versionamento semântico
+do pacote `mms_viscoelastic` recomeçou em `0.1.0`/`0.2.0`; é por isso que a
+numeração não é monotonicamente crescente ao longo do histórico abaixo.
+
 ---
 
 ## [Unreleased]
