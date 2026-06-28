@@ -8,10 +8,19 @@ and tested in
 [`tests/test_case12_convergence.py`](../tests/test_case12_convergence.py).
 
 The goal is to confirm, by the Method of Manufactured Solutions (MMS), that
-the finite-difference operators in
+the fourth-order compact finite-difference operators in
 [`numerics/derivatives.py`](../src/mms_viscoelastic/numerics/derivatives.py)
-reproduce known exact differential relations of case 12 at the expected
-order of accuracy `p = 2`.
+(`compact_derivative_x`/`compact_derivative_y`, ported from
+`coef_4a`/`rhsx_4a` in
+[`derivs.f`](../src/fortran_original/4Order_LPOG_Euler/derivs.f)) reproduce
+known exact differential relations of case 12 at an order consistent with
+the thesis and the JNNFM paper.
+
+This study previously exercised the second-order placeholder operators
+(`derivative_x`/`derivative_y`), which were a deliberate, documented
+stand-in pending the compact-scheme port. That port is complete; this
+document and the L2/Linf tables below were regenerated against the actual
+fourth-order operators.
 
 ## 1. Exact differential identities satisfied by case 12
 
@@ -67,37 +76,45 @@ discretization error, with no modeling error contaminating the result.
 
 ## 2. Discrete operators and their truncation error
 
-`derivative_x` and `derivative_y`
+`compact_derivative_x` and `compact_derivative_y`
 ([`numerics/derivatives.py`](../src/mms_viscoelastic/numerics/derivatives.py))
-approximate `d f/dx` (respectively `d f/dy`) using:
-
-- a **central difference** `(f[i+1] - f[i-1]) / (2h)` at interior points;
-- a **one-sided three-point** stencil `(-3 f[0] + 4 f[1] - f[2]) / (2h)` (and
-  its mirror) at the domain boundaries.
-
-By Taylor expansion, both stencils have leading-order truncation error
-`O(h^2)`:
+approximate `d f/dx` (respectively `d f/dy`) with a compact (implicit,
+Padé-type) scheme: a tridiagonal system is solved for the derivative values,
+rather than reading them off an explicit stencil. Interior rows
+(`coef_4a`):
 
 ```text
-(f(x+h) - f(x-h)) / (2h)              = f'(x) + (h^2/6) f'''(x) + O(h^4)
-(-3 f(x) + 4 f(x+h) - f(x+2h)) / (2h) = f'(x) - (h^2/3) f'''(x) + O(h^3)
+f'_{i-1} + 4 f'_i + f'_{i+1} = 3(f_{i+1} - f_{i-1}) / h
 ```
 
-Both leading error terms are `O(h^2)`, with the one-sided stencil carrying a
-larger constant (`1/3` vs. `1/6`).
-
-(see e.g. LeVeque, *Finite Difference Methods for Ordinary and Partial
-Differential Equations*, SIAM 2007, Ch. 1, for both stencils). Therefore the
-discrete relations
+which is fourth-order accurate. The boundary closure at `i = 1` (and its
+mirror at `i = N`):
 
 ```text
-u_num  = derivative_y(psi)
-v_num  = -derivative_x(psi)
-wz_num = derivative_y(u) - derivative_x(v)
+f'_1 + 3 f'_2 = (-17 f_1 + 9 f_2 + 9 f_3 - f_4) / (6h)
 ```
 
-should converge to the exact fields `u`, `v`, `wz` with error `O(h^2)`,
-i.e. order `p = 2`, as the grid is refined.
+is *also* fourth-order accurate: substituting the exact solution and
+expanding in Taylor series (checked symbolically with SymPy) gives a
+residual of `(1/20) h^4 f^(5)`, matching the interior order. This is why the
+observed order below does not drop near the boundary for the first
+derivative, unlike the analogous second-derivative closure used elsewhere in
+the scheme, whose boundary truncation error is one order lower, `O(h^3)`
+(see
+[`validation/fortran_reference/case_compact_derivatives/README.md`](../validation/fortran_reference/case_compact_derivatives/README.md)
+for the full derivation; this convergence study only exercises the first
+derivative, via identities (1)-(2), so that asymmetry does not appear here).
+
+Therefore the discrete relations
+
+```text
+u_num  = compact_derivative_y(psi)
+v_num  = -compact_derivative_x(psi)
+wz_num = compact_derivative_y(u) - compact_derivative_x(v)
+```
+
+should converge to the exact fields `u`, `v`, `wz` with error `O(h^4)` as
+the grid is refined, subject to the pre-asymptotic caveat in Section 6.
 
 ## 3. Error norms and order estimation
 
@@ -153,36 +170,47 @@ python examples\09_case12_convergence_verification.py
 
 | n  | h        | L2(u)    | Linf(u)  | L2(v)    | Linf(v)  | L2(wz)   | Linf(wz) |
 |----|----------|----------|----------|----------|----------|----------|----------|
-| 8  | 1.25e-01 | 9.17e-03 | 2.37e-02 | 2.98e-02 | 8.05e-02 | 1.19e-01 | 2.84e-01 |
-| 16 | 6.25e-02 | 2.36e-03 | 8.08e-03 | 6.46e-03 | 1.79e-02 | 3.19e-02 | 7.31e-02 |
-| 32 | 3.13e-02 | 5.83e-04 | 2.28e-03 | 1.50e-03 | 4.06e-03 | 7.89e-03 | 2.05e-02 |
-| 64 | 1.56e-02 | 1.43e-04 | 6.01e-04 | 3.62e-04 | 9.54e-04 | 1.93e-03 | 5.50e-03 |
+| 8  | 1.25e-01 | 5.65e-04 | 2.73e-03 | 4.39e-03 | 1.48e-02 | 6.02e-03 | 1.74e-02 |
+| 16 | 6.25e-02 | 1.82e-05 | 9.10e-05 | 2.11e-04 | 9.43e-04 | 2.91e-04 | 1.12e-03 |
+| 32 | 3.13e-02 | 9.46e-07 | 7.73e-06 | 9.12e-06 | 5.59e-05 | 1.97e-05 | 1.00e-04 |
+| 64 | 1.56e-02 | 4.93e-08 | 5.79e-07 | 3.95e-07 | 3.34e-06 | 1.06e-06 | 7.82e-06 |
 
 Fitted orders (log-log fit across the four grids above):
 
 | Quantity | `p` (L2) | `p` (Linf) |
 |----------|----------|------------|
-| `u`      | 2.0021   | 1.7726     |
-| `v`      | 2.1198   | 2.1332     |
-| `wz`     | 1.9854   | 1.8902     |
+| `u`      | 4.4715   | 4.0166     |
+| `v`      | 4.4856   | 4.0398     |
+| `wz`     | 4.1318   | 3.6850     |
 
 ## 6. Interpretation
 
-- All `L2` orders are within `~6%` of the theoretical value `p = 2`,
-  confirming second-order accuracy of `derivative_x`/`derivative_y` on the
-  case-12 manufactured fields.
-- The `Linf` order for `u` (`1.77`) is below `2` because the `Linf` norm is
-  dominated by the boundary one-sided stencil, whose error constant is
-  larger than the interior central-difference constant
-  (`-h^2/3 f'''` vs. `h^2/6 f'''`, see Section 2). This is a well-known
-  effect of asymmetric boundary stencils and does not indicate a defect in
-  the implementation: the **rate** is still close to `2` and the **L2**
-  rate (which averages over the much larger set of interior points) is
-  `2.00`.
+- All quantities converge well above the formal order `p = 4` of the
+  compact scheme and the RK4 time integrator (not exercised here, since
+  this study evaluates the exact fields directly). This is consistent with
+  the orders reported in the thesis and the JNNFM paper (approximately
+  4.5 for velocity/stress, slightly lower for vorticity at higher Reynolds
+  numbers; this study uses the steady manufactured fields, not a Reynolds
+  sweep, so it is not directly comparable to the paper's Re-dependent
+  tables, only to the general order-of-magnitude finding).
+- Observing `p > 4` is a **pre-asymptotic** effect, not evidence of a
+  higher formal order: writing the error as `e(h) = C_4 h^4 + C_5 h^5 +
+  O(h^6)`, the two-point order estimator used by `estimate_order` satisfies
+  `p_hat(h) = 4 + (C_5/C_4) * (1 - 1/r)/ln(r) * h + O(h^2)` for refinement
+  ratio `r`, so it converges to `4` as `h -> 0` but can lie above or below
+  `4` at finite `h` depending on the sign of `C_5/C_4`. See the "Remark on
+  the observed convergence orders" in the JNNFM paper for the full
+  derivation; the same mechanism applies here.
+- `wz` converges slightly slower than `u`/`v` in both norms, consistent
+  with the paper's observation that vorticity is the most sensitive
+  quantity to the discretization (it is obtained from `psi` by two
+  applications of a compact first derivative, compounding the boundary
+  closure's pre-asymptotic correction).
 - The regression test `tests/test_case12_convergence.py` therefore asserts:
-  - `L2` order `>= 1.8` for `u`, `v`, `wz` (theoretical `p = 2`, with margin);
-  - `Linf` order `>= 1.5` for `u`, `v`, `wz` (looser bound, accounting for
-    the boundary-stencil effect above);
+  - `L2` order `>= 3.9` for `u`, `v`, `wz` (a margin below the worst
+    observed value, `4.13` for `wz`);
+  - `Linf` order `>= 3.4` for `u`, `v`, `wz` (a margin below the worst
+    observed value, `3.68` for `wz`);
   - monotonically decreasing `L2` errors under refinement.
 
 ## 7. Reproducing

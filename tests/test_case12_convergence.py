@@ -1,4 +1,4 @@
-"""Grid-convergence tests for the case 12 finite-difference operators."""
+"""Grid-convergence tests for the case 12 compact finite-difference operators."""
 
 from __future__ import annotations
 
@@ -6,8 +6,12 @@ from mms_viscoelastic.numerics import QUANTITIES, run_convergence_study
 
 GRID_SIZES = [8, 16, 32, 64]
 
-L2_ORDER_MIN = 1.8
-LINF_ORDER_MIN = 1.5
+# Observed orders for this grid range: L2 in [4.13, 4.49], Linf in [3.68, 4.04]
+# (wz lags slightly behind u/v, consistent with the JNNFM paper). Thresholds
+# below keep a margin under the worst observed quantity rather than pinning
+# the exact value, so the test does not become flaky under minor changes.
+L2_ORDER_MIN = 3.9
+LINF_ORDER_MIN = 3.4
 
 
 def test_convergence_report_has_one_level_per_grid() -> None:
@@ -27,14 +31,14 @@ def test_l2_errors_decrease_monotonically() -> None:
         assert all(later < earlier for earlier, later in zip(errors, errors[1:]))
 
 
-def test_l2_order_is_second_order() -> None:
+def test_l2_order_is_fourth_order() -> None:
     report = run_convergence_study(GRID_SIZES)
 
     for quantity in QUANTITIES:
         assert report.l2_orders[quantity] >= L2_ORDER_MIN
 
 
-def test_linf_order_is_close_to_second_order() -> None:
+def test_linf_order_is_close_to_fourth_order() -> None:
     report = run_convergence_study(GRID_SIZES)
 
     for quantity in QUANTITIES:

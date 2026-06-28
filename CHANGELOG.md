@@ -15,6 +15,35 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- Esquema compacto de 4ª ordem (Padé) e filtro de Lele, portados de
+  `derivs.f` (`coef_4a`, `coeff_4a`, `rhsx_4a`, `rhsxx_4a`, `rhsy_4a`,
+  `rhsyy_4a`), `solvers.f` (`tridx`, `tridy`) e `loop.f`
+  (`rhs_tridfx_wz`/`rhs_tridfy_wz`, `lhs_tridfx`/`lhs_tridfy`), substituindo
+  o placeholder de 2ª ordem usado até aqui:
+  - `numerics/derivatives.py`: `solve_tridiagonal` (algoritmo de Thomas),
+    `compact_derivative_x`/`compact_derivative_y`,
+    `compact_second_derivative_x`/`compact_second_derivative_y`;
+  - `numerics/filters.py` (novo): `lele_filter_x`/`lele_filter_y`,
+    `filter_coefficients`, com `alphaf=0.48` padrão de `par.nn`;
+  - verificação simbólica (SymPy) de que o fechamento de contorno da 2ª
+    derivada compacta é de 3ª ordem (uma ordem abaixo do interior de 4ª
+    ordem), enquanto o fechamento da 1ª derivada é de 4ª ordem completo;
+    documentado em `validation/fortran_reference/case_compact_derivatives/README.md`
+    e nos docstrings dos operadores afetados;
+  - dois novos programas Fortran de referência isolados
+    (`validation/fortran_reference/case_compact_derivatives/`,
+    `validation/fortran_reference/case_lele_filter/`) e testes de regressão
+    comparando o port Python contra eles (`max_abs_error < 1e-10`);
+  - `numerics/convergence.py` reapontado para os operadores compactos; o
+    estudo de convergência do Case 12 passa a recuperar ordem ~4.0-4.5
+    (antes ~2.0), consistente com a tese e o artigo JNNFM.
+  - `numerics/poisson.py`, `numerics/time_stepping.py` e
+    `numerics/time_marching.py` continuam usando os operadores de 2ª ordem
+    deliberadamente (documentado nos próprios programas Fortran de
+    referência existentes); portá-los para o esquema compacto exige também
+    reescrever esses programas de referência e o solver de Poisson
+    pentadiagonal (`band5_poi`/`banbk5_poi`), deixado para uma etapa
+    futura.
 - `LICENSE` (MIT) na raiz do repositório, cobrindo a biblioteca Python,
   exemplos, testes e documentação novos; o material Fortran/Mathematica
   original em `src/fortran_original/`, `src/mathematica_original/` e

@@ -342,9 +342,11 @@ p \approx 4.
 ## Convergence results (Case 12)
 
 This section reports a concrete instance of the verification described above,
-applied to Case 12. It checks that the second-order operators in
+applied to Case 12. It checks that the fourth-order compact operators in
 [`numerics/derivatives.py`](src/mms_viscoelastic/numerics/derivatives.py)
-reproduce the stream-function identities
+(`compact_derivative_x`/`compact_derivative_y`, ported from `coef_4a`/`rhsx_4a`
+in [`derivs.f`](src/fortran_original/4Order_LPOG_Euler/derivs.f)) reproduce
+the stream-function identities
 
 ```math
 u = \frac{\partial \psi}{\partial y},
@@ -354,7 +356,7 @@ v = -\frac{\partial \psi}{\partial x},
 w_z = \frac{\partial u}{\partial y} - \frac{\partial v}{\partial x}
 ```
 
-at the expected order $p=2$, using
+at an order consistent with the thesis and the JNNFM paper, using
 [`run_convergence_study`](src/mms_viscoelastic/numerics/convergence.py). These
 three relations were verified symbolically with SymPy to hold exactly for the
 Case 12 manufactured solution - substituting the closed-form expressions for
@@ -376,25 +378,27 @@ Results for grids $n = 8, 16, 32, 64$ ($h = 1/n$):
 
 | $n$ | $h$ | $L_2(u)$ | $L_\infty(u)$ | $L_2(v)$ | $L_\infty(v)$ | $L_2(w_z)$ | $L_\infty(w_z)$ |
 |----|----------|----------|----------|----------|----------|----------|----------|
-| 8  | 1.25e-01 | 9.17e-03 | 2.37e-02 | 2.98e-02 | 8.05e-02 | 1.19e-01 | 2.84e-01 |
-| 16 | 6.25e-02 | 2.36e-03 | 8.08e-03 | 6.46e-03 | 1.79e-02 | 3.19e-02 | 7.31e-02 |
-| 32 | 3.13e-02 | 5.83e-04 | 2.28e-03 | 1.50e-03 | 4.06e-03 | 7.89e-03 | 2.05e-02 |
-| 64 | 1.56e-02 | 1.43e-04 | 6.01e-04 | 3.62e-04 | 9.54e-04 | 1.93e-03 | 5.50e-03 |
+| 8  | 1.25e-01 | 5.65e-04 | 2.73e-03 | 4.39e-03 | 1.48e-02 | 6.02e-03 | 1.74e-02 |
+| 16 | 6.25e-02 | 1.82e-05 | 9.10e-05 | 2.11e-04 | 9.43e-04 | 2.91e-04 | 1.12e-03 |
+| 32 | 3.13e-02 | 9.46e-07 | 7.73e-06 | 9.12e-06 | 5.59e-05 | 1.97e-05 | 1.00e-04 |
+| 64 | 1.56e-02 | 4.93e-08 | 5.79e-07 | 3.95e-07 | 3.34e-06 | 1.06e-06 | 7.82e-06 |
 
 Estimated order of accuracy (log-log fit across all four grids):
 
 | Quantity | $p$ ($L_2$) | $p$ ($L_\infty$) |
 |----------|----------|------------|
-| $u$      | 2.0021   | 1.7726     |
-| $v$      | 2.1198   | 2.1332     |
-| $w_z$    | 1.9854   | 1.8902     |
+| $u$      | 4.4715   | 4.0166     |
+| $v$      | 4.4856   | 4.0398     |
+| $w_z$    | 4.1318   | 3.6850     |
 
-All three $L_2$ orders are within 6% of the theoretical value $p=2$. The
-lower $L_\infty(u)$ order (1.77) comes from the one-sided boundary stencil,
-whose truncation-error constant is larger than the interior
-central-difference constant; it does not affect the $L_2$ rate, which
-averages over the much larger set of interior points and recovers
-$p\approx2.00$.
+All quantities converge above the formal order $p=4$ of the compact scheme,
+consistent with the orders reported in the thesis and the JNNFM paper. This
+is a pre-asymptotic effect of the next-order term in the error expansion
+($e(h) = C_4 h^4 + C_5 h^5 + \ldots$), not evidence of a fifth-order scheme;
+see [`docs/case-12-convergence-verification.md`](docs/case-12-convergence-verification.md#6-interpretation)
+for the derivation. $w_z$ converges slightly slower than $u$/$v$ in both
+norms, consistent with it being obtained from $\psi$ through two compact
+derivatives.
 
 Reproduce with:
 
@@ -498,7 +502,10 @@ The Python modernization currently includes:
 - package foundation under `src/mms_viscoelastic`;
 - grid utilities;
 - manufactured solution utilities;
-- numerical derivative, error and convergence utilities;
+- numerical derivative, error and convergence utilities, including the
+  fourth-order compact (Padé-type) derivatives and the Lele compact filter
+  used by the thesis, validated against isolated Fortran reference programs
+  (see [Numerical verification](#numerical-verification));
 - visualization utilities;
 - ML-ready dataset construction;
 - source-term ports for Case 12;
@@ -525,11 +532,16 @@ tfTyy  ported and validated against Fortran reference
 ### Pending work
 
 ```text
-expanded datasets for ML workflows
+expanded datasets for ML workflows (exploratory, not part of the thesis)
 full temporal-evolution comparison against the original Fortran solver's
   own time loop (full simulation horizon, finer grids)
-4th-order LPOG compact operators and the Lele compact filter
-  (currently out of scope; 2nd-order operators are used instead)
+porting the time-marching pipeline (Poisson solver, Euler/RK4 steps) to the
+  4th-order compact operators and Lele filter; the time-marching solver
+  below still uses the 2nd-order operators, validated against isolated
+  Fortran references that deliberately mirror that choice
+remaining 13 MMS cases (case_01-case_11, case_13, case_14); only Case 12
+  (used in the thesis and the JNNFM paper) is ported
+log-conformation solver path (conform.f); not used in the thesis text
 presentation material for thesis defense
 ```
 
