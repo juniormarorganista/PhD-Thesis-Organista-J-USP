@@ -15,6 +15,22 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 02 portado de `case_02.f` (segundo dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_02.py`
+  (`evaluate_case_02_exact`, `Case02Parameters`) e `source_terms/case_02.py`
+  (`evaluate_case_02_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case02SourceTermParameters`). `u`,`v`,`wz`,`psi` são idênticos ao Case
+  01; o campo de tensões é polinomial quadrático em x,y, reaproveitando
+  `Case12Coefficients`. Simplificação algébrica do termo de relaxação
+  (`Axx*Bxx+Ayy*Byy`) verificada com SymPy. Os quatro termos fonte da
+  referência Fortran foram gerados por um script de tradução mecânica
+  (preserva parênteses do Fortran original caractere a caractere), que
+  pegou um parêntese extra introduzido na primeira transcrição manual de
+  `tfTxy`; a contrapartida Python tinha um `Wi*` faltando em `tfTyy`,
+  também corrigido. Validado contra novo programa Fortran de referência
+  isolado (`validation/fortran_reference/case02_fields/`) nas 11
+  quantidades exportadas, a precisão de máquina. Documentado em
+  `docs/case-02-port.md`.
 - MMS Case 01 portado de `case_01.f` (primeiro dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_01.py`
   (`evaluate_case_01_exact`, `Case01Parameters`) e `source_terms/case_01.py`
