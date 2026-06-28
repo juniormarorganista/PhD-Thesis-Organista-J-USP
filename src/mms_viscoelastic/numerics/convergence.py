@@ -1,10 +1,15 @@
 """Grid-convergence verification for MMS case 12.
 
-This module verifies that the second-order finite-difference operators in
-:mod:`mms_viscoelastic.numerics.derivatives` reproduce the differential
+This module verifies that the fourth-order compact finite-difference
+operators in :mod:`mms_viscoelastic.numerics.derivatives`
+(``compact_derivative_x``/``compact_derivative_y``, ported from
+``derivs.f``'s ``coef_4a``/``rhsx_4a`` family) reproduce the differential
 relations satisfied by the exact manufactured fields of case 12
-(:mod:`mms_viscoelastic.manufactured_solutions.case_12`) at the expected
-order ``p = 2``.
+(:mod:`mms_viscoelastic.manufactured_solutions.case_12``) at an order
+consistent with the thesis and the JNNFM paper (observed order
+approaching, and in places exceeding, 4 for the mesh range considered; see
+the pre-asymptotic discussion in the paper for why the two-point order
+estimator can lie above or below 4 at finite mesh spacing).
 
 The stream-function formulation used by the manufactured solution defines
 
@@ -14,12 +19,19 @@ The stream-function formulation used by the manufactured solution defines
     v = -\\frac{\\partial \\psi}{\\partial x}, \\qquad
     \\omega_z = \\frac{\\partial u}{\\partial y} - \\frac{\\partial v}{\\partial x}.
 
-Each relation is evaluated with the discrete operators ``derivative_x`` and
-``derivative_y`` applied to the exact fields, and the result is compared to
-the corresponding exact field using the discrete :math:`L_2` and
+Each relation is evaluated with the discrete operators ``compact_derivative_x``
+and ``compact_derivative_y`` applied to the exact fields, and the result is
+compared to the corresponding exact field using the discrete :math:`L_2` and
 :math:`L_\\infty` norms from :mod:`mms_viscoelastic.numerics.errors`. The
 observed order of accuracy ``p`` is estimated from a log-log fit of the
 error against the mesh size ``h`` across the requested grids.
+
+This module does not exercise the time-marching pipeline
+(:mod:`mms_viscoelastic.numerics.time_stepping`,
+:mod:`mms_viscoelastic.numerics.time_marching`) or the Poisson solver
+(:mod:`mms_viscoelastic.numerics.poisson`), which still use second-order
+operators pending a separate port of the pentadiagonal Poisson discretization
+and of the compact derivatives/filter into the time-marching steps.
 """
 
 from __future__ import annotations
@@ -34,7 +46,7 @@ from mms_viscoelastic.manufactured_solutions.case_12 import (
     Case12Parameters,
     evaluate_case_12_exact,
 )
-from mms_viscoelastic.numerics.derivatives import derivative_x, derivative_y
+from mms_viscoelastic.numerics.derivatives import compact_derivative_x, compact_derivative_y
 from mms_viscoelastic.numerics.errors import estimate_order, l2_error, linf_error
 
 FloatArray = NDArray[np.float64]
@@ -109,9 +121,9 @@ def _stream_function_derived_fields(
     psi: FloatArray, u: FloatArray, v: FloatArray, dx: float, dy: float
 ) -> dict[str, FloatArray]:
     """Return numerical ``u``, ``v`` and ``wz`` derived from ``psi``/``u``/``v``."""
-    u_num = derivative_y(psi, dy)
-    v_num = -derivative_x(psi, dx)
-    wz_num = derivative_y(u, dy) - derivative_x(v, dx)
+    u_num = compact_derivative_y(psi, dy)
+    v_num = -compact_derivative_x(psi, dx)
+    wz_num = compact_derivative_y(u, dy) - compact_derivative_x(v, dx)
     return {"u": u_num, "v": v_num, "wz": wz_num}
 
 
