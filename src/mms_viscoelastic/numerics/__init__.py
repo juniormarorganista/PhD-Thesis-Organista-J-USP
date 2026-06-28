@@ -7,13 +7,19 @@ from .convergence import (
     run_convergence_study,
 )
 from .derivatives import (
+    compact_derivative_x,
+    compact_derivative_y,
+    compact_second_derivative_x,
+    compact_second_derivative_y,
     derivative_x,
     derivative_y,
     laplacian,
     second_derivative_x,
     second_derivative_y,
+    solve_tridiagonal,
 )
 from .errors import estimate_order, l2_error, linf_error, relative_l2_error
+from .filters import DEFAULT_ALPHA_F, filter_coefficients, lele_filter_x, lele_filter_y
 from .poisson import (
     PoissonConvergenceLevel,
     PoissonConvergenceReport,
@@ -30,6 +36,7 @@ from .time_stepping import (
 )
 
 __all__ = [
+    "DEFAULT_ALPHA_F",
     "QUANTITIES",
     "ConvergenceLevel",
     "ConvergenceReport",
@@ -39,13 +46,20 @@ __all__ = [
     "TimeMarchingState",
     "case12_multistep_march",
     "case12_time_step",
+    "compact_derivative_x",
+    "compact_derivative_y",
+    "compact_second_derivative_x",
+    "compact_second_derivative_y",
     "derivative_x",
     "derivative_y",
     "estimate_order",
     "euler_step_stress",
     "euler_step_wz",
+    "filter_coefficients",
     "l2_error",
     "laplacian",
+    "lele_filter_x",
+    "lele_filter_y",
     "linf_error",
     "relative_l2_error",
     "run_case12_poisson_convergence_study",
@@ -53,6 +67,7 @@ __all__ = [
     "second_derivative_x",
     "second_derivative_y",
     "solve_poisson_dirichlet",
+    "solve_tridiagonal",
     "stress_time_derivatives",
     "wz_time_derivative",
 ]
