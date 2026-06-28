@@ -15,6 +15,19 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 01 portado de `case_01.f` (primeiro dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_01.py`
+  (`evaluate_case_01_exact`, `Case01Parameters`) e `source_terms/case_01.py`
+  (`evaluate_case_01_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case01SourceTermParameters`). Diferente do Case 12, o campo de tensões
+  manufaturado do Case 01 é espacialmente uniforme (`c1=1`, `c2=2`, `c3=3`
+  de `par.nn`, escalados por `(1-beta)`); só `u`,`v`,`wz`,`psi` variam com a
+  posição. Identidades de função de corrente (`u=dpsi/dy`, `v=-dpsi/dx`,
+  `wz=du/dy-dv/dx`) verificadas simbolicamente com SymPy. Validado contra
+  novo programa Fortran de referência isolado
+  (`validation/fortran_reference/case01_fields/`) nas 11 quantidades
+  exportadas (campos + termos fonte), a `max_abs_error < 1e-10` (precisão
+  de máquina observada). Documentado em `docs/case-01-port.md`.
 - Esquema compacto de 4ª ordem (Padé) e filtro de Lele, portados de
   `derivs.f` (`coef_4a`, `coeff_4a`, `rhsx_4a`, `rhsxx_4a`, `rhsy_4a`,
   `rhsyy_4a`), `solvers.f` (`tridx`, `tridy`) e `loop.f`

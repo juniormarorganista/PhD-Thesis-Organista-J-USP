@@ -1,5 +1,15 @@
 """Manufactured source-term interfaces."""
 
+from mms_viscoelastic.source_terms.case_01 import (
+    CASE01_FORTRAN_ARRAYS,
+    Case01SourceTermParameters,
+    Case01SourceTerms,
+    evaluate_case_01_source_terms,
+    evaluate_case_01_tftxx,
+    evaluate_case_01_tftxy,
+    evaluate_case_01_tftyy,
+    evaluate_case_01_tfwz,
+)
 from mms_viscoelastic.source_terms.case_12 import (
     CASE12_FORTRAN_ARRAYS,
     CASE12_PENDING_ARRAYS,
@@ -18,13 +28,21 @@ from mms_viscoelastic.source_terms.case_12 import (
 )
 
 __all__ = [
+    "CASE01_FORTRAN_ARRAYS",
     "CASE12_FORTRAN_ARRAYS",
     "CASE12_PENDING_ARRAYS",
     "CASE12_PORTED_ARRAYS",
+    "Case01SourceTermParameters",
+    "Case01SourceTerms",
     "Case12SourceTermParameters",
     "Case12SourceTerms",
     "available_case12_source_terms",
     "case12_source_term_status",
+    "evaluate_case_01_source_terms",
+    "evaluate_case_01_tftxx",
+    "evaluate_case_01_tftxy",
+    "evaluate_case_01_tftyy",
+    "evaluate_case_01_tfwz",
     "evaluate_case_12_source_terms",
     "evaluate_case_12_tfTxx",
     "evaluate_case_12_tfTxy",
