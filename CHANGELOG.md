@@ -15,6 +15,25 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 04 portado de `case_04.f` (quarto dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_04.py`
+  (`evaluate_case_04_exact`, `Case04Parameters`) e `source_terms/case_04.py`
+  (`evaluate_case_04_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case04SourceTermParameters`). `u`,`v`,`wz`,`psi` seguem um ansatz tipo
+  Taylor-Green (trigonométrico, sem fator polinomial); o campo de tensões
+  é uniforme no espaço, idêntico ao do Case 01. Por serem termos fonte
+  bem mais compactos que os Casos 02/03, foram transcritos manualmente em
+  vez de copiados literalmente do script mecânico — e isso reintroduziu
+  exatamente o tipo de erro que a cópia literal evita: um erro de sinal
+  (`(1 - betann)` em vez de `(-1 + betann)`, sinais opostos) nos três
+  termos de tensão. A validação cruzada contra a referência Fortran
+  isolada pegou o erro de imediato (erro absoluto constante ~100-200 em
+  todo ponto da malha, independente de x/y — assinatura de erro de sinal
+  em termo que não depende de posição); corrigido restaurando
+  `(-1.0 + betann)`. Documentado em `docs/case-04-port.md`. Validado
+  contra novo programa Fortran de referência isolado
+  (`validation/fortran_reference/case04_fields/`) nas 11 quantidades
+  exportadas, a precisão de máquina.
 - MMS Case 03 portado de `case_03.f` (terceiro dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_03.py`
   (`evaluate_case_03_exact`, `Case03Parameters`) e `source_terms/case_03.py`
