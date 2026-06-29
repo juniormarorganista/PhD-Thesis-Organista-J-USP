@@ -15,6 +15,24 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 08 portado de `case_08.f` (oitavo dos 13 casos restantes,
+  Etapa 14, um dos dois maiores e mais densos — 678 linhas):
+  `manufactured_solutions/case_08.py` (`evaluate_case_08_exact`,
+  `Case08Parameters`) e `source_terms/case_08.py`
+  (`evaluate_case_08_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case08SourceTermParameters`). `u`,`v`,`wz`,`psi` decaem no tempo via
+  `tanh(4-8*at*t)` como no Case 07, mas com estrutura espacial puramente
+  polinomial; tensões polinomiais quadráticas, igual ao Case 02. O
+  jacobiano convectivo não-linear da solução manufaturada aparece
+  explícito nos termos fonte (em vez de se anular), tornando `tfTxy` a
+  expressão mais densa portada até agora (212 pares de parênteses).
+  Nenhuma parte foi retranscrita manualmente — módulo Python montado
+  por script a partir dos termos mecânicos, depois normalizado via
+  `ruff format` (só formatação, nunca semântica). Bateu precisão de
+  máquina contra a referência Fortran isolada
+  (`validation/fortran_reference/case08_fields/`) de primeira, nas 11
+  quantidades exportadas, em duas malhas (5x5, 9x9). Documentado em
+  `docs/case-08-port.md`.
 - MMS Case 07 portado de `case_07.f` (sétimo dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_07.py`
   (`evaluate_case_07_exact`, `Case07Parameters`) e `source_terms/case_07.py`

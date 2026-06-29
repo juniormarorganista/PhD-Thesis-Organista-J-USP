@@ -7,6 +7,7 @@ from .case_04 import Case04Parameters, case_04_feature_names, evaluate_case_04_e
 from .case_05 import Case05Parameters, case_05_feature_names, evaluate_case_05_exact
 from .case_06 import Case06Parameters, case_06_feature_names, evaluate_case_06_exact
 from .case_07 import Case07Parameters, case_07_feature_names, evaluate_case_07_exact
+from .case_08 import Case08Parameters, case_08_feature_names, evaluate_case_08_exact
 from .case_12 import (
     Case12Coefficients,
     Case12Parameters,
@@ -23,6 +24,7 @@ __all__ = [
     "Case05Parameters",
     "Case06Parameters",
     "Case07Parameters",
+    "Case08Parameters",
     "Case12Coefficients",
     "Case12Parameters",
     "case_01_feature_names",
@@ -32,6 +34,7 @@ __all__ = [
     "case_05_feature_names",
     "case_06_feature_names",
     "case_07_feature_names",
+    "case_08_feature_names",
     "case_12_feature_names",
     "evaluate_case_01_exact",
     "evaluate_case_02_exact",
@@ -40,6 +43,7 @@ __all__ = [
     "evaluate_case_05_exact",
     "evaluate_case_06_exact",
     "evaluate_case_07_exact",
+    "evaluate_case_08_exact",
     "evaluate_case_12_exact",
     "evaluate_toy_solution",
 ]
