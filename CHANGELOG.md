@@ -15,6 +15,19 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 06 portado de `case_06.f` (sexto dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_06.py`
+  (`evaluate_case_06_exact`, `Case06Parameters`) e `source_terms/case_06.py`
+  (`evaluate_case_06_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case06SourceTermParameters`). `u`,`v`,`wz`,`psi` seguem o ansatz
+  Taylor-Green dos Casos 04/05; o campo de tensões usa o ansatz
+  trigonométrico do Case 03/Case 12 — primeira combinação
+  Taylor-Green+trigonométrico entre os casos portados até agora. Todo
+  termo (mesmo o `tfwz` compacto) foi colado literalmente do script
+  mecânico Fortran→Python. Bateu precisão de máquina contra a referência
+  Fortran isolada (`validation/fortran_reference/case06_fields/`) de
+  primeira, nas 11 quantidades exportadas, em duas malhas (5x5, 9x9).
+  Documentado em `docs/case-06-port.md`.
 - MMS Case 05 portado de `case_05.f` (quinto dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_05.py`
   (`evaluate_case_05_exact`, `Case05Parameters`) e `source_terms/case_05.py`
