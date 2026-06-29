@@ -14,6 +14,31 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 
 ## [Unreleased]
 
+### Adicionado
+- Etapa 17 (marcha temporal de 4ª ordem real): achado de que
+  `band5_poi`/`banbk5_poi` (`solvers.f`) é código morto — nunca chamado em
+  nenhum lugar do Fortran original; o solver de Poisson real é `poi_psi4a`
+  (multigrid V-cycle FAS sobre stencil compacto de 9 pontos tipo
+  Mehrstellen). Portado em `numerics/poisson_multigrid.py`
+  (`solve_poisson_multigrid_4th_order`), validado bit-a-bit contra
+  referência Fortran isolada (`validation/fortran_reference/case12_poisson_multigrid/`)
+  e à ordem 4 de convergência. `numerics/time_stepping.py`,
+  `numerics/time_stepping_log.py` e `numerics/time_marching.py`
+  reapontados para as derivadas compactas de 4ª ordem (Etapa 13) + filtro
+  de Lele (aplicado uma vez por passo, entre a imposição de contorno e o
+  resolve de Poisson, replicando `subroutine loop` do `main.f`) + o
+  multigrid real, substituindo o placeholder de 2ª ordem usado desde as
+  Etapas 8-11. As cinco referências Fortran isoladas associadas
+  (`case12_euler_step`, `case12_log_euler_step`, `case12_time_step`,
+  `case12_multistep`, `case12_full_march`) foram reescritas e os CSVs
+  regenerados; toda comparação continua batendo a precisão de máquina
+  (`<1e-12`). Achado adicional: a instabilidade documentada em
+  `docs/case-12-full-march-reference.md` (Etapa 12, divergência do Euler
+  explícito em malha 9x9) persiste mesmo com o esquema real e dissipativo
+  (filtro de Lele), só que mais cedo — refutando a hipótese original de que
+  o esquema dissipativo não compartilharia essa instabilidade. Documentado
+  em `docs/case-12-4th-order-time-marching.md`.
+
 ## [0.3.0] - 2026-06-29
 
 Consolida as Etapas 13-16: esquema compacto de 4ª ordem + filtro de Lele,

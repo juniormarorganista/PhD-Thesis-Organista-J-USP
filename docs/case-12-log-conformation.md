@@ -144,11 +144,17 @@ inputs differ, being recovered from `Psi` rather than tracked directly).
 
 ## 3. Discretization and scope
 
-As in Etapa 9, the second-order operators from
-[`numerics/derivatives.py`](../src/mms_viscoelastic/numerics/derivatives.py)
-are used, **not** the 4th-order LPOG compact operators nor the Lele compact
-filter. Porting those for this path is deferred, mirroring the Etapa 9/17
-scope decision for the non-log formulation.
+**(Updated, Etapa 17.)** `time_stepping_log.py` now uses the 4th-order LPOG
+compact operators from
+[`numerics/derivatives.py`](../src/mms_viscoelastic/numerics/derivatives.py),
+matching the Fortran `drv_Psi`'s `derx`/`dery` calls, same as the non-log
+formulation (see
+[`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md)).
+The isolated Fortran reference (`case12_log_euler_step`) was rewritten to
+match and still agrees at machine precision. The Lele compact filter is
+still not applied to this path -- only the non-log
+`numerics/time_marching.py` pipeline applies the filter (there is no
+log-conformation multi-step time-marching module, see Section 8 below).
 
 Only the **explicit-Euler variant** (`ty_sim == 22`, `solver_log_euler`) is
 ported (`euler_step_log_conformation`). The RK4 variant (`ty_sim == 2`,
@@ -203,11 +209,12 @@ grid, `t = 0.3`) between Python and the Fortran reference:
 
 ```text
   wz: max_abs_error=4.440892e-16 max_rel_error=2.220446e-16 passed=True
- txx: max_abs_error=1.776357e-15 max_rel_error=1.008560e-15 passed=True
- txy: max_abs_error=2.664535e-15 max_rel_error=9.996688e-16 passed=True
- tyy: max_abs_error=3.108624e-15 max_rel_error=1.348073e-15 passed=True
+ txx: max_abs_error=3.996803e-15 max_rel_error=1.656011e-15 passed=True
+ txy: max_abs_error=3.108624e-15 max_rel_error=1.288345e-15 passed=True
+ tyy: max_abs_error=3.996803e-15 max_rel_error=1.435253e-15 passed=True
 ```
 
+(Updated for the Etapa 17 4th-order rewrite; unchanged at this precision.)
 All four components agree to within machine precision, as expected since
 both implementations apply the same eigendecomposition, kernel and
 Euler-update formulas to identical input fields — the closed-form

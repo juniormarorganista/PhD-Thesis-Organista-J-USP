@@ -16,6 +16,16 @@ with the Poisson solver from Etapa 8
 time step: Euler update, boundary-condition re-imposition at `t+dt`, Poisson
 re-solve for `psi`, and recomputation of `u`/`v` from the updated `psi`.
 
+> **Etapa 17 update.** Section 3 below described a 2nd-order discretization
+> and a direct sparse Poisson solve as a deliberate scope reduction. As of
+> Etapa 17, `case12_time_step` uses the real pipeline: 4th-order LPOG
+> compact derivatives, the Lele compact filter applied between the
+> boundary re-imposition and the Poisson re-solve, and the FAS multigrid
+> V-cycle Poisson solver. The Fortran reference program and its CSV were
+> rewritten/regenerated to match. See
+> [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md)
+> for the full story. Sections 1-2 and 4-7 below are otherwise unchanged.
+
 ## 1. Sequence ported
 
 `case12_time_step` is a verbatim-in-spirit port of the sequence that follows

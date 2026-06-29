@@ -550,14 +550,14 @@ Cases 01-11, 13, 14: ported (validated against isolated Fortran reference
 ```text
 expanded datasets for ML workflows (exploratory, not part of the thesis)
 full temporal-evolution comparison against the original Fortran solver's
-  own time loop (full simulation horizon, finer grids)
-porting the time-marching pipeline (Poisson solver, Euler/RK4 steps) to the
-  4th-order compact operators and Lele filter (Etapa 17); the time-marching
-  solver below still uses the 2nd-order operators, validated against
-  isolated Fortran references that deliberately mirror that choice
-log-conformation RK4 variant (solver_log_rk4) and a full multi-step
-  log-conformation time-marching wrapper; only the single explicit-Euler
-  step is ported (see docs/case-12-log-conformation.md)
+  own time loop (full simulation horizon, finer grids) -- partially
+  explored in Etapa 17 (docs/case-12-4th-order-time-marching.md): the
+  explicit-Euler instability documented in docs/case-12-full-march-reference.md
+  persists with the real 4th-order + Lele-filter + multigrid-Poisson scheme
+  too, just at a different point in time, not eliminated by it
+RK4 time integration (solver_rk4, solver_log_rk4) and a full multi-step
+  log-conformation time-marching wrapper; only the Euler variants are
+  ported (see docs/case-12-log-conformation.md)
 presentation material for thesis defense
 ```
 
@@ -612,25 +612,41 @@ terms.tfTyy
 
 ## Time-marching solver (Case 12)
 
-`src/mms_viscoelastic/numerics/` ports, with 2nd-order finite-difference
-operators, the building blocks of the Case 12 time-marching loop from
-`src/fortran_original/4Order_LPOG_Euler/`. Each step is validated against an
-isolated Fortran reference program written for this project (it does not
-modify the original thesis Fortran sources).
+`src/mms_viscoelastic/numerics/` ports the building blocks of the Case 12
+time-marching loop from `src/fortran_original/4Order_LPOG_Euler/`, using the
+**real scheme** the original Fortran uses: the 4th-order LPOG compact
+derivative operators, the Lele compact filter (applied once per step,
+between the boundary re-imposition and the Poisson re-solve, matching
+`subroutine loop` in `main.f`), and a 4th-order compact multigrid V-cycle
+Poisson solver (`poi_psi4a`) -- not the pentadiagonal `band5_poi`/
+`banbk5_poi`, which turned out to be dead code, never called anywhere in
+the original Fortran source. Each step is validated against an isolated
+Fortran reference program written for this project (it does not modify the
+original thesis Fortran sources).
 
 | Step | Module | Documentation |
 |---|---|---|
-| Direct Poisson solve for `psi` (`laplacian(psi) = wz`, Dirichlet BCs) | [`numerics/poisson.py`](src/mms_viscoelastic/numerics/poisson.py) | [`docs/case-12-poisson-solver.md`](docs/case-12-poisson-solver.md) |
-| Explicit Euler step for `wz`, `Txx`, `Txy`, `Tyy` | [`numerics/time_stepping.py`](src/mms_viscoelastic/numerics/time_stepping.py) | [`docs/case-12-euler-step-comparison.md`](docs/case-12-euler-step-comparison.md) |
-| Full step: Euler update + boundary conditions at `t+dt` + Poisson re-solve + `u`,`v` recomputation | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_time_step`) | [`docs/case-12-time-marching-comparison.md`](docs/case-12-time-marching-comparison.md) |
+| 4th-order compact multigrid Poisson solve for `psi` (`laplacian(psi) = wz`, Dirichlet BCs) | [`numerics/poisson_multigrid.py`](src/mms_viscoelastic/numerics/poisson_multigrid.py) | [`docs/case-12-4th-order-time-marching.md`](docs/case-12-4th-order-time-marching.md) |
+| Explicit Euler step for `wz`, `Txx`, `Txy`, `Tyy` (compact derivatives) | [`numerics/time_stepping.py`](src/mms_viscoelastic/numerics/time_stepping.py) | [`docs/case-12-euler-step-comparison.md`](docs/case-12-euler-step-comparison.md) |
+| Full step: Euler update + boundary conditions at `t+dt` + Lele filter + Poisson re-solve + `u`,`v` recomputation | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_time_step`) | [`docs/case-12-time-marching-comparison.md`](docs/case-12-time-marching-comparison.md) |
 | Multi-step march (`n_steps` chained full steps) | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_multistep_march`) | [`docs/case-12-multistep-marching-comparison.md`](docs/case-12-multistep-marching-comparison.md) |
 
-All four steps agree with their Fortran references to within machine
-precision (`~1e-15`). The 4th-order LPOG compact derivative operators, the
-one-sided `wz`-boundary stencil and the Lele compact filter remain out of
-scope, as documented in each step's comparison report. A full
-temporal-evolution comparison against the original Fortran solver's own time
-loop, over the complete simulation horizon and on finer grids, is future work.
+All steps agree with their Fortran references to within machine precision
+(`~1e-15`, exact bit-for-bit for the Poisson solver alone). A separate
+2nd-order direct Poisson solve
+([`numerics/poisson.py`](src/mms_viscoelastic/numerics/poisson.py),
+[`docs/case-12-poisson-solver.md`](docs/case-12-poisson-solver.md)) remains
+as an independent, still-validated utility, no longer used by this
+pipeline. The one-sided `wz`-boundary stencil
+(`boundarie_vorticity_cavity_flow.f`) remains out of scope (a documented
+deviation, see `docs/case-12-time-marching-comparison.md`). A full
+temporal-evolution comparison against the original Fortran solver's own
+time loop was explored in Etapa 17
+([`docs/case-12-4th-order-time-marching.md`](docs/case-12-4th-order-time-marching.md)):
+the explicit-Euler instability at `dt=1e-5` documented in
+[`docs/case-12-full-march-reference.md`](docs/case-12-full-march-reference.md)
+persists with the real, dissipative scheme too, just at a different point
+in time.
 
 The **log-conformation reformulation** (`conform.f`) of the same Case 12
 problem has its own explicit-Euler step, also validated to machine precision

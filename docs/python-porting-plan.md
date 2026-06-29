@@ -130,14 +130,24 @@ Etapa 11). The data could in principle feed supervised regression, error
 models, surrogates, neural operators or regime classifiers, but doing so is
 not part of this project's deliverables.
 
-### Phase 6 - 4th-order time-marching upgrade (pending, Etapa 17)
+### Phase 6 - 4th-order time-marching upgrade (done, Etapa 17)
 
-The time-marching pipeline (Poisson solver, Euler/RK4 steps) still uses the
-2nd-order operators from Phase 4's predecessor, validated against isolated
-Fortran references that deliberately mirror that choice. Reapointing it to
-the 4th-order compact operators and the pentadiagonal Poisson solve
-(`band5_poi`/`banbk5_poi`) requires rewriting the existing reference
-programs and regenerating their CSVs; not yet scheduled in detail.
+The Euler-step time-marching pipeline now uses the same scheme as the
+original Fortran: the 4th-order LPOG compact derivatives (Etapa 13), the
+Lele compact filter applied once per step, and a newly-ported 4th-order
+compact multigrid V-cycle Poisson solver (`poi_psi4a`,
+`numerics/poisson_multigrid.py`) -- not the pentadiagonal
+`band5_poi`/`banbk5_poi`, which a repository-wide grep showed is never
+called anywhere in the original Fortran source (dead code). All five
+isolated Fortran reference programs (`case12_euler_step`,
+`case12_log_euler_step`, `case12_time_step`, `case12_multistep`,
+`case12_full_march`) were rewritten to match and their CSVs regenerated;
+every comparison still agrees at machine precision (`<1e-12`, mostly
+`~1e-16`). See `docs/case-12-4th-order-time-marching.md` for the full
+account, including the finding that `case12_full_march`'s long-horizon
+divergence (Etapa 12) persists with the real, dissipative scheme too -- just
+at a different point in time, not eliminated by it. The RK4 branches
+(`solver_rk4`, `solver_log_rk4`) remain unported.
 
 ## Quality rule
 

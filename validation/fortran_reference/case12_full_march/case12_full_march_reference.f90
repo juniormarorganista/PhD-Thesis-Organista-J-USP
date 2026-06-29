@@ -12,10 +12,17 @@ program case12_full_march_reference
   !!   call source_term(time + dt)
   !!   call boundaries_condictions(time + dt)
   !!   call loop(2)
-  !! from subroutine solver_euler, using the same second-order
-  !! finite-difference operators as mms_viscoelastic.numerics (NOT the
-  !! 4th-order LPOG compact operators nor the Lele compact filter, which are
-  !! out of scope, as in Etapas 8-11).
+  !! from subroutine solver_euler, where subroutine loop(num) (main.f) is,
+  !! in order: call filter_trid_x, call filter_trid_y, call poi_psi4a, call
+  !! calc_ux, call calc_uy. As of Etapa 17, each iteration uses the real
+  !! pipeline: the 4th-order LPOG compact derivative operators, the Lele
+  !! compact filter (apply_lele_filter), and the FAS multigrid V-cycle
+  !! Poisson solver (poi_psi4a and dependents) -- not the 2nd-order
+  !! placeholder and the dense direct Poisson solve used before Etapa 17
+  !! (see Section 1 of docs/case-12-full-march-reference.md: that
+  !! discretization, without the Lele filter's dissipation, diverged on a
+  !! 9x9 grid at step ~455064; this is the real, dissipative discretization
+  !! "not expected to share this instability").
   !!
   !! wz boundary condition: as in case12_time_step_reference.f90, the wz
   !! boundary is re-imposed from the exact manufactured solution at t+dt
@@ -66,10 +73,16 @@ program case12_full_march_reference
   implicit none
 
   integer, parameter :: dp = real64
-  integer :: nx, ny, i, j, ix, jy, nix, niy, n, k
+  real(dp), parameter :: alphaf = 0.48_dp
+  real(dp), parameter :: af = (11.0_dp + 10.0_dp * alphaf) / 16.0_dp
+  real(dp), parameter :: bf = (15.0_dp + 34.0_dp * alphaf) / 64.0_dp
+  real(dp), parameter :: cf = (-3.0_dp + 6.0_dp * alphaf) / 32.0_dp
+  real(dp), parameter :: df = (1.0_dp - 2.0_dp * alphaf) / 64.0_dp
+  integer, parameter :: msh = 4
+  integer :: nx, ny, i, j
   integer(int64) :: t_step, max_steps, hist_start_step, hist_stride
   integer(int64) :: clock_start, clock_end, clock_rate
-  real(dp) :: dx, dy, dt, dx2, dy2, t_next, bterm, timef
+  real(dp) :: dx, dy, dt, dx2, dy2, t_next, timef
   real(dp) :: time, errowz, erroTxx, erroTxy, erroTyy, emv
   real(dp) :: Re, Wi, beta, epsilon_, xi, alphaG, one_minus_beta
   logical :: converged, diverged
@@ -92,7 +105,7 @@ program case12_full_march_reference
   real(dp), allocatable :: u_ex(:,:), v_ex(:,:), wz_ex(:,:), psi_ex(:,:)
   real(dp), allocatable :: txx_ex(:,:), txy_ex(:,:), tyy_ex(:,:)
   real(dp), allocatable :: psi_new(:,:), u_full(:,:), v_full(:,:), u_new(:,:), v_new(:,:)
-  real(dp), allocatable :: amat(:,:), bvec(:), xvec(:)
+  real(dp), allocatable :: fc(:,:,:), sc(:,:,:), fct(:,:,:)
 
   ! Defaults match EulerStepParameters() in
   ! mms_viscoelastic.numerics.time_stepping (and the Case12*Parameters
@@ -199,11 +212,7 @@ program case12_full_march_reference
   allocate(dvTxx(nx,ny), dvTxy(nx,ny), dvTyy(nx,ny))
   allocate(wz_new(nx,ny), txx_new(nx,ny), txy_new(nx,ny), tyy_new(nx,ny))
   allocate(psi_new(nx,ny), u_full(nx,ny), v_full(nx,ny), u_new(nx,ny), v_new(nx,ny))
-
-  nix = nx - 2
-  niy = ny - 2
-  n = nix * niy
-  allocate(amat(n,n), bvec(n), xvec(n))
+  allocate(fc(msh,nx,ny), sc(msh,nx,ny), fct(msh,nx,ny))
 
   if (len_trim(histfile) > 0) then
     open(unit=30, file=trim(histfile), status="replace", action="write")
@@ -292,53 +301,16 @@ program case12_full_march_reference
     call apply_boundary(txy_new, txy_ex, nx, ny)
     call apply_boundary(tyy_new, tyy_ex, nx, ny)
 
-    ! --- re-solve laplacian(psi) = wz_new for the interior of psi ---
-    amat = 0.0_dp
-    do jy = 1, niy
-      do ix = 1, nix
-        k = (jy - 1) * nix + ix
-        i = ix + 1
-        j = jy + 1
-        amat(k,k) = -2.0_dp / dx2 - 2.0_dp / dy2
-        bterm = 0.0_dp
+    ! --- apply the Lele compact filter (x-pass then y-pass), interior only ---
+    call apply_lele_filter(wz_new, nx, ny)
+    call apply_lele_filter(txx_new, nx, ny)
+    call apply_lele_filter(txy_new, nx, ny)
+    call apply_lele_filter(tyy_new, nx, ny)
 
-        if (ix > 1) then
-          amat(k, k-1) = amat(k, k-1) + 1.0_dp / dx2
-        else
-          bterm = bterm + psi_ex(1, j) / dx2
-        end if
-
-        if (ix < nix) then
-          amat(k, k+1) = amat(k, k+1) + 1.0_dp / dx2
-        else
-          bterm = bterm + psi_ex(nx, j) / dx2
-        end if
-
-        if (jy > 1) then
-          amat(k, k-nix) = amat(k, k-nix) + 1.0_dp / dy2
-        else
-          bterm = bterm + psi_ex(i, 1) / dy2
-        end if
-
-        if (jy < niy) then
-          amat(k, k+nix) = amat(k, k+nix) + 1.0_dp / dy2
-        else
-          bterm = bterm + psi_ex(i, ny) / dy2
-        end if
-
-        bvec(k) = wz_new(i,j) - bterm
-      end do
-    end do
-
-    call solve_linear_system(amat, bvec, xvec, n)
-
+    ! --- re-solve laplacian(psi) = wz_new for the interior of psi (4th-order
+    !     compact multigrid V-cycle, poi_psi4a) ---
     psi_new = psi_ex
-    do jy = 1, niy
-      do ix = 1, nix
-        k = (jy - 1) * nix + ix
-        psi_new(ix+1, jy+1) = xvec(k)
-      end do
-    end do
+    call poi_psi4a(nx, ny, msh, dx2, dy2, wz_new, psi_new, fc, sc, fct)
 
     ! --- recompute u = d(psi)/dy, v = -d(psi)/dx from the updated psi ---
     call derivative_y(psi_new, dy, nx, ny, u_full)
@@ -414,73 +386,206 @@ program case12_full_march_reference
 
 contains
 
+  ! 4th-order LPOG compact (Pade-type) operators (Etapa 17), replacing the
+  ! 2nd-order placeholder used before. Same name and signature as before, so
+  ! every call site above is unchanged.
   subroutine derivative_x(f, dxval, n1, n2, out)
     integer, intent(in) :: n1, n2
     real(dp), intent(in) :: f(n1,n2), dxval
     real(dp), intent(out) :: out(n1,n2)
-    integer :: ii, jj
-    do jj = 1, n2
-      do ii = 2, n1 - 1
-        out(ii,jj) = (f(ii+1,jj) - f(ii-1,jj)) / (2.0_dp*dxval)
-      end do
-      out(1,jj) = (-3.0_dp*f(1,jj) + 4.0_dp*f(2,jj) - f(3,jj)) / (2.0_dp*dxval)
-      out(n1,jj) = (3.0_dp*f(n1,jj) - 4.0_dp*f(n1-1,jj) + f(n1-2,jj)) / (2.0_dp*dxval)
-    end do
+    real(dp) :: a(n1), b(n1), c(n1)
+    call coef_4a(a, b, c, n1)
+    call rhsx_4a(out, f, n1, n2, dxval)
+    call tridx(a, b, c, out, n1, n2)
   end subroutine derivative_x
 
   subroutine derivative_y(f, dyval, n1, n2, out)
     integer, intent(in) :: n1, n2
     real(dp), intent(in) :: f(n1,n2), dyval
     real(dp), intent(out) :: out(n1,n2)
-    integer :: ii, jj
-    do ii = 1, n1
-      do jj = 2, n2 - 1
-        out(ii,jj) = (f(ii,jj+1) - f(ii,jj-1)) / (2.0_dp*dyval)
-      end do
-      out(ii,1) = (-3.0_dp*f(ii,1) + 4.0_dp*f(ii,2) - f(ii,3)) / (2.0_dp*dyval)
-      out(ii,n2) = (3.0_dp*f(ii,n2) - 4.0_dp*f(ii,n2-1) + f(ii,n2-2)) / (2.0_dp*dyval)
-    end do
+    real(dp) :: a(n2), b(n2), c(n2)
+    call coef_4a(a, b, c, n2)
+    call rhsy_4a(out, f, n1, n2, dyval)
+    call tridy(a, b, c, out, n1, n2)
   end subroutine derivative_y
 
   subroutine second_derivative_x(f, dxval, n1, n2, out)
     integer, intent(in) :: n1, n2
     real(dp), intent(in) :: f(n1,n2), dxval
     real(dp), intent(out) :: out(n1,n2)
-    integer :: ii, jj
-    out = 0.0_dp
-    do jj = 1, n2
-      do ii = 2, n1 - 1
-        out(ii,jj) = (f(ii+1,jj) - 2.0_dp*f(ii,jj) + f(ii-1,jj)) / dxval**2
-      end do
-    end do
+    real(dp) :: a(n1), b(n1), c(n1)
+    call coeff_4a(a, b, c, n1)
+    call rhsxx_4a(out, f, n1, n2, dxval)
+    call tridx(a, b, c, out, n1, n2)
   end subroutine second_derivative_x
 
   subroutine second_derivative_y(f, dyval, n1, n2, out)
     integer, intent(in) :: n1, n2
     real(dp), intent(in) :: f(n1,n2), dyval
     real(dp), intent(out) :: out(n1,n2)
-    integer :: ii, jj
-    out = 0.0_dp
-    do ii = 1, n1
-      do jj = 2, n2 - 1
-        out(ii,jj) = (f(ii,jj+1) - 2.0_dp*f(ii,jj) + f(ii,jj-1)) / dyval**2
-      end do
-    end do
+    real(dp) :: a(n2), b(n2), c(n2)
+    call coeff_4a(a, b, c, n2)
+    call rhsyy_4a(out, f, n1, n2, dyval)
+    call tridy(a, b, c, out, n1, n2)
   end subroutine second_derivative_y
 
   subroutine laplacian(f, dxval, dyval, n1, n2, out)
     integer, intent(in) :: n1, n2
     real(dp), intent(in) :: f(n1,n2), dxval, dyval
     real(dp), intent(out) :: out(n1,n2)
-    integer :: ii, jj
-    out = 0.0_dp
-    do jj = 2, n2 - 1
-      do ii = 2, n1 - 1
-        out(ii,jj) = (f(ii+1,jj) - 2.0_dp*f(ii,jj) + f(ii-1,jj)) / dxval**2 &
-                    + (f(ii,jj+1) - 2.0_dp*f(ii,jj) + f(ii,jj-1)) / dyval**2
+    real(dp) :: dxx_term(n1,n2), dyy_term(n1,n2)
+    call second_derivative_x(f, dxval, n1, n2, dxx_term)
+    call second_derivative_y(f, dyval, n1, n2, dyy_term)
+    out = dxx_term + dyy_term
+  end subroutine laplacian
+
+  !! Mirrors coef_4a in src/fortran_original/4Order_LPOG_Euler/derivs.f.
+  subroutine coef_4a(a, b, c, lmax)
+    integer, intent(in) :: lmax
+    real(dp), intent(out) :: a(lmax), b(lmax), c(lmax)
+    integer :: l
+    a(1) = 0.0_dp
+    b(1) = 1.0_dp
+    c(1) = 3.0_dp
+    do l = 2, lmax - 1
+      a(l) = 1.0_dp
+      b(l) = 4.0_dp
+      c(l) = 1.0_dp
+    end do
+    a(lmax) = 3.0_dp
+    b(lmax) = 1.0_dp
+    c(lmax) = 0.0_dp
+  end subroutine coef_4a
+
+  !! Mirrors coeff_4a in src/fortran_original/4Order_LPOG_Euler/derivs.f.
+  subroutine coeff_4a(a, b, c, lmax)
+    integer, intent(in) :: lmax
+    real(dp), intent(out) :: a(lmax), b(lmax), c(lmax)
+    integer :: l
+    a(1) = 0.0_dp
+    b(1) = 1.0_dp
+    c(1) = 11.0_dp
+    do l = 2, lmax - 1
+      a(l) = 1.0_dp
+      b(l) = 10.0_dp
+      c(l) = 1.0_dp
+    end do
+    a(lmax) = 11.0_dp
+    b(lmax) = 1.0_dp
+    c(lmax) = 0.0_dp
+  end subroutine coeff_4a
+
+  !! Mirrors rhsx_4a in src/fortran_original/4Order_LPOG_Euler/derivs.f.
+  subroutine rhsx_4a(rhs, fc, n1, n2, h)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: fc(n1,n2), h
+    real(dp), intent(out) :: rhs(n1,n2)
+    integer :: i, j
+    do j = 1, n2
+      rhs(1,j) = (-17.0_dp*fc(1,j) + 9.0_dp*fc(2,j) + 9.0_dp*fc(3,j) - fc(4,j)) / (6.0_dp*h)
+      do i = 2, n1 - 1
+        rhs(i,j) = (3.0_dp*(fc(i+1,j) - fc(i-1,j))) / h
+      end do
+      rhs(n1,j) = (-17.0_dp*fc(n1,j) + 9.0_dp*fc(n1-1,j) + 9.0_dp*fc(n1-2,j) - fc(n1-3,j)) / (-6.0_dp*h)
+    end do
+  end subroutine rhsx_4a
+
+  !! Mirrors rhsxx_4a in src/fortran_original/4Order_LPOG_Euler/derivs.f.
+  subroutine rhsxx_4a(rhs, fc, n1, n2, h)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: fc(n1,n2), h
+    real(dp), intent(out) :: rhs(n1,n2)
+    real(dp) :: hh
+    integer :: i, j
+    hh = h * h
+    do j = 1, n2
+      rhs(1,j) = (39.0_dp*fc(1,j) - 81.0_dp*fc(2,j) + 45.0_dp*fc(3,j) - 3.0_dp*fc(4,j)) / (3.0_dp*hh)
+      do i = 2, n1 - 1
+        rhs(i,j) = (12.0_dp*(fc(i+1,j) + fc(i-1,j)) - 24.0_dp*fc(i,j)) / hh
+      end do
+      rhs(n1,j) = (39.0_dp*fc(n1,j) - 81.0_dp*fc(n1-1,j) + 45.0_dp*fc(n1-2,j) - 3.0_dp*fc(n1-3,j)) / (3.0_dp*hh)
+    end do
+  end subroutine rhsxx_4a
+
+  !! Mirrors rhsy_4a in src/fortran_original/4Order_LPOG_Euler/derivs.f.
+  subroutine rhsy_4a(rhs, fc, n1, n2, h)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: fc(n1,n2), h
+    real(dp), intent(out) :: rhs(n1,n2)
+    integer :: i, j
+    do i = 1, n1
+      rhs(i,1) = (-17.0_dp*fc(i,1) + 9.0_dp*fc(i,2) + 9.0_dp*fc(i,3) - fc(i,4)) / (6.0_dp*h)
+      do j = 2, n2 - 1
+        rhs(i,j) = (3.0_dp*(fc(i,j+1) - fc(i,j-1))) / h
+      end do
+      rhs(i,n2) = (-17.0_dp*fc(i,n2) + 9.0_dp*fc(i,n2-1) + 9.0_dp*fc(i,n2-2) - fc(i,n2-3)) / (-6.0_dp*h)
+    end do
+  end subroutine rhsy_4a
+
+  !! Mirrors rhsyy_4a in src/fortran_original/4Order_LPOG_Euler/derivs.f.
+  subroutine rhsyy_4a(rhs, fc, n1, n2, h)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: fc(n1,n2), h
+    real(dp), intent(out) :: rhs(n1,n2)
+    real(dp) :: hh
+    integer :: i, j
+    hh = h * h
+    do i = 1, n1
+      rhs(i,1) = (39.0_dp*fc(i,1) - 81.0_dp*fc(i,2) + 45.0_dp*fc(i,3) - 3.0_dp*fc(i,4)) / (3.0_dp*hh)
+      do j = 2, n2 - 1
+        rhs(i,j) = (12.0_dp*(fc(i,j+1) + fc(i,j-1)) - 24.0_dp*fc(i,j)) / hh
+      end do
+      rhs(i,n2) = (39.0_dp*fc(i,n2) - 81.0_dp*fc(i,n2-1) + 45.0_dp*fc(i,n2-2) - 3.0_dp*fc(i,n2-3)) / (3.0_dp*hh)
+    end do
+  end subroutine rhsyy_4a
+
+  !! Mirrors tridx in src/fortran_original/4Order_LPOG_Euler/solvers.f.
+  subroutine tridx(a, b, c, rhs, n1, n2)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: a(n1), b(n1), c(n1)
+    real(dp), intent(inout) :: rhs(n1,n2)
+    real(dp) :: gam(n1), bet, u(n1)
+    integer :: i, j
+    do j = 1, n2
+      bet = b(1)
+      u(1) = rhs(1,j) / bet
+      do i = 2, n1
+        gam(i) = c(i-1) / bet
+        bet = b(i) - a(i)*gam(i)
+        u(i) = (rhs(i,j) - a(i)*u(i-1)) / bet
+      end do
+      do i = n1 - 1, 1, -1
+        u(i) = u(i) - gam(i+1)*u(i+1)
+      end do
+      do i = 1, n1
+        rhs(i,j) = u(i)
       end do
     end do
-  end subroutine laplacian
+  end subroutine tridx
+
+  !! Mirrors tridy in src/fortran_original/4Order_LPOG_Euler/solvers.f.
+  subroutine tridy(a, b, c, rhs, n1, n2)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: a(n2), b(n2), c(n2)
+    real(dp), intent(inout) :: rhs(n1,n2)
+    real(dp) :: gam(n2), bet, u(n2)
+    integer :: i, j
+    do i = 1, n1
+      bet = b(1)
+      u(1) = rhs(i,1) / bet
+      do j = 2, n2
+        gam(j) = c(j-1) / bet
+        bet = b(j) - a(j)*gam(j)
+        u(j) = (rhs(i,j) - a(j)*u(j-1)) / bet
+      end do
+      do j = n2 - 1, 1, -1
+        u(j) = u(j) - gam(j+1)*u(j+1)
+      end do
+      do j = 1, n2
+        rhs(i,j) = u(j)
+      end do
+    end do
+  end subroutine tridy
 
   subroutine apply_boundary(field, bvals, n1, n2)
     integer, intent(in) :: n1, n2
@@ -497,48 +602,341 @@ contains
     end do
   end subroutine apply_boundary
 
-  !! Dense Gaussian elimination with partial pivoting, A x = b. Suitable for
-  !! the small interior Poisson system assembled above (n = (nx-2)*(ny-2)).
-  subroutine solve_linear_system(a, b, x, n)
-    integer, intent(in) :: n
-    real(dp), intent(in) :: a(n,n), b(n)
-    real(dp), intent(out) :: x(n)
-    real(dp) :: aug(n,n+1), factor, pivot_val, tmp
-    integer :: ii, jj, kk, piv
+  !! Mirrors rhs_tridfx_wz/rhs_tridfx_T in src/fortran_original/4Order_LPOG_Euler/loop.f.
+  subroutine rhs_tridfx(rhs, fc, n1, n2)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: fc(n1,n2)
+    real(dp), intent(out) :: rhs(n1,n2)
+    integer :: i, j
+    do j = 1, n2
+      rhs(1,j) = (15.0_dp*fc(1,j) + 4.0_dp*fc(2,j) - 6.0_dp*fc(3,j) + 4.0_dp*fc(4,j) - fc(5,j)) / 16.0_dp
+      rhs(2,j) = (fc(1,j) + 12.0_dp*fc(2,j) + 6.0_dp*fc(3,j) - 4.0_dp*fc(4,j) + fc(5,j)) / 16.0_dp
+      rhs(3,j) = (-fc(1,j) + 4.0_dp*fc(2,j) + 10.0_dp*fc(3,j) + 4.0_dp*fc(4,j) - fc(5,j)) / 16.0_dp
+      do i = 4, n1 - 3
+        rhs(i,j) = af*fc(i,j) + bf*(fc(i+1,j)+fc(i-1,j)) + cf*(fc(i+2,j)+fc(i-2,j)) + df*(fc(i+3,j)+fc(i-3,j))
+      end do
+      rhs(n1-2,j) = (-fc(n1,j) + 4.0_dp*fc(n1-1,j) + 10.0_dp*fc(n1-2,j) + 4.0_dp*fc(n1-3,j) - fc(n1-4,j)) / 16.0_dp
+      rhs(n1-1,j) = (fc(n1,j) + 12.0_dp*fc(n1-1,j) + 6.0_dp*fc(n1-2,j) - 4.0_dp*fc(n1-3,j) + fc(n1-4,j)) / 16.0_dp
+      rhs(n1,j) = (15.0_dp*fc(n1,j) + 4.0_dp*fc(n1-1,j) - 6.0_dp*fc(n1-2,j) + 4.0_dp*fc(n1-3,j) - fc(n1-4,j)) / 16.0_dp
+    end do
+  end subroutine rhs_tridfx
 
-    aug(:,1:n) = a
-    aug(:,n+1) = b
+  !! Mirrors rhs_tridfy_wz/rhs_tridfy_T in src/fortran_original/4Order_LPOG_Euler/loop.f.
+  subroutine rhs_tridfy(rhs, fc, n1, n2)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(in) :: fc(n1,n2)
+    real(dp), intent(out) :: rhs(n1,n2)
+    integer :: i, j
+    do i = 1, n1
+      rhs(i,1) = (15.0_dp*fc(i,1) + 4.0_dp*fc(i,2) - 6.0_dp*fc(i,3) + 4.0_dp*fc(i,4) - fc(i,5)) / 16.0_dp
+      rhs(i,2) = (fc(i,1) + 12.0_dp*fc(i,2) + 6.0_dp*fc(i,3) - 4.0_dp*fc(i,4) + fc(i,5)) / 16.0_dp
+      rhs(i,3) = (-fc(i,1) + 4.0_dp*fc(i,2) + 10.0_dp*fc(i,3) + 4.0_dp*fc(i,4) - fc(i,5)) / 16.0_dp
+      do j = 4, n2 - 3
+        rhs(i,j) = af*fc(i,j) + bf*(fc(i,j+1)+fc(i,j-1)) + cf*(fc(i,j+2)+fc(i,j-2)) + df*(fc(i,j+3)+fc(i,j-3))
+      end do
+      rhs(i,n2-2) = (-fc(i,n2) + 4.0_dp*fc(i,n2-1) + 10.0_dp*fc(i,n2-2) + 4.0_dp*fc(i,n2-3) - fc(i,n2-4)) / 16.0_dp
+      rhs(i,n2-1) = (fc(i,n2) + 12.0_dp*fc(i,n2-1) + 6.0_dp*fc(i,n2-2) - 4.0_dp*fc(i,n2-3) + fc(i,n2-4)) / 16.0_dp
+      rhs(i,n2) = (15.0_dp*fc(i,n2) + 4.0_dp*fc(i,n2-1) - 6.0_dp*fc(i,n2-2) + 4.0_dp*fc(i,n2-3) - fc(i,n2-4)) / 16.0_dp
+    end do
+  end subroutine rhs_tridfy
 
-    do kk = 1, n
-      piv = kk
-      pivot_val = abs(aug(kk,kk))
-      do ii = kk+1, n
-        if (abs(aug(ii,kk)) > pivot_val) then
-          pivot_val = abs(aug(ii,kk))
-          piv = ii
+  !! Mirrors lhs_tridfx/lhs_tridfy in src/fortran_original/4Order_LPOG_Euler/loop.f.
+  subroutine lhs_tridf(a, b, c, lmax)
+    integer, intent(in) :: lmax
+    real(dp), intent(out) :: a(lmax), b(lmax), c(lmax)
+    a = 0.0_dp
+    b = 1.0_dp
+    c = 0.0_dp
+    a(4:lmax-3) = alphaf
+    c(4:lmax-3) = alphaf
+  end subroutine lhs_tridf
+
+  !! Port of the relevant part of subroutine loop (main.f): call
+  !! filter_trid_x followed by call filter_trid_y, applied to a single
+  !! field. Only the interior is overwritten by the filtered value; the
+  !! boundary is left untouched.
+  subroutine apply_lele_filter(field, n1, n2)
+    integer, intent(in) :: n1, n2
+    real(dp), intent(inout) :: field(n1,n2)
+    real(dp) :: rhs(n1,n2), a1(n1), b1(n1), c1(n1), a2(n2), b2(n2), c2(n2)
+
+    call rhs_tridfx(rhs, field, n1, n2)
+    call lhs_tridf(a1, b1, c1, n1)
+    call tridx(a1, b1, c1, rhs, n1, n2)
+    field(2:n1-1, 2:n2-1) = rhs(2:n1-1, 2:n2-1)
+
+    call rhs_tridfy(rhs, field, n1, n2)
+    call lhs_tridf(a2, b2, c2, n2)
+    call tridy(a2, b2, c2, rhs, n1, n2)
+    field(2:n1-1, 2:n2-1) = rhs(2:n1-1, 2:n2-1)
+  end subroutine apply_lele_filter
+
+  !! Verbatim port of poi_psi4a and dependents
+  !! (src/fortran_original/4Order_LPOG_Euler/poisson.f), see
+  !! validation/fortran_reference/case12_poisson_multigrid/ for the
+  !! standalone, separately validated version of this solver.
+  subroutine poi_psi4a(imax, jmax, msh_, dxx, dyy, wzf, psif, fcf, scf, fctf)
+    integer, intent(in) :: imax, jmax, msh_
+    real(dp), intent(in) :: dxx, dyy
+    real(dp), intent(in) :: wzf(imax,jmax)
+    real(dp), intent(inout) :: psif(imax,jmax)
+    real(dp), intent(inout) :: fcf(msh_,imax,jmax), scf(msh_,imax,jmax), fctf(msh_,imax,jmax)
+
+    logical :: continua
+    integer :: itera, nptsx, nptsy, mesh, vcycles
+    real(dp) :: dx2, dy2, err, erromax, dyypdxx
+
+    erromax = 1.0e-06_dp
+    nptsx = imax
+    nptsy = jmax
+    dx2 = dxx
+    dy2 = dyy
+    itera = 2
+
+    call function_source(imax, jmax, msh_, wzf, psif, fcf, scf, fctf)
+    continua = .true.
+
+    do vcycles = 1, 81
+      do mesh = 1, msh_ - 1
+        dyypdxx = dy2 / dx2
+        call sor(imax, jmax, msh_, fcf, scf, nptsx, nptsy, dy2, dyypdxx, itera, mesh)
+        call defect(imax, jmax, msh_, fcf, scf, fctf, nptsx, nptsy, dx2, dy2, -1.0_dp, mesh)
+        if (mesh == 1) then
+          call verifica_poi(imax, jmax, msh_, fctf, err, erromax, continua)
+          if (.not. continua) goto 22
         end if
+        call restrict(imax, jmax, msh_, fcf, scf, fctf, nptsx, nptsy, dx2, dy2, mesh)
+        dyypdxx = dy2 / dx2
+        call defect(imax, jmax, msh_, fcf, scf, fctf, nptsx, nptsy, dx2, dy2, 1.0_dp, mesh+1)
       end do
-      if (piv /= kk) then
-        do jj = 1, n+1
-          tmp = aug(kk,jj)
-          aug(kk,jj) = aug(piv,jj)
-          aug(piv,jj) = tmp
-        end do
-      end if
-      do ii = kk+1, n
-        factor = aug(ii,kk) / aug(kk,kk)
-        aug(ii,kk:n+1) = aug(ii,kk:n+1) - factor * aug(kk,kk:n+1)
+
+      dyypdxx = dy2 / dx2
+      call sor(imax, jmax, msh_, fcf, scf, nptsx, nptsy, dy2, dyypdxx, 100*itera, msh_)
+
+      do mesh = msh_, 2, -1
+        call correction(imax, jmax, msh_, fcf, fctf, nptsx, nptsy, mesh)
+        call intpol(imax, jmax, msh_, fcf, nptsx, nptsy, dx2, dy2, mesh)
+        dyypdxx = dy2 / dx2
+        call sor(imax, jmax, msh_, fcf, scf, nptsx, nptsy, dy2, dyypdxx, 1, mesh-1)
       end do
     end do
 
-    do ii = n, 1, -1
-      x(ii) = aug(ii,n+1)
-      do jj = ii+1, n
-        x(ii) = x(ii) - aug(ii,jj) * x(jj)
+22  continue
+    psif(:,:) = fcf(1,:,:)
+
+    if (vcycles > 80) then
+      write(*,*) 'Vcycles = ', vcycles
+      error stop
+    end if
+  end subroutine poi_psi4a
+
+  subroutine verifica_poi(imax, jmax, msh_, fctf, err, erromax, continua)
+    integer, intent(in) :: imax, jmax, msh_
+    real(dp), intent(in) :: fctf(msh_,imax,jmax), erromax
+    real(dp), intent(out) :: err
+    logical, intent(inout) :: continua
+    integer :: i, j
+    err = 0.0_dp
+    do j = 2, jmax - 1
+      do i = 2, imax - 1
+        err = max(err, abs(fctf(1,i,j)))
       end do
-      x(ii) = x(ii) / aug(ii,ii)
     end do
-  end subroutine solve_linear_system
+    if (err < erromax) continua = .false.
+  end subroutine verifica_poi
+
+  subroutine function_source(imax, jmax, msh_, wzf, psif, fcf, scf, fctf)
+    integer, intent(in) :: imax, jmax, msh_
+    real(dp), intent(in) :: wzf(imax,jmax), psif(imax,jmax)
+    real(dp), intent(out) :: fcf(msh_,imax,jmax), scf(msh_,imax,jmax), fctf(msh_,imax,jmax)
+    integer :: i, j
+    fcf = 0.0_dp
+    scf = 0.0_dp
+    fctf = 0.0_dp
+    do j = 2, jmax - 1
+      do i = 2, imax - 1
+        scf(1,i,j) = wzf(i,j-1) + wzf(i,j+1) + wzf(i+1,j) + wzf(i-1,j) + 8.0_dp*wzf(i,j)
+      end do
+    end do
+    fcf(1,:,:) = psif(:,:)
+  end subroutine function_source
+
+  subroutine sor(imax, jmax, msh_, fcf, scf, nptsx, nptsy, dy2, dyypdxx, itera, mesh)
+    integer, intent(in) :: imax, jmax, msh_, nptsx, nptsy, itera, mesh
+    real(dp), intent(in) :: dy2, dyypdxx
+    real(dp), intent(inout) :: fcf(msh_,imax,jmax)
+    real(dp), intent(in) :: scf(msh_,imax,jmax)
+    integer :: i, j, it
+    real(dp) :: a(jmax), b(jmax), c(jmax), rhs(jmax), rf
+
+    rf = 1.2_dp
+    if (itera == 1) rf = 1.0_dp
+
+    a(1) = 0.0_dp
+    b(1) = 1.0_dp
+    c(1) = 0.0_dp
+    do j = 2, nptsy - 1
+      a(j) = 10.0_dp - 2.0_dp*dyypdxx
+      b(j) = -20.0_dp * (1.0_dp + dyypdxx)
+      c(j) = 10.0_dp - 2.0_dp*dyypdxx
+    end do
+    a(nptsy) = 0.0_dp
+    b(nptsy) = 1.0_dp
+    c(nptsy) = 0.0_dp
+
+    do it = 1, itera
+      do i = 2, nptsx - 1
+        rhs(1) = fcf(mesh,i,1)
+        do j = 2, nptsy - 1
+          rhs(j) = scf(mesh,i,j)*dy2 - ( (1.0_dp+dyypdxx)*(fcf(mesh,i+1,j+1) + fcf(mesh,i-1,j+1) &
+                    + fcf(mesh,i+1,j-1) + fcf(mesh,i-1,j-1)) &
+                    + (-2.0_dp+10.0_dp*dyypdxx)*(fcf(mesh,i+1,j) + fcf(mesh,i-1,j)) )
+        end do
+        rhs(nptsy) = fcf(mesh,i,nptsy)
+        call tridv(rhs, nptsy, a, b, c, jmax)
+        do j = 2, nptsy - 1
+          fcf(mesh,i,j) = fcf(mesh,i,j) + rf * (rhs(j) - fcf(mesh,i,j))
+        end do
+      end do
+    end do
+  end subroutine sor
+
+  subroutine defect(imax, jmax, msh_, fcf, scf, fctf, nptsx, nptsy, dx2, dy2, si, mesh)
+    integer, intent(in) :: imax, jmax, msh_, nptsx, nptsy, mesh
+    real(dp), intent(in) :: dx2, dy2, si
+    real(dp), intent(in) :: fcf(msh_,imax,jmax)
+    real(dp), intent(inout) :: scf(msh_,imax,jmax)
+    real(dp), intent(inout) :: fctf(msh_,imax,jmax)
+    integer :: i, j
+    real(dp) :: b, c
+
+    do j = 2, nptsy - 1
+      do i = 2, nptsx - 1
+        b = ( fcf(mesh,i+1,j+1) + fcf(mesh,i+1,j-1) + fcf(mesh,i-1,j+1) + fcf(mesh,i-1,j-1) &
+              + 10.0_dp*(fcf(mesh,i+1,j) + fcf(mesh,i-1,j)) &
+              - 2.0_dp*(fcf(mesh,i,j+1) + fcf(mesh,i,j-1)) &
+              - 20.0_dp*fcf(mesh,i,j) )
+        c = ( fcf(mesh,i+1,j+1) + fcf(mesh,i+1,j-1) + fcf(mesh,i-1,j+1) + fcf(mesh,i-1,j-1) &
+              + 10.0_dp*(fcf(mesh,i,j+1) + fcf(mesh,i,j-1)) &
+              - 2.0_dp*(fcf(mesh,i+1,j) + fcf(mesh,i-1,j)) &
+              - 20.0_dp*fcf(mesh,i,j) )
+        fctf(1,i,j) = scf(mesh,i,j) + si * (b/dx2 + c/dy2)
+      end do
+    end do
+
+    if (si < 0) return
+
+    do j = 2, nptsy - 1
+      do i = 2, nptsx - 1
+        scf(mesh,i,j) = fctf(1,i,j)
+      end do
+    end do
+  end subroutine defect
+
+  subroutine restrict(imax, jmax, msh_, fcf, scf, fctf, nptsx, nptsy, dx2, dy2, mesh)
+    integer, intent(in) :: imax, jmax, msh_, mesh
+    integer, intent(inout) :: nptsx, nptsy
+    real(dp), intent(inout) :: dx2, dy2
+    real(dp), intent(inout) :: fcf(msh_,imax,jmax)
+    real(dp), intent(inout) :: scf(msh_,imax,jmax)
+    real(dp), intent(inout) :: fctf(msh_,imax,jmax)
+    integer :: i, j, fi, fj
+
+    nptsx = (nptsx + 1) / 2
+    nptsy = (nptsy + 1) / 2
+    dx2 = 4.0_dp * dx2
+    dy2 = 4.0_dp * dy2
+
+    fj = 3
+    do j = 2, nptsy - 1
+      fi = 3
+      do i = 2, nptsx - 1
+        fcf(mesh+1,i,j) = fcf(mesh,fi,fj)
+        fctf(mesh+1,i,j) = fcf(mesh+1,i,j)
+        scf(mesh+1,i,j) = 6.25e-2_dp * ( 2.0_dp * ( fctf(1,fi-1,fj) + fctf(1,fi+1,fj) &
+                          + fctf(1,fi,fj-1) + fctf(1,fi,fj+1) ) + 4.0_dp*fctf(1,fi,fj) &
+                          + fctf(1,fi+1,fj+1) + fctf(1,fi+1,fj-1) &
+                          + fctf(1,fi-1,fj+1) + fctf(1,fi-1,fj-1) )
+        fi = fi + 2
+      end do
+      fj = fj + 2
+    end do
+  end subroutine restrict
+
+  subroutine intpol(imax, jmax, msh_, fcf, nptsx, nptsy, dx2, dy2, mesh)
+    integer, intent(in) :: imax, jmax, msh_, mesh
+    integer, intent(inout) :: nptsx, nptsy
+    real(dp), intent(inout) :: dx2, dy2
+    real(dp), intent(inout) :: fcf(msh_,imax,jmax)
+    integer :: i, j, fi, fj
+    real(dp) :: temp(imax,jmax)
+
+    dx2 = 0.25_dp * dx2
+    dy2 = 0.25_dp * dy2
+
+    temp = 0.0_dp
+    fj = 1
+    do j = 1, nptsy
+      fi = 1
+      do i = 1, nptsx
+        temp(fi,fj) = fcf(mesh,i,j)
+        fi = fi + 2
+      end do
+      fj = fj + 2
+    end do
+
+    nptsx = 2*nptsx - 1
+    nptsy = 2*nptsy - 1
+
+    do j = 1, nptsy, 2
+      do i = 2, nptsx - 1, 2
+        temp(i,j) = 0.5_dp * (temp(i-1,j) + temp(i+1,j))
+      end do
+    end do
+
+    do j = 2, nptsy - 1, 2
+      do i = 1, nptsx
+        temp(i,j) = 0.5_dp * (temp(i,j+1) + temp(i,j-1))
+      end do
+    end do
+
+    do j = 2, nptsy - 1
+      do i = 2, nptsx - 1
+        fcf(mesh-1,i,j) = fcf(mesh-1,i,j) + temp(i,j)
+      end do
+    end do
+  end subroutine intpol
+
+  subroutine correction(imax, jmax, msh_, fcf, fctf, nptsx, nptsy, mesh)
+    integer, intent(in) :: imax, jmax, msh_, nptsx, nptsy, mesh
+    real(dp), intent(inout) :: fcf(msh_,imax,jmax)
+    real(dp), intent(in) :: fctf(msh_,imax,jmax)
+    integer :: i, j
+    do j = 2, nptsy - 1
+      do i = 2, nptsx - 1
+        fcf(mesh,i,j) = fcf(mesh,i,j) - fctf(mesh,i,j)
+      end do
+    end do
+  end subroutine correction
+
+  subroutine tridv(r, lmax, a, b, c, jmax)
+    integer, intent(in) :: lmax, jmax
+    real(dp), intent(in) :: a(jmax), b(jmax), c(jmax)
+    real(dp), intent(inout) :: r(jmax)
+    integer :: j
+    real(dp) :: bet, gam(jmax), u(jmax)
+    bet = b(1)
+    u(1) = r(1) / bet
+    do j = 2, lmax
+      gam(j) = c(j-1) / bet
+      bet = b(j) - a(j)*gam(j)
+      u(j) = (r(j) - a(j)*u(j-1)) / bet
+    end do
+    do j = lmax - 1, 1, -1
+      u(j) = u(j) - gam(j+1)*u(j+1)
+    end do
+    r(1:lmax) = u(1:lmax)
+  end subroutine tridv
 
   pure function u_case12_default(x, y, t) result(value)
     real(dp), intent(in) :: x, y, t

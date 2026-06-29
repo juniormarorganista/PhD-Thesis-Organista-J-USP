@@ -12,6 +12,18 @@ This is **Etapa 8** of the post-FASE-VII replanning
 block for a Python time-marching solver: recomputing the stream function
 `psi` from the vorticity `wz` via `laplacian(psi) = wz`.
 
+> **Etapa 17 update.** `solve_poisson_dirichlet` (this module, 2nd-order
+> direct solve) remains valid and is still used by
+> `run_case12_poisson_convergence_study` below. As of Etapa 17,
+> `numerics/time_marching.py`'s `case12_time_step` no longer calls it:
+> it now calls `solve_poisson_multigrid_4th_order`
+> (`numerics/poisson_multigrid.py`), a port of the real solver
+> (`poi_psi4a`, a 4th-order compact multigrid V-cycle), since the
+> pentadiagonal `band5_poi`/`banbk5_poi` this module's docs previously
+> pointed to as "the real solver, not yet ported" turned out to be dead
+> code, never called in the original Fortran. See
+> [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md).
+
 ## 1. Why this is needed
 
 [`docs/case-12-solver-comparison.md`](case-12-solver-comparison.md) (FASE VII)
@@ -64,12 +76,20 @@ with `scipy.sparse.linalg.spsolve`. The function returns a full
 The original Fortran solver
 (`src/fortran_original/4Order_LPOG_Euler/poisson.f`) uses a multigrid V-cycle
 with SOR smoothing (`poi_psi4a`, 4 grid levels, convergence tolerance
-`erromax = 1.d-06`). For the manufactured-solution verification grids used
-here (up to ~65 x 65 points), a sparse direct solve gives the same
-second-order discretization and the same solution (to round-off), without the
-complexity of porting the multigrid algorithm. The multigrid solver itself is
-**not** ported; this is documented here as a deliberate scope reduction (see
-`.claude/PLANEJAMENTO.md`, Etapa 8).
+`erromax = 1.d-06`) over a **4th-order compact 9-point (Mehrstellen-type)**
+stencil -- not the same discretization as the 2nd-order 5-point direct solve
+in this module (an earlier version of this note incorrectly described them
+as equivalent "to round-off"; they are not, by construction). `poi_psi4a`
+was ported in Etapa 17 as
+[`numerics/poisson_multigrid.py`](../src/mms_viscoelastic/numerics/poisson_multigrid.py)
+(`solve_poisson_multigrid_4th_order`), validated to exact bit-for-bit
+agreement against an isolated Fortran reference and to 4th-order
+convergence; see
+[`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md).
+`solve_poisson_dirichlet` in *this* module remains a separate, independently
+useful 2nd-order utility (still used by
+`run_case12_poisson_convergence_study` below) -- it was not removed, just no
+longer the solver `case12_time_step` calls.
 
 ## 4. MMS verification
 
