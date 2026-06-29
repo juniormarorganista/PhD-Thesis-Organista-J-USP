@@ -14,6 +14,15 @@ Euler step starting from the `t=0` MMS Case 12 exact fields, building on the
 Poisson solver from Etapa 8
 ([`docs/case-12-poisson-solver.md`](case-12-poisson-solver.md)).
 
+> **Etapa 17 update.** Section 3 below described a 2nd-order discretization
+> as a deliberate scope reduction. As of Etapa 17, `time_stepping.py` uses
+> the real 4th-order LPOG compact operators instead (same formulas, same
+> function names, different underlying derivative implementation); the
+> Fortran reference program and its CSV were rewritten/regenerated to
+> match. See
+> [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md)
+> for the full story. Sections 1-2 and 4-8 below are otherwise unchanged.
+
 ## 1. Source formulation: `subroutine drv`
 
 The right-hand sides are a verbatim port of `subroutine drv` in
@@ -106,28 +115,35 @@ and the Fortran reference program use the same defaults.
 
 ## 3. Discretization
 
-Both the Python implementation and the Fortran reference program
+**(Updated, Etapa 17.)** Both the Python implementation and the Fortran
+reference program
 (`validation/fortran_reference/case12_euler_step/case12_euler_step_reference.f90`)
-use the **same second-order finite-difference operators** from
-[`src/mms_viscoelastic/numerics/derivatives.py`](../src/mms_viscoelastic/numerics/derivatives.py):
+use the **4th-order LPOG compact (Padé) operators**
+(`derx`/`dery`/`derxx`/`deryy` in
+`src/fortran_original/4Order_LPOG_Euler/derivs.f`, solved via the
+`tridx`/`tridy` Thomas-algorithm routines in `solvers.f`, ported in Etapa 13
+as `compact_derivative_x/y`/`compact_second_derivative_x/y`):
 
-- `derivative_x` / `derivative_y`: central differences with one-sided
-  second-order edge formulas for the first derivatives.
-- `second_derivative_x` / `second_derivative_y`: 3-point central differences
-  for the second derivatives, with boundary entries set to zero.
-- `laplacian`: the existing 5-point second-order Laplacian, also zero on the
-  boundary.
+- `derivative_x` / `derivative_y` (module-local aliases of
+  `compact_derivative_x`/`compact_derivative_y`): 4th-order compact (tridiagonal)
+  first derivatives.
+- `second_derivative_x` / `second_derivative_y` (aliases of
+  `compact_second_derivative_x`/`compact_second_derivative_y`): 4th-order
+  compact second derivatives.
+- `laplacian(wz, dx, dy)` is computed by composition:
+  `second_derivative_x(wz, dx) + second_derivative_y(wz, dy)` (no separate
+  compact Laplacian routine exists in the Fortran source either).
 - Mixed derivatives (`d2Txx/dxdy`, `d2Tyy/dxdy`) are computed by composition,
   e.g. `derivative_y(derivative_x(txx, dx), dy)`.
 
-The **4th-order LPOG compact (Padé) operators**
-(`derx`/`dery`/`derxx`/`deryy` in `src/fortran_original/4Order_LPOG_Euler/derivs.f`,
-solved via the `tridx`/`tridy` Thomas-algorithm routines in `solvers.f`) and
-the **Lele compact filter** (`filter_trid_x`/`filter_trid_y` in `loop.f`) are
-**not** ported. This is the same deliberate scope reduction documented for the
-Poisson solver in Etapa 8
-([`docs/case-12-poisson-solver.md`](case-12-poisson-solver.md#simplification-relative-to-the-fortran-reference)).
-Porting the 4th-order compact operators and the filter remains deferred.
+Before Etapa 17, this module used the 2nd-order operators from
+`src/mms_viscoelastic/numerics/derivatives.py` as a deliberate scope
+reduction (mirroring Etapa 8's Poisson solver scope decision). The
+**Lele compact filter** (`filter_trid_x`/`filter_trid_y` in `loop.f`) is
+*not* part of this module's right-hand sides -- it is a separate
+per-time-step operation applied by
+[`numerics/time_marching.py`](../src/mms_viscoelastic/numerics/time_marching.py),
+see [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md).
 
 ## 4. Boundary handling and scope
 
@@ -181,10 +197,13 @@ the Fortran reference:
 
 ```text
   wz: max_abs_error=4.440892e-16 max_rel_error=2.220446e-16 passed=True
- txx: max_abs_error=4.440892e-16 max_rel_error=1.925336e-16 passed=True
- txy: max_abs_error=4.440892e-16 max_rel_error=2.220443e-16 passed=True
- tyy: max_abs_error=4.440892e-16 max_rel_error=1.925334e-16 passed=True
+ txx: max_abs_error=4.440892e-16 max_rel_error=1.925329e-16 passed=True
+ txy: max_abs_error=4.440892e-16 max_rel_error=2.387078e-16 passed=True
+ tyy: max_abs_error=4.440892e-16 max_rel_error=2.220446e-16 passed=True
 ```
+
+(Updated for the Etapa 17 4th-order rewrite; unchanged at this precision --
+still `~4.4e-16`.)
 
 All four components agree to within machine precision (`~4.4e-16`), as
 expected since both implementations use identical formulas and discretization
@@ -212,5 +231,7 @@ python examples\13_case12_euler_step_comparison.py
   recomputes `psi`/`u`/`v` (via the Poisson solver from Etapa 8) after this
   Euler step, building on `euler_step_wz` and `euler_step_stress`. See
   [`docs/case-12-time-marching-comparison.md`](case-12-time-marching-comparison.md).
-- Porting the 4th-order LPOG compact derivative operators and the Lele
-  compact filter remains out of scope, as noted in Section 3.
+- ~~Porting the 4th-order LPOG compact derivative operators and the Lele
+  compact filter remains out of scope, as noted in Section 3.~~ Done in
+  Etapa 17, see
+  [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md).

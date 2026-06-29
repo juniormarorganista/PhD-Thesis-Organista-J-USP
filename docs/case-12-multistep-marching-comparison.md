@@ -13,6 +13,12 @@ time-marching step from Etapa 10
 ([`docs/case-12-time-marching-comparison.md`](case-12-time-marching-comparison.md))
 by chaining repeated calls to `case12_time_step` into a multi-step march.
 
+> **Etapa 17 update.** `case12_time_step` (and therefore every step of this
+> march) now uses the real 4th-order LPOG compact + Lele filter + multigrid
+> Poisson pipeline instead of the 2nd-order placeholder. The Fortran
+> reference program and its CSV were rewritten/regenerated to match. See
+> [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md).
+
 ## 1. `case12_multistep_march`
 
 `case12_multistep_march(state, t0, n_steps, grid, ...)` repeatedly applies

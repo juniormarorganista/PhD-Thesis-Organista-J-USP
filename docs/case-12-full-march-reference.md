@@ -1,5 +1,19 @@
 # MMS Case 12 - Full time march reference (Etapa 12)
 
+> **Etapa 17 update.** This document's hypothesis in Section 5 ("Etapas
+> 14-15 ... compare against the real ... discretization, which is a
+> different, dissipative discretization not expected to share this
+> instability") was tested once that real discretization (4th-order compact
+> + Lele filter + multigrid Poisson) was actually ported. **It does not
+> hold**: the real scheme also diverges on a `9 x 9` grid, in fact earlier
+> (`time ~= 2.38` vs `~4.55`). See Section 6 of
+> [`docs/case-12-4th-order-time-marching.md`](case-12-4th-order-time-marching.md)
+> for the full finding. The reference program below
+> (`case12_full_march_reference.f90`) has also been rewritten to use the
+> real scheme; this document's own CSVs and tables (Sections 2-4) describe
+> the *original* 2nd-order, no-filter run and were not regenerated (no
+> automated test depends on them).
+
 This document is **Etapa 12** of `docs/planejamento-tecnico.md` (FASE IX). It
 describes
 [`validation/fortran_reference/case12_full_march/case12_full_march_reference.f90`](../validation/fortran_reference/case12_full_march/case12_full_march_reference.f90),

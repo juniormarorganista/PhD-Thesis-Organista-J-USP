@@ -14,17 +14,17 @@ at every evaluation from the current ``Psi`` state via
 
 This path is not discussed in the thesis text and is ported only for
 source-code fidelity (Etapa 15;
-see ``docs/case-12-log-conformation.md``). As with
-:mod:`mms_viscoelastic.numerics.time_stepping`, the second-order operators
-from :mod:`mms_viscoelastic.numerics.derivatives` are used rather than the
-4th-order LPOG compact operators (porting those for this path is deferred,
-mirroring the Etapa 9/17 scope decision for the non-log formulation).
+see ``docs/case-12-log-conformation.md``). As of Etapa 17, the derivatives
+use the same 4th-order LPOG compact operators as the non-log formulation
+(:mod:`mms_viscoelastic.numerics.time_stepping`), matching the Fortran
+``drv_Psi``'s ``derx``/``dery`` calls
+(``src/fortran_original/4Order_LPOG_Euler/derivs.f``).
 
 Only interior grid points (``[1:-1, 1:-1]``) are updated; boundary values
 are copied unchanged. Re-imposing Dirichlet boundary conditions, the
 log-conformation boundary projection (``cc_Psi``) and recomputing
 ``psi``/``ux``/``uy`` is left to a multi-step time-marching solver, as for
-the non-log formulation (Etapa 10).
+the non-log formulation.
 """
 
 from __future__ import annotations
@@ -37,7 +37,8 @@ from mms_viscoelastic.models.log_conformation import (
     kernel_conformation,
     log_conformation_to_stress,
 )
-from mms_viscoelastic.numerics.derivatives import derivative_x, derivative_y
+from mms_viscoelastic.numerics.derivatives import compact_derivative_x as derivative_x
+from mms_viscoelastic.numerics.derivatives import compact_derivative_y as derivative_y
 from mms_viscoelastic.numerics.time_stepping import EulerStepParameters, wz_time_derivative
 
 FloatArray = NDArray[np.float64]

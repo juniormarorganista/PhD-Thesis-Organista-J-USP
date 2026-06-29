@@ -1,8 +1,11 @@
-"""One time-marching step for MMS Case 12 (Etapa 10).
+"""One time-marching step for MMS Case 12, 4th-order pipeline (Etapa 17).
 
 This module combines the explicit Euler step from
-:mod:`mms_viscoelastic.numerics.time_stepping` (Etapa 9) with the Poisson
-solver from :mod:`mms_viscoelastic.numerics.poisson` (Etapa 8) to perform one
+:mod:`mms_viscoelastic.numerics.time_stepping` (using the 4th-order compact
+derivatives as of Etapa 17) with the Lele compact filter
+(:mod:`mms_viscoelastic.numerics.filters`, Etapa 13) and the 4th-order
+compact multigrid Poisson solver
+(:mod:`mms_viscoelastic.numerics.poisson_multigrid`, Etapa 17) to perform one
 full time step of the Case 12 ``ty_sim == 1`` formulation:
 
 1. Evaluate the manufactured source terms (``tfwz``, ``tfTxx``, ``tfTxy``,
@@ -12,15 +15,28 @@ full time step of the Case 12 ``ty_sim == 1`` formulation:
 3. Re-impose Dirichlet boundary conditions at ``t + dt`` for ``wz``, ``Txx``,
    ``Txy``, ``Tyy``, ``psi``, ``u`` and ``v`` from the exact manufactured
    solution (:func:`evaluate_case_12_exact`).
-4. Re-solve ``laplacian(psi) = wz`` for the interior of ``psi``
-   (:func:`solve_poisson_dirichlet`), using the boundary values from step 3.
-5. Recompute ``u = d(psi)/dy`` and ``v = -d(psi)/dx`` at the interior points
-   from the updated ``psi``.
+4. Apply the Lele compact filter, x-pass then y-pass, to the interior of
+   ``wz``, ``Txx``, ``Txy``, ``Tyy`` (:func:`lele_filter_x`,
+   :func:`lele_filter_y`).
+5. Re-solve ``laplacian(psi) = wz`` for the interior of ``psi`` with the 4th-
+   order compact multigrid V-cycle
+   (:func:`solve_poisson_multigrid_4th_order`), using the boundary values
+   from step 3 and the filtered ``wz`` from step 4.
+6. Recompute ``u = d(psi)/dy`` and ``v = -d(psi)/dx`` at the interior points
+   from the updated ``psi``, with the compact derivatives
+   (:func:`compact_derivative_y`, :func:`compact_derivative_x`).
 
 This is a verbatim-in-spirit port of the sequence
 ``call source_term(time + dt)`` / ``call boundaries_condictions(time + dt)``
 / ``call loop(2)`` in ``subroutine solver_euler``
-(``src/fortran_original/4Order_LPOG_Euler/euler_rk.f``).
+(``src/fortran_original/4Order_LPOG_Euler/euler_rk.f``), where
+``subroutine loop(num)`` (``main.f``) is, in order,
+``call filter_trid_x`` / ``call filter_trid_y`` / ``call poi_psi4a`` /
+``call calc_ux`` / ``call calc_uy`` -- steps 4-6 above. Before Etapa 17, this
+module used the 2nd-order derivative operators and the direct sparse Poisson
+solve as a deliberate, documented scope reduction (Etapas 8-10); see
+``docs/case-12-4th-order-time-marching.md`` for the closure of that scope
+decision.
 
 ``wz`` boundary condition: a deliberate simplification
 ------------------------------------------------------
@@ -31,22 +47,18 @@ exact manufactured solution on the boundary for ``u``, ``v``, ``psi``,
 (``src/fortran_original/4Order_LPOG_Euler/boundarie_vorticity_cavity_flow.f``),
 which derives the ``wz`` boundary values from one-sided 4th-order
 finite-difference stencils applied to ``psi`` (bottom/left/right) and ``u``
-(top) -- machinery tied to the 4th-order LPOG compact discretization.
-
-Porting that stencil would reintroduce 4th-order-specific operators that
-Etapas 8 and 9 deliberately left out of scope
-(see ``docs/case-12-poisson-solver.md`` and
-``docs/case-12-euler-step-comparison.md``). Instead, this module re-imposes
-the ``wz`` boundary directly from :func:`evaluate_case_12_exact` at
-``t + dt``, consistently with the other boundary fields. Both choices impose
-the *exact* ``wz`` boundary value in the limit of grid refinement; the
-Fortran one-sided stencil is simply a discrete approximation of it that is
-consistent with the 4th-order interior operators. This is a deliberate
+(top). Porting that stencil remains out of scope (it is tied to the
+boundary closure of the compact operators, not their interior formula, which
+Etapa 13 already validated separately). Instead, this module re-imposes the
+``wz`` boundary directly from :func:`evaluate_case_12_exact` at ``t + dt``,
+consistently with the other boundary fields. Both choices impose the *exact*
+``wz`` boundary value in the limit of grid refinement; the Fortran one-sided
+stencil is simply a discrete approximation of it. This is a deliberate
 deviation from the Fortran reference and is documented in
 ``docs/case-12-time-marching-comparison.md``.
 
-Multi-step marching (Etapa 11)
--------------------------------
+Multi-step marching
+--------------------
 :func:`case12_multistep_march` chains :func:`case12_time_step` over several
 ``dt`` increments, advancing the physical time by ``step_parameters.dt`` at
 each iteration. See ``docs/case-12-multistep-marching-comparison.md``.
@@ -61,8 +73,9 @@ from numpy.typing import NDArray
 
 from mms_viscoelastic.grids import Grid2D
 from mms_viscoelastic.manufactured_solutions import Case12Parameters, evaluate_case_12_exact
-from mms_viscoelastic.numerics.derivatives import derivative_x, derivative_y
-from mms_viscoelastic.numerics.poisson import solve_poisson_dirichlet
+from mms_viscoelastic.numerics.derivatives import compact_derivative_x, compact_derivative_y
+from mms_viscoelastic.numerics.filters import lele_filter_x, lele_filter_y
+from mms_viscoelastic.numerics.poisson_multigrid import solve_poisson_multigrid_4th_order
 from mms_viscoelastic.numerics.time_stepping import (
     EulerStepParameters,
     euler_step_stress,
@@ -103,6 +116,29 @@ def _apply_boundary(field: FloatArray, boundary_values: FloatArray) -> FloatArra
     result[:, 0] = boundary_values[:, 0]
     result[:, -1] = boundary_values[:, -1]
     return result
+
+
+def _apply_lele_filter(field: FloatArray) -> FloatArray:
+    """Return ``field`` with its interior filtered by the Lele compact filter (x then y).
+
+    Port of the relevant part of ``subroutine loop`` (``main.f``):
+    ``call filter_trid_x`` followed by ``call filter_trid_y``. Each Fortran
+    filter pass computes the filtered value over the *entire* grid extent
+    (including the boundary, which feeds the one-sided boundary-closure
+    stencil) but only overwrites the interior
+    (``field(2:imax-1, 2:jmax-1) = rhs(2:imax-1, 2:jmax-1)``); the boundary
+    is left untouched. The y-pass reads the already x-filtered field, so the
+    two passes cannot be merged or reordered.
+    """
+
+    filtered_x = lele_filter_x(field)
+    after_x = np.array(field, dtype=np.float64, copy=True)
+    after_x[1:-1, 1:-1] = filtered_x[1:-1, 1:-1]
+
+    filtered_y = lele_filter_y(after_x)
+    after_y = after_x
+    after_y[1:-1, 1:-1] = filtered_y[1:-1, 1:-1]
+    return after_y
 
 
 def case12_time_step(
@@ -168,21 +204,26 @@ def case12_time_step(
     txy_new = _apply_boundary(txy_step, txy_exact)
     tyy_new = _apply_boundary(tyy_step, tyy_exact)
 
-    psi_new = solve_poisson_dirichlet(wz_new, grid, psi_exact)
+    wz_filtered = _apply_lele_filter(wz_new)
+    txx_filtered = _apply_lele_filter(txx_new)
+    txy_filtered = _apply_lele_filter(txy_new)
+    tyy_filtered = _apply_lele_filter(tyy_new)
 
-    u_full = derivative_y(psi_new, grid.dy)
-    v_full = -derivative_x(psi_new, grid.dx)
+    psi_new = solve_poisson_multigrid_4th_order(wz_filtered, grid, psi_exact)
+
+    u_full = compact_derivative_y(psi_new, grid.dy)
+    v_full = -compact_derivative_x(psi_new, grid.dx)
     u_new = _apply_boundary(u_full, u_exact)
     v_new = _apply_boundary(v_full, v_exact)
 
     return TimeMarchingState(
         u=u_new,
         v=v_new,
-        wz=wz_new,
+        wz=wz_filtered,
         psi=psi_new,
-        txx=txx_new,
-        txy=txy_new,
-        tyy=tyy_new,
+        txx=txx_filtered,
+        txy=txy_filtered,
+        tyy=tyy_filtered,
     )
 
 

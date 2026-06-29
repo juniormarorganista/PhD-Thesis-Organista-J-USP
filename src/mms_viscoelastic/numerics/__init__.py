@@ -26,6 +26,12 @@ from .poisson import (
     run_case12_poisson_convergence_study,
     solve_poisson_dirichlet,
 )
+from .poisson_multigrid import (
+    DEFAULT_ERROR_TOL,
+    DEFAULT_MAX_VCYCLES,
+    DEFAULT_N_LEVELS,
+    solve_poisson_multigrid_4th_order,
+)
 from .time_marching import TimeMarchingState, case12_multistep_march, case12_time_step
 from .time_stepping import (
     EulerStepParameters,
@@ -37,6 +43,9 @@ from .time_stepping import (
 
 __all__ = [
     "DEFAULT_ALPHA_F",
+    "DEFAULT_ERROR_TOL",
+    "DEFAULT_MAX_VCYCLES",
+    "DEFAULT_N_LEVELS",
     "QUANTITIES",
     "ConvergenceLevel",
     "ConvergenceReport",
@@ -67,6 +76,7 @@ __all__ = [
     "second_derivative_x",
     "second_derivative_y",
     "solve_poisson_dirichlet",
+    "solve_poisson_multigrid_4th_order",
     "solve_tridiagonal",
     "stress_time_derivatives",
     "wz_time_derivative",

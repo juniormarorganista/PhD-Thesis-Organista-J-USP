@@ -15,19 +15,25 @@ transport right-hand side below is the verbatim port of ``dvz`` from
 
 Discretization
 --------------
-The derivatives are evaluated with the second-order operators from
-:mod:`mms_viscoelastic.numerics.derivatives` (the same operators used by the
-Poisson solver), not the 4th-order LPOG compact operators
-(``src/fortran_original/4Order_LPOG_Euler/derivs.f``) nor the Lele compact
-filter (``filter_trid_x``/``filter_trid_y`` in ``loop.f``). Porting those is
-deferred, as documented in
-``docs/case-12-euler-step-comparison.md``.
+As of Etapa 17, the derivatives are evaluated with the same 4th-order LPOG
+compact (Padé-type) operators the Fortran ``drv`` actually uses
+(``derx``/``dery``/``derxx``/``deryy`` in ``drvs.f`` are the compact
+operators from ``derivs.f``, ported in Etapa 13 as
+:func:`mms_viscoelastic.numerics.derivatives.compact_derivative_x`/``_y`` and
+:func:`mms_viscoelastic.numerics.derivatives.compact_second_derivative_x`/``_y``).
+Before Etapa 17, this module used the second-order operators as a
+deliberate, documented scope reduction (Etapa 9); that scope reduction is
+now closed, see ``docs/case-12-4th-order-time-marching.md``. The Lele
+compact filter (``filter_trid_x``/``filter_trid_y`` in ``loop.f``) is a
+separate step applied once per time step by
+:mod:`mms_viscoelastic.numerics.time_marching`, matching ``subroutine loop``
+in ``main.f`` -- it is not part of the right-hand sides in this module.
 
 Only interior grid points (``[1:-1, 1:-1]``) are updated; boundary values are
 copied unchanged from the input arrays. Re-imposing Dirichlet boundary
-conditions and recomputing ``psi``/``ux``/``uy`` from the updated ``wz`` (the
-Fortran ``boundaries_condictions`` and ``loop`` calls) is left to the
-multi-step time-marching solver (Etapa 10).
+conditions, applying the Lele filter and recomputing ``psi``/``ux``/``uy``
+from the updated ``wz`` (the Fortran ``boundaries_condictions`` and ``loop``
+calls) is left to the multi-step time-marching solver.
 """
 
 from __future__ import annotations
@@ -39,11 +45,16 @@ from numpy.typing import NDArray
 
 from mms_viscoelastic.grids import Grid2D
 from mms_viscoelastic.numerics.derivatives import (
-    derivative_x,
-    derivative_y,
-    laplacian,
-    second_derivative_x,
-    second_derivative_y,
+    compact_derivative_x as derivative_x,
+)
+from mms_viscoelastic.numerics.derivatives import (
+    compact_derivative_y as derivative_y,
+)
+from mms_viscoelastic.numerics.derivatives import (
+    compact_second_derivative_x as second_derivative_x,
+)
+from mms_viscoelastic.numerics.derivatives import (
+    compact_second_derivative_y as second_derivative_y,
 )
 
 FloatArray = NDArray[np.float64]
@@ -105,7 +116,7 @@ def wz_time_derivative(
 
     duwzdx = derivative_x(ux * wz, dx)
     dvwzdy = derivative_y(uy * wz, dy)
-    diffusion = laplacian(wz, dx, dy)
+    diffusion = second_derivative_x(wz, dx) + second_derivative_y(wz, dy)
 
     d2txx_dxdy = derivative_y(derivative_x(txx, dx), dy)
     d2txy_dx2 = second_derivative_x(txy, dx)
