@@ -34,17 +34,22 @@ solutions and/or symbolic terms.
 src/mms_viscoelastic/
 ```
 
-Contains the new Python library. This directory will be expanded to hold:
+Contains the new Python library. As of the completion of Etapas 13-16, it
+holds:
 
-- physical parameters;
-- grids;
-- numerical fields;
-- manufactured solutions;
-- differential operators;
-- solvers;
-- error routines;
-- data export;
-- Machine Learning integration.
+- physical parameters and grids;
+- all 14 MMS manufactured solutions and source terms
+  (`manufactured_solutions/`, `source_terms/`);
+- differential operators, both 2nd-order and the thesis's 4th-order compact
+  (Padé-type) operators with the Lele filter (`numerics/`);
+- constitutive models and the log-conformation reformulation (`models/`);
+- a Poisson solver and Euler time-marching for Case 12 (`numerics/`);
+- error routines and reference-data validation utilities (`validation/`);
+- data export and an exploratory ML feature/dataset pipeline (`ml/`, not
+  part of the thesis core scope; see `README.md`).
+
+See `docs/fortran-code-map.md` for the file-by-file Fortran-to-Python
+mapping and current status.
 
 ```text
 Thesis/

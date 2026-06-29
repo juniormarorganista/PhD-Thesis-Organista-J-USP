@@ -14,7 +14,20 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-29
+
+Consolida as Etapas 13-16: esquema compacto de 4ª ordem + filtro de Lele,
+os 14 casos MMS portados, o caminho log-conformation (Euler) e a
+finalização de documentação/README. Ver entradas individuais abaixo.
+
 ### Adicionado
+- Etapa 16 (finalização): `README.md` atualizado (status dos 14 casos MMS,
+  esquema de 4ª ordem, log-conformation; nota explícita classificando
+  `ml/` como extensão exploratória fora do núcleo da tese);
+  `docs/fortran-code-map.md`, `docs/python-porting-plan.md`,
+  `docs/project-map.md`, `docs/repository-map.md` atualizados para o estado
+  real do repositório; docstring de `src/mms_viscoelastic/ml/__init__.py`
+  com a mesma nota de escopo.
 - Caminho log-conformation portado de `conform.f` (Etapa 15, não discutido
   no texto da tese — portado por fidelidade ao código-fonte):
   `models/log_conformation.py` (`decompose_symmetric_2x2`, forma fechada da

@@ -28,3 +28,8 @@ tests/                     # automated tests for the Python library
 The `src/mms_viscoelastic` folder was created to evolve into a Python library.
 The Fortran -> Python port must be incremental, testable and driven by
 comparison against the original implementation.
+
+This document describes the *initial* reorganization; it is kept for
+historical reference. For the current, post-port state of the repository
+(all 14 MMS cases, the 4th-order compact scheme, the log-conformation path),
+see `README.md` and `docs/fortran-code-map.md`.
