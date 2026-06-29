@@ -15,6 +15,25 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 07 portado de `case_07.f` (sétimo dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_07.py`
+  (`evaluate_case_07_exact`, `Case07Parameters`) e `source_terms/case_07.py`
+  (`evaluate_case_07_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case07SourceTermParameters`). Único caso cujos campos de
+  velocidade/vorticidade/função de corrente decaem no tempo via
+  `tanh(4-8*at*t)` em vez de `exp(-at*t)`; tensões uniformes no espaço,
+  idênticas ao Case 01. Introduziu dois casos novos para os scripts
+  mecânicos: funções hiperbólicas (`Tanh`/`Cosh` → `np.tanh`/`np.cosh`)
+  e literais Fortran com sufixo de expoente `d0` (`8.0d0` → `8.0e0`).
+  A validação cruzada revelou um artefato de ordem de avaliação em
+  ponto flutuante do gfortran (não um erro de transcrição — verificado
+  via comparação byte a byte e teste com `-O0`/`-O2`/`-ffp-contract=off`)
+  em `tfTyy`: a expressão Fortran de referência foi decomposta em
+  variáveis intermediárias nomeadas (mesma técnica já usada no port
+  Python) para eliminar o artefato. Bateu precisão de máquina contra a
+  referência Fortran isolada (`validation/fortran_reference/case07_fields/`)
+  nas 11 quantidades exportadas, em duas malhas (5x5, 9x9). Documentado
+  em `docs/case-07-port.md`.
 - MMS Case 06 portado de `case_06.f` (sexto dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_06.py`
   (`evaluate_case_06_exact`, `Case06Parameters`) e `source_terms/case_06.py`
