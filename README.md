@@ -497,19 +497,36 @@ docs/thesis-figures-used-in-readme.md
 
 ## Current Python status
 
-The Python modernization currently includes:
+The Fortran-to-Python port of `src/fortran_original/4Order_LPOG_Euler/` is
+functionally complete as a validated library of pieces (see
+[`docs/fortran-code-map.md`](docs/fortran-code-map.md) for the file-by-file
+status). The Python modernization currently includes:
 
 - package foundation under `src/mms_viscoelastic`;
 - grid utilities;
-- manufactured solution utilities;
+- **all 14 MMS manufactured-solution cases** (`case_01`-`case_14`) ported
+  and validated against isolated Fortran reference programs. Case 12 is the
+  one used in the thesis and the JNNFM paper, with the most extensive
+  validation; Cases 13/14 are not MMS cases in the original Fortran (the
+  exact solution and source term are identically zero — they are physical
+  lid-driven-cavity benchmark configurations) and were ported as trivial
+  modules for structural parity, per `docs/case-13-14-port.md`;
 - numerical derivative, error and convergence utilities, including the
-  fourth-order compact (Padé-type) derivatives and the Lele compact filter
-  used by the thesis, validated against isolated Fortran reference programs
-  (see [Numerical verification](#numerical-verification));
+  **fourth-order compact (Padé-type) derivatives and the Lele compact
+  filter** used by the thesis, validated against isolated Fortran reference
+  programs (see [Numerical verification](#numerical-verification));
+- the **log-conformation reformulation** (`conform.f`: eigendecomposition,
+  `T_to_Psi`/`Psi_to_T`, `kernel_conformation`) and its explicit-Euler time
+  step (`drv_Psi`, `solver_log_euler`), validated against an isolated
+  Fortran reference. This path is not discussed in the thesis text but is
+  ported for source-code fidelity, see
+  [`docs/case-12-log-conformation.md`](docs/case-12-log-conformation.md);
 - visualization utilities;
-- ML-ready dataset construction;
-- source-term ports for Case 12;
-- Fortran-reference validation for all four Case 12 source terms;
+- ML-ready dataset construction (exploratory extension, not part of the
+  thesis core scope — see
+  [Machine Learning preparation](#machine-learning-preparation));
+- source-term ports for all 14 cases, with Fortran-reference validation for
+  Case 12's four source terms;
 - grid-convergence verification for the stream-function identities;
 - constitutive models (UCM, Oldroyd-B), validated against closed-form steady
   Couette solutions (see [Constitutive models](docs/constitutive-models.md));
@@ -523,10 +540,9 @@ The Python modernization currently includes:
 ### Implemented source terms
 
 ```text
-tfwz   ported and validated against Fortran reference
-tfTxx  ported and validated against Fortran reference
-tfTxy  ported and validated against Fortran reference
-tfTyy  ported and validated against Fortran reference
+Case 12: tfwz, tfTxx, tfTxy, tfTyy — ported and validated against Fortran reference
+Cases 01-11, 13, 14: ported (validated against isolated Fortran reference
+  per case; Cases 13/14 are identically zero by construction, see above)
 ```
 
 ### Pending work
@@ -536,12 +552,12 @@ expanded datasets for ML workflows (exploratory, not part of the thesis)
 full temporal-evolution comparison against the original Fortran solver's
   own time loop (full simulation horizon, finer grids)
 porting the time-marching pipeline (Poisson solver, Euler/RK4 steps) to the
-  4th-order compact operators and Lele filter; the time-marching solver
-  below still uses the 2nd-order operators, validated against isolated
-  Fortran references that deliberately mirror that choice
-remaining 13 MMS cases (case_01-case_11, case_13, case_14); only Case 12
-  (used in the thesis and the JNNFM paper) is ported
-log-conformation solver path (conform.f); not used in the thesis text
+  4th-order compact operators and Lele filter (Etapa 17); the time-marching
+  solver below still uses the 2nd-order operators, validated against
+  isolated Fortran references that deliberately mirror that choice
+log-conformation RK4 variant (solver_log_rk4) and a full multi-step
+  log-conformation time-marching wrapper; only the single explicit-Euler
+  step is ported (see docs/case-12-log-conformation.md)
 presentation material for thesis defense
 ```
 
@@ -616,6 +632,13 @@ scope, as documented in each step's comparison report. A full
 temporal-evolution comparison against the original Fortran solver's own time
 loop, over the complete simulation horizon and on finer grids, is future work.
 
+The **log-conformation reformulation** (`conform.f`) of the same Case 12
+problem has its own explicit-Euler step, also validated to machine precision
+against an isolated Fortran reference; see
+[`docs/case-12-log-conformation.md`](docs/case-12-log-conformation.md). This
+path is not discussed in the thesis text and its RK4 variant and full
+multi-step marching remain unported.
+
 ---
 
 ## Repository structure
@@ -635,13 +658,13 @@ loop, over the complete simulation horizon and on finer grids, is future work.
 │       ├── grids.py
 │       ├── fields.py
 │       ├── parameters.py
-│       ├── manufactured_solutions/
-│       ├── source_terms/
-│       ├── models/
-│       ├── numerics/
+│       ├── manufactured_solutions/  (case_01.py-case_14.py, all 14 MMS cases)
+│       ├── source_terms/            (case_01.py-case_14.py)
+│       ├── models/                  (ucm.py, oldroyd_b.py, log_conformation.py)
+│       ├── numerics/                (derivatives, filters, poisson, time_stepping[_log], time_marching)
 │       ├── validation/
 │       ├── visualization/
-│       ├── ml/
+│       ├── ml/                      (exploratory extension, not thesis core)
 │       └── io/
 │
 ├── Thesis/
@@ -850,6 +873,15 @@ assets/thesis/  → selected thesis figures, committed
 ---
 
 ## Machine Learning preparation
+
+> **Scope note.** This subpackage is an **exploratory extension, not part
+> of the thesis's core scope**. The thesis is a numerical-verification
+> work (MMS applied to high-order viscoelastic flow solvers); it is not
+> about machine learning. No surrogate model is trained anywhere in this
+> repository — only feature tables and train/validation/test splits are
+> built from the already-validated fields. The originally planned
+> surrogate-model phase (Etapa 11) was discontinued for this reason; see
+> `.claude/PLANEJAMENTO.md`.
 
 The package includes dataset utilities under:
 
