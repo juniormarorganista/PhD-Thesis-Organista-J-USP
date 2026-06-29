@@ -15,6 +15,24 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- Cases 13 e 14 portados como módulos triviais (décimo segundo e
+  décimo terceiro/último da Etapa 14): `manufactured_solutions/case_13.py`,
+  `case_14.py`, `source_terms/case_13.py`, `case_14.py`. Investigação
+  revelou que, diferente dos Casos 01-12, esses dois **não são casos
+  MMS** — a solução exata e o termo fonte são identicamente zero em
+  ambos no Fortran original, e por isso não têm notebook Mathematica
+  correspondente. São, na verdade, configurações de benchmark físico
+  da cavidade com tampa móvel (Case 13: velocidade constante da tampa;
+  Case 14: mesma config. com rampa suave via `tanh`). Após confirmação
+  com o autor, portados como módulos triviais (retornam campos/termos
+  zerados) apenas por paridade estrutural com os outros 12 casos; sem
+  validação cruzada Fortran (ambos os lados seriam trivialmente zero).
+  A condição de contorno da tampa (único conteúdo não-trivial) não foi
+  portada, seguindo a mesma convenção dos demais casos. Com isso, a
+  Etapa 14 está completa: 11 casos MMS genuínos (01-11) totalmente
+  validados contra referência Fortran isolada, mais 2 casos triviais
+  (13-14) por paridade estrutural. Documentado em
+  `docs/case-13-14-port.md`.
 - MMS Case 11 portado de `case_11.f` (décimo primeiro dos 13 casos
   restantes, Etapa 14): `manufactured_solutions/case_11.py`
   (`evaluate_case_11_exact`, `Case11Parameters`) e `source_terms/case_11.py`

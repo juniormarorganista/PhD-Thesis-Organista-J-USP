@@ -126,6 +126,26 @@ from mms_viscoelastic.source_terms.case_12 import (
     pending_case12_source_terms,
     ported_case12_source_terms,
 )
+from mms_viscoelastic.source_terms.case_13 import (
+    CASE13_FORTRAN_ARRAYS,
+    Case13SourceTermParameters,
+    Case13SourceTerms,
+    evaluate_case_13_source_terms,
+    evaluate_case_13_tftxx,
+    evaluate_case_13_tftxy,
+    evaluate_case_13_tftyy,
+    evaluate_case_13_tfwz,
+)
+from mms_viscoelastic.source_terms.case_14 import (
+    CASE14_FORTRAN_ARRAYS,
+    Case14SourceTermParameters,
+    Case14SourceTerms,
+    evaluate_case_14_source_terms,
+    evaluate_case_14_tftxx,
+    evaluate_case_14_tftxy,
+    evaluate_case_14_tftyy,
+    evaluate_case_14_tfwz,
+)
 
 __all__ = [
     "CASE01_FORTRAN_ARRAYS",
@@ -142,6 +162,8 @@ __all__ = [
     "CASE12_FORTRAN_ARRAYS",
     "CASE12_PENDING_ARRAYS",
     "CASE12_PORTED_ARRAYS",
+    "CASE13_FORTRAN_ARRAYS",
+    "CASE14_FORTRAN_ARRAYS",
     "Case01SourceTermParameters",
     "Case01SourceTerms",
     "Case02SourceTermParameters",
@@ -166,6 +188,10 @@ __all__ = [
     "Case11SourceTerms",
     "Case12SourceTermParameters",
     "Case12SourceTerms",
+    "Case13SourceTermParameters",
+    "Case13SourceTerms",
+    "Case14SourceTermParameters",
+    "Case14SourceTerms",
     "available_case12_source_terms",
     "case12_source_term_status",
     "evaluate_case_01_source_terms",
@@ -228,6 +254,16 @@ __all__ = [
     "evaluate_case_12_tfTxy",
     "evaluate_case_12_tfTyy",
     "evaluate_case_12_tfwz",
+    "evaluate_case_13_source_terms",
+    "evaluate_case_13_tftxx",
+    "evaluate_case_13_tftxy",
+    "evaluate_case_13_tftyy",
+    "evaluate_case_13_tfwz",
+    "evaluate_case_14_source_terms",
+    "evaluate_case_14_tftxx",
+    "evaluate_case_14_tftxy",
+    "evaluate_case_14_tftyy",
+    "evaluate_case_14_tfwz",
     "pending_case12_source_terms",
     "ported_case12_source_terms",
 ]
