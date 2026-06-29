@@ -15,6 +15,22 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 09 portado de `case_09.f` (nono dos 13 casos restantes,
+  Etapa 14, o maior e mais denso de todo o projeto — 790 linhas):
+  `manufactured_solutions/case_09.py` (`evaluate_case_09_exact`,
+  `Case09Parameters`) e `source_terms/case_09.py`
+  (`evaluate_case_09_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case09SourceTermParameters`). `u`,`v`,`wz`,`psi` idênticos ao Case 08;
+  tensões trigonométricas, igual ao Case 03/06/12. A combinação do
+  jacobiano convectivo explícito (Case08) com o ansatz trigonométrico
+  (Case06) torna `tfTxy` a expressão mais densa de todo o projeto (296
+  pares de parênteses). Nenhuma parte foi retranscrita manualmente —
+  módulo Python montado por script a partir dos termos mecânicos,
+  normalizado via `ruff format`. Bateu precisão de máquina contra a
+  referência Fortran isolada
+  (`validation/fortran_reference/case09_fields/`) de primeira, nas 11
+  quantidades exportadas, em duas malhas (5x5, 9x9), mesmo nessa escala
+  inédita. Documentado em `docs/case-09-port.md`.
 - MMS Case 08 portado de `case_08.f` (oitavo dos 13 casos restantes,
   Etapa 14, um dos dois maiores e mais densos — 678 linhas):
   `manufactured_solutions/case_08.py` (`evaluate_case_08_exact`,
