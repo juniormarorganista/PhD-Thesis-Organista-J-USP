@@ -15,6 +15,22 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 03 portado de `case_03.f` (terceiro dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_03.py`
+  (`evaluate_case_03_exact`, `Case03Parameters`) e `source_terms/case_03.py`
+  (`evaluate_case_03_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case03SourceTermParameters`). `u`,`v`,`wz`,`psi` são idênticos aos Casos
+  01/02 (verificado com SymPy); o campo de tensões usa o mesmo ansatz
+  trigonométrico do Case 12, reaproveitando `Case12Coefficients`. Dada a
+  densidade das expressões de `case_03.f` (até 225 pares de parênteses por
+  termo), tanto a referência Fortran isolada quanto o módulo Python foram
+  gerados por scripts mecânicos de tradução (preservam parênteses do
+  Fortran original caractere a caractere; o script Fortran→Python divide
+  o resultado em termos aditivos de topo, copiados sem retranscrição
+  manual), em vez de transcritos à mão termo a termo. As duas
+  transcrições mecânicas independentes concordam entre si e com a
+  referência a precisão de máquina nas 11 quantidades exportadas, em duas
+  malhas (5x5, 9x9). Documentado em `docs/case-03-port.md`.
 - MMS Case 02 portado de `case_02.f` (segundo dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_02.py`
   (`evaluate_case_02_exact`, `Case02Parameters`) e `source_terms/case_02.py`
