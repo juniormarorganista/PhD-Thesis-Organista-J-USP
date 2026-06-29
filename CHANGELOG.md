@@ -15,6 +15,27 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- Caminho log-conformation portado de `conform.f` (Etapa 15, não discutido
+  no texto da tese — portado por fidelidade ao código-fonte):
+  `models/log_conformation.py` (`decompose_symmetric_2x2`, forma fechada da
+  decomposição espectral de matriz simétrica 2x2 que reproduz exatamente a
+  única rotação de Jacobi executada por `decomp_matrix` para `dimen=2`;
+  `stress_to_log_conformation`/`log_conformation_to_stress`, port de
+  `T_to_Psi`/`Psi_to_T`; `source_term_to_log_conformation`, port de
+  `tf_conformation`; `kernel_conformation`, port de `kernel_conformation`) e
+  `numerics/time_stepping_log.py` (`log_conformation_time_derivatives`,
+  port de `drv_Psi`/`nlterms_logPsi`; `euler_step_log_conformation`, port do
+  ramo `ty_sim=22`/`solver_log_euler`). Validado por precisão de máquina
+  contra referência Fortran isolada que mantém o algoritmo de Jacobi
+  genérico (não a forma fechada), em
+  `validation/fortran_reference/case12_log_euler_step/`
+  (`compare_case12_log_euler_step_reference`,
+  `tests/test_case12_log_conformation_fortran_reference.py`), mais testes
+  unitários cruzados contra `numpy.linalg.eigh`
+  (`tests/test_model_log_conformation.py`,
+  `tests/test_time_stepping_log.py`). A variante RK4 (`ty_sim=2`,
+  `solver_log_rk4`) e a marcha temporal multi-passo completa ficam
+  deferidas. Documentado em `docs/case-12-log-conformation.md`.
 - Cases 13 e 14 portados como módulos triviais (décimo segundo e
   décimo terceiro/último da Etapa 14): `manufactured_solutions/case_13.py`,
   `case_14.py`, `source_terms/case_13.py`, `case_14.py`. Investigação
