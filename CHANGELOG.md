@@ -15,6 +15,19 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 05 portado de `case_05.f` (quinto dos 13 casos restantes,
+  Etapa 14): `manufactured_solutions/case_05.py`
+  (`evaluate_case_05_exact`, `Case05Parameters`) e `source_terms/case_05.py`
+  (`evaluate_case_05_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case05SourceTermParameters`). `u`,`v`,`wz`,`psi` seguem o mesmo ansatz
+  Taylor-Green do Case 04; o campo de tensões é polinomial quadrático,
+  igual ao Case 02 (reaproveita `Case12Coefficients`). Aplicando a lição
+  do Case 04, todo termo (mesmo o compacto `tfwz`) foi colado literalmente
+  do script mecânico Fortran→Python, sem retranscrição manual em nenhum
+  ponto — bateu precisão de máquina contra a referência Fortran isolada
+  (`validation/fortran_reference/case05_fields/`) de primeira, nas 11
+  quantidades exportadas, em duas malhas (5x5, 9x9). Documentado em
+  `docs/case-05-port.md`.
 - MMS Case 04 portado de `case_04.f` (quarto dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_04.py`
   (`evaluate_case_04_exact`, `Case04Parameters`) e `source_terms/case_04.py`
