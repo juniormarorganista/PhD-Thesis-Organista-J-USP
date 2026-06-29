@@ -20,6 +20,16 @@ from mms_viscoelastic.source_terms.case_02 import (
     evaluate_case_02_tftyy,
     evaluate_case_02_tfwz,
 )
+from mms_viscoelastic.source_terms.case_03 import (
+    CASE03_FORTRAN_ARRAYS,
+    Case03SourceTermParameters,
+    Case03SourceTerms,
+    evaluate_case_03_source_terms,
+    evaluate_case_03_tftxx,
+    evaluate_case_03_tftxy,
+    evaluate_case_03_tftyy,
+    evaluate_case_03_tfwz,
+)
 from mms_viscoelastic.source_terms.case_12 import (
     CASE12_FORTRAN_ARRAYS,
     CASE12_PENDING_ARRAYS,
@@ -40,6 +50,7 @@ from mms_viscoelastic.source_terms.case_12 import (
 __all__ = [
     "CASE01_FORTRAN_ARRAYS",
     "CASE02_FORTRAN_ARRAYS",
+    "CASE03_FORTRAN_ARRAYS",
     "CASE12_FORTRAN_ARRAYS",
     "CASE12_PENDING_ARRAYS",
     "CASE12_PORTED_ARRAYS",
@@ -47,6 +58,8 @@ __all__ = [
     "Case01SourceTerms",
     "Case02SourceTermParameters",
     "Case02SourceTerms",
+    "Case03SourceTermParameters",
+    "Case03SourceTerms",
     "Case12SourceTermParameters",
     "Case12SourceTerms",
     "available_case12_source_terms",
@@ -61,6 +74,11 @@ __all__ = [
     "evaluate_case_02_tftxy",
     "evaluate_case_02_tftyy",
     "evaluate_case_02_tfwz",
+    "evaluate_case_03_source_terms",
+    "evaluate_case_03_tftxx",
+    "evaluate_case_03_tftxy",
+    "evaluate_case_03_tftyy",
+    "evaluate_case_03_tfwz",
     "evaluate_case_12_source_terms",
     "evaluate_case_12_tfTxx",
     "evaluate_case_12_tfTxy",
