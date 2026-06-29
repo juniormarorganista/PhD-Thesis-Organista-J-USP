@@ -15,6 +15,16 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 ## [Unreleased]
 
 ### Adicionado
+- MMS Case 11 portado de `case_11.f` (décimo primeiro dos 13 casos
+  restantes, Etapa 14): `manufactured_solutions/case_11.py`
+  (`evaluate_case_11_exact`, `Case11Parameters`) e `source_terms/case_11.py`
+  (`evaluate_case_11_tfwz`/`tftxx`/`tftxy`/`tftyy`,
+  `Case11SourceTermParameters`). `u`,`v`,`wz`,`psi` idênticos ao Case 10
+  (e ao Case 12); tensões polinomiais quadráticas, igual ao Case 02.
+  Bateu precisão de máquina contra a referência Fortran isolada
+  (`validation/fortran_reference/case11_fields/`) de primeira, nas 11
+  quantidades exportadas, em duas malhas (5x5, 9x9). Documentado em
+  `docs/case-11-port.md`.
 - MMS Case 10 portado de `case_10.f` (décimo dos 13 casos restantes,
   Etapa 14): `manufactured_solutions/case_10.py`
   (`evaluate_case_10_exact`, `Case10Parameters`) e `source_terms/case_10.py`
