@@ -32,7 +32,7 @@ chamados), cinco referências Fortran reescritas e nova documentação técnica.
 
 ### Adicionado
 - Etapa 17 (marcha temporal de 4ª ordem real): achado de que
-  `band5_poi`/`banbk5_poi` (`solvers.f`) é código morto — nunca chamado em
+  `band5_poi`/`banbk5_poi` (`solvers.f`) é código morto - nunca chamado em
   nenhum lugar do Fortran original; o solver de Poisson real é `poi_psi4a`
   (multigrid V-cycle FAS sobre stencil compacto de 9 pontos tipo
   Mehrstellen). Portado em `numerics/poisson_multigrid.py`
@@ -51,7 +51,7 @@ chamados), cinco referências Fortran reescritas e nova documentação técnica.
   (`<1e-12`). Achado adicional: a instabilidade documentada em
   `docs/case-12-full-march-reference.md` (Etapa 12, divergência do Euler
   explícito em malha 9x9) persiste mesmo com o esquema real e dissipativo
-  (filtro de Lele), só que mais cedo — refutando a hipótese original de que
+  (filtro de Lele), só que mais cedo - refutando a hipótese original de que
   o esquema dissipativo não compartilharia essa instabilidade. Documentado
   em `docs/case-12-4th-order-time-marching.md`.
 
@@ -70,7 +70,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   real do repositório; docstring de `src/mms_viscoelastic/ml/__init__.py`
   com a mesma nota de escopo.
 - Caminho log-conformation portado de `conform.f` (Etapa 15, não discutido
-  no texto da tese — portado por fidelidade ao código-fonte):
+  no texto da tese - portado por fidelidade ao código-fonte):
   `models/log_conformation.py` (`decompose_symmetric_2x2`, forma fechada da
   decomposição espectral de matriz simétrica 2x2 que reproduz exatamente a
   única rotação de Jacobi executada por `decomp_matrix` para `dimen=2`;
@@ -94,7 +94,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   décimo terceiro/último da Etapa 14): `manufactured_solutions/case_13.py`,
   `case_14.py`, `source_terms/case_13.py`, `case_14.py`. Investigação
   revelou que, diferente dos Casos 01-12, esses dois **não são casos
-  MMS** — a solução exata e o termo fonte são identicamente zero em
+  MMS** - a solução exata e o termo fonte são identicamente zero em
   ambos no Fortran original, e por isso não têm notebook Mathematica
   correspondente. São, na verdade, configurações de benchmark físico
   da cavidade com tampa móvel (Case 13: velocidade constante da tampa;
@@ -129,7 +129,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   primeira, nas 11 quantidades exportadas, em duas malhas (5x5, 9x9).
   Documentado em `docs/case-10-port.md`.
 - MMS Case 09 portado de `case_09.f` (nono dos 13 casos restantes,
-  Etapa 14, o maior e mais denso de todo o projeto — 790 linhas):
+  Etapa 14, o maior e mais denso de todo o projeto - 790 linhas):
   `manufactured_solutions/case_09.py` (`evaluate_case_09_exact`,
   `Case09Parameters`) e `source_terms/case_09.py`
   (`evaluate_case_09_tfwz`/`tftxx`/`tftxy`/`tftyy`,
@@ -137,7 +137,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   tensões trigonométricas, igual ao Case 03/06/12. A combinação do
   jacobiano convectivo explícito (Case08) com o ansatz trigonométrico
   (Case06) torna `tfTxy` a expressão mais densa de todo o projeto (296
-  pares de parênteses). Nenhuma parte foi retranscrita manualmente —
+  pares de parênteses). Nenhuma parte foi retranscrita manualmente -
   módulo Python montado por script a partir dos termos mecânicos,
   normalizado via `ruff format`. Bateu precisão de máquina contra a
   referência Fortran isolada
@@ -145,7 +145,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   quantidades exportadas, em duas malhas (5x5, 9x9), mesmo nessa escala
   inédita. Documentado em `docs/case-09-port.md`.
 - MMS Case 08 portado de `case_08.f` (oitavo dos 13 casos restantes,
-  Etapa 14, um dos dois maiores e mais densos — 678 linhas):
+  Etapa 14, um dos dois maiores e mais densos - 678 linhas):
   `manufactured_solutions/case_08.py` (`evaluate_case_08_exact`,
   `Case08Parameters`) e `source_terms/case_08.py`
   (`evaluate_case_08_tfwz`/`tftxx`/`tftxy`/`tftyy`,
@@ -155,7 +155,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   jacobiano convectivo não-linear da solução manufaturada aparece
   explícito nos termos fonte (em vez de se anular), tornando `tfTxy` a
   expressão mais densa portada até agora (212 pares de parênteses).
-  Nenhuma parte foi retranscrita manualmente — módulo Python montado
+  Nenhuma parte foi retranscrita manualmente - módulo Python montado
   por script a partir dos termos mecânicos, depois normalizado via
   `ruff format` (só formatação, nunca semântica). Bateu precisão de
   máquina contra a referência Fortran isolada
@@ -173,7 +173,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   mecânicos: funções hiperbólicas (`Tanh`/`Cosh` → `np.tanh`/`np.cosh`)
   e literais Fortran com sufixo de expoente `d0` (`8.0d0` → `8.0e0`).
   A validação cruzada revelou um artefato de ordem de avaliação em
-  ponto flutuante do gfortran (não um erro de transcrição — verificado
+  ponto flutuante do gfortran (não um erro de transcrição - verificado
   via comparação byte a byte e teste com `-O0`/`-O2`/`-ffp-contract=off`)
   em `tfTyy`: a expressão Fortran de referência foi decomposta em
   variáveis intermediárias nomeadas (mesma técnica já usada no port
@@ -187,7 +187,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   (`evaluate_case_06_tfwz`/`tftxx`/`tftxy`/`tftyy`,
   `Case06SourceTermParameters`). `u`,`v`,`wz`,`psi` seguem o ansatz
   Taylor-Green dos Casos 04/05; o campo de tensões usa o ansatz
-  trigonométrico do Case 03/Case 12 — primeira combinação
+  trigonométrico do Case 03/Case 12 - primeira combinação
   Taylor-Green+trigonométrico entre os casos portados até agora. Todo
   termo (mesmo o `tfwz` compacto) foi colado literalmente do script
   mecânico Fortran→Python. Bateu precisão de máquina contra a referência
@@ -203,7 +203,7 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   igual ao Case 02 (reaproveita `Case12Coefficients`). Aplicando a lição
   do Case 04, todo termo (mesmo o compacto `tfwz`) foi colado literalmente
   do script mecânico Fortran→Python, sem retranscrição manual em nenhum
-  ponto — bateu precisão de máquina contra a referência Fortran isolada
+  ponto - bateu precisão de máquina contra a referência Fortran isolada
   (`validation/fortran_reference/case05_fields/`) de primeira, nas 11
   quantidades exportadas, em duas malhas (5x5, 9x9). Documentado em
   `docs/case-05-port.md`.
@@ -215,12 +215,12 @@ finalização de documentação/README. Ver entradas individuais abaixo.
   Taylor-Green (trigonométrico, sem fator polinomial); o campo de tensões
   é uniforme no espaço, idêntico ao do Case 01. Por serem termos fonte
   bem mais compactos que os Casos 02/03, foram transcritos manualmente em
-  vez de copiados literalmente do script mecânico — e isso reintroduziu
+  vez de copiados literalmente do script mecânico - e isso reintroduziu
   exatamente o tipo de erro que a cópia literal evita: um erro de sinal
   (`(1 - betann)` em vez de `(-1 + betann)`, sinais opostos) nos três
   termos de tensão. A validação cruzada contra a referência Fortran
   isolada pegou o erro de imediato (erro absoluto constante ~100-200 em
-  todo ponto da malha, independente de x/y — assinatura de erro de sinal
+  todo ponto da malha, independente de x/y - assinatura de erro de sinal
   em termo que não depende de posição); corrigido restaurando
   `(-1.0 + betann)`. Documentado em `docs/case-04-port.md`. Validado
   contra novo programa Fortran de referência isolado

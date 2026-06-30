@@ -48,7 +48,7 @@ The original Fortran thesis code is not modified.
   the Lele compact filter, mirroring the scope of
   `case12_euler_step`.
 - Only the explicit-Euler variant (`ty_sim == 22`, `solver_log_euler`) is
-  ported. The RK4 variant (`ty_sim == 2`, `solver_log_rk4`) is deferred —
+  ported. The RK4 variant (`ty_sim == 2`, `solver_log_rk4`) is deferred -
   it re-evaluates the boundary conditions and `cc_Psi`/`tf_conformation`
   between stages, which is out of scope for this single-step reference.
 - `cc_Psi` (the boundary-specific `Psi` re-projection) is not ported: only

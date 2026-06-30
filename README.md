@@ -3,7 +3,7 @@
 This repository contains the code and numerical verification material from my
 doctoral thesis at the University of São Paulo (USP). The thesis develops and
 verifies high-order computational methods for incompressible viscoelastic flows
-using the **Method of Manufactured Solutions (MMS)** — a rigorous technique for
+using the **Method of Manufactured Solutions (MMS)** - a rigorous technique for
 confirming that a numerical solver achieves its theoretical order of accuracy.
 
 ---
@@ -47,19 +47,19 @@ This repository has two complementary layers. The first preserves the original
 scientific material for traceability:
 
 ```text
-src/fortran_original/    — original Fortran solver (4th-order LPOG compact scheme)
-src/mathematica_original/ — symbolic derivations of manufactured fields
-Thesis/                  — thesis source and figures
-Papers/                  — journal submission material
+src/fortran_original/    - original Fortran solver (4th-order LPOG compact scheme)
+src/mathematica_original/ - symbolic derivations of manufactured fields
+Thesis/                  - thesis source and figures
+Papers/                  - journal submission material
 ```
 
 The second builds a modern Python package around those originals:
 
 ```text
-src/mms_viscoelastic/    — validated Python re-implementation
-validation/              — isolated Fortran reference programs + reference CSVs
-tests/                   — pytest regression suite (508 tests)
-examples/                — runnable scripts and notebooks
+src/mms_viscoelastic/    - validated Python re-implementation
+validation/              - isolated Fortran reference programs + reference CSVs
+tests/                   - pytest regression suite (508 tests)
+examples/                - runnable scripts and notebooks
 ```
 
 The Python layer is organized as a real scientific package: it reproduces every
@@ -235,7 +235,7 @@ python -m pytest tests\test_case12_convergence.py -v
 The figures below are from the thesis and presentation material. The originals
 were EPS; PNG versions are included here so GitHub can render them.
 
-### Flow field — streamlines
+### Flow field - streamlines
 
 <p align="center">
   <img src="assets/thesis/case12/thesis_streamlines.png" width="70%"
@@ -249,7 +249,7 @@ were EPS; PNG versions are included here so GitHub can render them.
        alt="MMS validation pipeline">
 </p>
 
-### Case 12 — exact fields
+### Case 12 - exact fields
 
 | $\psi$ | $u$ |
 |---|---|
@@ -263,7 +263,7 @@ were EPS; PNG versions are included here so GitHub can render them.
 |---|---|---|
 | <img src="assets/thesis/case12/exact_map_txx.png" width="300"> | <img src="assets/thesis/case12/exact_map_txy.png" width="300"> | <img src="assets/thesis/case12/exact_map_tyy.png" width="300"> |
 
-### Case 12 — exact surfaces
+### Case 12 - exact surfaces
 
 | $\psi$ | $u$ |
 |---|---|
@@ -302,18 +302,18 @@ were EPS; PNG versions are included here so GitHub can render them.
 The Fortran-to-Python port of `src/fortran_original/4Order_LPOG_Euler/` is
 functionally complete. The package includes:
 
-- **Grid utilities** — `Grid2D` with uniform spacing
+- **Grid utilities** - `Grid2D` with uniform spacing
 - **All 14 MMS manufactured-solution cases** (`case_01` through `case_14`),
   each ported and validated against an isolated Fortran reference program.
   Case 12 is the primary case from the thesis and the JNNFM paper. Cases 13
-  and 14 are not MMS cases in the original Fortran — their exact solution and
+  and 14 are not MMS cases in the original Fortran - their exact solution and
   source term are identically zero (lid-driven-cavity benchmarks); they were
   ported as trivial structural-parity modules (see
   [`docs/case-13-14-port.md`](docs/case-13-14-port.md)).
-- **Fourth-order compact derivatives and Lele filter** — ports of `coef_4a`,
+- **Fourth-order compact derivatives and Lele filter** - ports of `coef_4a`,
   `rhsx_4a`, `rhsxx_4a` and the compact filter from `derivs.f`, validated
   against isolated Fortran references.
-- **Log-conformation reformulation** — port of `conform.f`: closed-form 2×2
+- **Log-conformation reformulation** - port of `conform.f`: closed-form 2×2
   eigendecomposition (`decomp_matrix`), `T_to_Psi`/`Psi_to_T` conversions,
   `kernel_conformation`, and the explicit-Euler time step (`drv_Psi`,
   `solver_log_euler`). Validated to machine precision against an isolated
@@ -331,7 +331,7 @@ functionally complete. The package includes:
   [Time-marching solver](#time-marching-solver-case-12)).
 - **Visualization utilities** and a **reproducible Jupyter notebook**
   ([`examples/notebooks/Case12_MMS_Pipeline.ipynb`](examples/notebooks/Case12_MMS_Pipeline.ipynb)).
-- **ML dataset utilities** (exploratory extension — see
+- **ML dataset utilities** (exploratory extension - see
   [Machine learning utilities](#machine-learning-utilities)).
 
 The file-by-file correspondence between Fortran routines and Python modules is
@@ -358,13 +358,13 @@ The following items are documented as explicitly deferred:
 
 ```text
 RK4 time integration (solver_rk4, solver_log_rk4) and full multi-step
-  log-conformation time marching — only the Euler variants are ported.
+  log-conformation time marching - only the Euler variants are ported.
 Full temporal-evolution comparison against the original Fortran time loop
   on fine grids and long simulation horizons. Explored in Etapa 17
   (docs/case-12-4th-order-time-marching.md): the explicit-Euler instability
   documented in docs/case-12-full-march-reference.md persists with the real
   4th-order + Lele-filter + multigrid-Poisson scheme, just at a different
-  point in time — the dissipation from the filter alone is not enough to
+  point in time - the dissipation from the filter alone is not enough to
   stabilize the explicit march at dt=1e-5 on coarse grids.
 ```
 
@@ -379,7 +379,7 @@ the Lele compact filter applied once per step between the boundary
 re-imposition and the Poisson re-solve (matching `subroutine loop` in
 `main.f`), and a 4th-order compact multigrid V-cycle Poisson solver
 (`poi_psi4a`). The pentadiagonal `band5_poi`/`banbk5_poi` routines in
-`solvers.f` are dead code — a repository-wide search confirms they are never
+`solvers.f` are dead code - a repository-wide search confirms they are never
 called anywhere in the original Fortran.
 
 Each building block is validated against an isolated Fortran reference program
@@ -419,7 +419,7 @@ remains as an independent utility but is no longer part of the main pipeline.
 │       ├── numerics/                 (derivatives, filters, poisson, time_stepping[_log], time_marching)
 │       ├── validation/
 │       ├── visualization/
-│       ├── ml/                       (exploratory extension — not thesis core)
+│       ├── ml/                       (exploratory extension - not thesis core)
 │       └── io/
 ├── Thesis/                           ← thesis LaTeX source and figures (read-only)
 ├── Papers/                           ← journal submission material (read-only)
@@ -524,7 +524,7 @@ Consolidated results from this notebook are in
 > **Scope note.** The `ml/` subpackage is an **exploratory extension, not part
 > of the thesis's core scope**. The thesis is a numerical-verification work; it
 > is not about machine learning. No surrogate model is trained anywhere in this
-> repository — the utilities only build pointwise feature tables and
+> repository - the utilities only build pointwise feature tables and
 > train/validation/test splits from the already-validated manufactured fields.
 > The surrogate-model phase originally planned was discontinued; the decision
 > is recorded in the planning log.
@@ -571,6 +571,6 @@ own terms, described in [`Thesis/LICENSE`](Thesis/LICENSE)
 
 ---
 
-**Juniormar Organista** — Applied and Computational Mathematics, USP.
+**Juniormar Organista** - Applied and Computational Mathematics, USP.
 Computational fluid mechanics, viscoelastic flows, high-order finite differences,
 Method of Manufactured Solutions.

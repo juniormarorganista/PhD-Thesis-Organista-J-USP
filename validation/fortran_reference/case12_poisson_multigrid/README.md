@@ -24,7 +24,7 @@ The original Fortran thesis code is not modified.
 
 A repository-wide search (`grep -rn "band5_poi\|banbk5_poi" src/fortran_original/4Order_LPOG_Euler/*.f`)
 shows the pentadiagonal solver in `solvers.f` is **never called** anywhere
-in the original Fortran source — it is dead code. The Poisson solver
+in the original Fortran source - it is dead code. The Poisson solver
 actually invoked by the time-marching loop is `poi_psi4a`
 (`call poi_psi4a` in `subroutine loop`, `main.f:182`), a multigrid V-cycle
 over a 4th-order compact (Mehrstellen-type) 9-point discretization, smoothed
@@ -35,7 +35,7 @@ by line-relaxation SOR (`sor`, one tridiagonal solve per grid line via
 
 - Generic `nx`, `ny`, `msh` (number of multigrid levels) are accepted as
   command-line arguments; the default (`33 33 4`) matches `par.nn`'s
-  `imax = jmax = 33`, `msh = 4` — the only configuration the original
+  `imax = jmax = 33`, `msh = 4` - the only configuration the original
   Fortran code ever actually runs at (`imax`/`jmax`/`msh` are compile-time
   `parameter`s there, not runtime inputs).
 - `psi` is used both as the Dirichlet boundary condition (only the

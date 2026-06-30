@@ -163,7 +163,7 @@ conditions and `cc_Psi` between each of its four stages, which would require
 the full multi-step time-marching machinery (Etapa 10-style boundary
 re-imposition), not just a single-step right-hand-side port.
 
-`cc_Psi` (`conform.f` lines 50-122 — re-projects `Psi` specifically on the
+`cc_Psi` (`conform.f` lines 50-122 - re-projects `Psi` specifically on the
 boundary rows/columns) is not ported: only interior grid points are
 advanced; boundary values are copied unchanged, as in the non-log Euler
 step (Etapa 9).
@@ -217,7 +217,7 @@ grid, `t = 0.3`) between Python and the Fortran reference:
 (Updated for the Etapa 17 4th-order rewrite; unchanged at this precision.)
 All four components agree to within machine precision, as expected since
 both implementations apply the same eigendecomposition, kernel and
-Euler-update formulas to identical input fields — the closed-form
+Euler-update formulas to identical input fields - the closed-form
 eigensolver and the iterative Jacobi rotation agree exactly for `dimen = 2`.
 [`tests/test_case12_log_conformation_fortran_reference.py`](../tests/test_case12_log_conformation_fortran_reference.py)
 asserts `max_abs_error < 1e-12` and `max_rel_error < 1e-12` for all four
