@@ -14,6 +14,13 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-29
+
+Consolida a Etapa 17: marcha temporal de 4ª ordem real com multigrid V-cycle FAS
+(`poi_psi4a`), filtro de Lele e derivadas compactas de 4ª ordem como pipeline
+completo. Inclui achado de código morto (`band5_poi`/`banbk5_poi` nunca
+chamados), cinco referências Fortran reescritas e nova documentação técnica.
+
 ### Adicionado
 - Etapa 17 (marcha temporal de 4ª ordem real): achado de que
   `band5_poi`/`banbk5_poi` (`solvers.f`) é código morto — nunca chamado em
