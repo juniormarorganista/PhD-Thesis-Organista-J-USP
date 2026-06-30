@@ -1,81 +1,71 @@
-# Thesis USP Codes - MMS Verification and Python Modernization
+# Numerical Verification of High-Order Viscoelastic Flow Solvers via MMS
 
-Repository associated with the doctoral thesis of **Juniormar Organista**, focused on the numerical verification of high-order solvers for incompressible viscoelastic flows using the **Method of Manufactured Solutions (MMS)**.
+This repository contains the code and numerical verification material from my
+doctoral thesis at the University of São Paulo (USP). The thesis develops and
+verifies high-order computational methods for incompressible viscoelastic flows
+using the **Method of Manufactured Solutions (MMS)** — a rigorous technique for
+confirming that a numerical solver achieves its theoretical order of accuracy.
 
 ---
 
 ## Table of contents
 
-1. [Project vision](#project-vision)
-2. [Scientific context](#scientific-context)
-3. [Mathematical formulation](#mathematical-formulation)
-4. [Method of Manufactured Solutions](#method-of-manufactured-solutions)
-5. [Numerical verification](#numerical-verification)
-6. [Convergence results (Case 12)](#convergence-results-case-12)
-7. [Thesis figures in this README](#thesis-figures-in-this-readme)
-8. [Current Python status](#current-python-status)
-9. [Case 12 status](#case-12-status)
-10. [Time-marching solver (Case 12)](#time-marching-solver-case-12)
-11. [Repository structure](#repository-structure)
-12. [Installation](#installation)
-13. [Tests and validation](#tests-and-validation)
-14. [Examples](#examples)
-15. [Generated outputs](#generated-outputs)
-16. [Machine Learning preparation](#machine-learning-preparation)
-17. [GitHub workflow](#github-workflow)
-18. [GitHub About](#github-about)
-19. [Citation](#citation)
-20. [License](#license)
-21. [Author](#author)
-22. [README maintenance rule](#readme-maintenance-rule)
-
----
-
-## Project vision
-
-The project has two complementary goals.
-
-First, it preserves the scientific material associated with the doctoral thesis. The original sources remain available for traceability, historical inspection and comparison:
-
-```text
-src/fortran_original/
-src/mathematica_original/
-Thesis/
-Papers/
-```
-
-Second, it builds a modern Python package:
-
-```text
-src/mms_viscoelastic/
-```
-
-The Python layer is being organized as a real scientific package with tests, validation data, examples, source-term ports, visualization utilities and future ML-ready datasets.
-
-The long-term objective is to transform a thesis codebase into a reproducible scientific computing framework.
+1. [Scientific context](#scientific-context)
+2. [Mathematical formulation](#mathematical-formulation)
+3. [Method of Manufactured Solutions](#method-of-manufactured-solutions)
+4. [Numerical verification](#numerical-verification)
+5. [Convergence results (Case 12)](#convergence-results-case-12)
+6. [Thesis figures](#thesis-figures)
+7. [What is in this repository](#what-is-in-this-repository)
+8. [Time-marching solver (Case 12)](#time-marching-solver-case-12)
+9. [Repository structure](#repository-structure)
+10. [Installation](#installation)
+11. [Tests and validation](#tests-and-validation)
+12. [Examples](#examples)
+13. [Machine learning utilities](#machine-learning-utilities)
+14. [Citation](#citation)
+15. [License](#license)
 
 ---
 
 ## Scientific context
 
-The thesis concerns the numerical verification of high-order computational solvers for **incompressible viscoelastic flows**.
+Viscoelastic flows are challenging to simulate accurately because the velocity
+field couples with the evolution of a polymeric stress tensor, introducing
+memory effects and numerical stiffness controlled by the Weissenberg number. My
+work focuses on verifying that the high-order finite-difference solver
+implemented in Fortran actually achieves the expected fourth-order spatial
+accuracy across a range of flow configurations and constitutive models (UCM,
+Oldroyd-B, Giesekus, LPTT).
 
-Viscoelastic flows are challenging because the flow field is coupled with polymeric stress evolution. In practice, the solver must handle:
+The central question is not "does the simulation look right?" but rather:
+**does the measured convergence rate match the theoretical prediction?**
+That is a code-verification problem, and MMS is the standard rigorous tool for
+answering it.
 
-- velocity components;
-- streamfunction;
-- scalar vorticity;
-- stress tensor components;
-- nonlinear constitutive terms;
-- stiffness associated with the Weissenberg number;
-- high-order spatial discretization;
-- manufactured forcing terms.
+This repository has two complementary layers. The first preserves the original
+scientific material for traceability:
 
-The central scientific question is:
+```text
+src/fortran_original/    — original Fortran solver (4th-order LPOG compact scheme)
+src/mathematica_original/ — symbolic derivations of manufactured fields
+Thesis/                  — thesis source and figures
+Papers/                  — journal submission material
+```
 
-> Given an exact manufactured solution, does the implemented numerical method recover the expected theoretical order of accuracy?
+The second builds a modern Python package around those originals:
 
-This is a code-verification problem, not merely a simulation problem.
+```text
+src/mms_viscoelastic/    — validated Python re-implementation
+validation/              — isolated Fortran reference programs + reference CSVs
+tests/                   — pytest regression suite (508 tests)
+examples/                — runnable scripts and notebooks
+```
+
+The Python layer is organized as a real scientific package: it reproduces every
+numerical result from the Fortran originals to within machine precision, carries
+a full regression-test suite, and is structured so that the verification chain
+is fully reproducible without the original Fortran toolchain.
 
 ---
 
@@ -83,322 +73,153 @@ This is a code-verification problem, not merely a simulation problem.
 
 ### Incompressibility
 
-For an incompressible flow, the velocity field satisfies:
+For a two-dimensional incompressible flow the velocity field
+$\mathbf{u} = (u, v)$ satisfies:
 
 ```math
-\nabla \cdot \mathbf{u} = 0.
-```
-
-In two dimensions:
-
-```math
-\mathbf{u}(x,y,t) = (u(x,y,t), v(x,y,t)).
-```
-
-Thus:
-
-```math
-\frac{\partial u}{\partial x}
-+
-\frac{\partial v}{\partial y}
-=
-0.
+\frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} = 0.
 ```
 
 ### Streamfunction formulation
 
-For two-dimensional incompressible flows, a streamfunction $\psi$ can be introduced so that:
+Introducing a streamfunction $\psi$ so that
 
 ```math
-u =
-\frac{\partial \psi}{\partial y},
-\qquad
-v =
--\frac{\partial \psi}{\partial x}.
+u = \frac{\partial \psi}{\partial y}, \qquad v = -\frac{\partial \psi}{\partial x}
 ```
 
-This automatically satisfies incompressibility.
+automatically satisfies the incompressibility constraint.
 
 ### Vorticity
 
-The scalar vorticity is defined as:
+The scalar vorticity is:
 
 ```math
-\omega_z =
-\frac{\partial v}{\partial x}
--
-\frac{\partial u}{\partial y}.
-```
-
-Using the streamfunction definition:
-
-```math
-\omega_z = -\nabla^2 \psi,
-\qquad
-\nabla^2 \psi = -\omega_z.
+\omega_z = \frac{\partial v}{\partial x} - \frac{\partial u}{\partial y}
+         = -\nabla^2 \psi,
+\qquad \text{i.e.,} \quad \nabla^2 \psi = -\omega_z.
 ```
 
 ### Rate-of-deformation tensor
 
-The symmetric rate-of-deformation tensor is:
-
 ```math
-\mathbf{D}
-=
-\frac{1}{2}
-\left(
-\nabla\mathbf{u}
-+
-\nabla\mathbf{u}^{T}
-\right).
-```
-
-For two-dimensional velocity fields:
-
-```math
-\mathbf{D}
-=
-\begin{bmatrix}
-\frac{\partial u}{\partial x}
-&
-\frac{1}{2}
-\left(
-\frac{\partial u}{\partial y}
-+
-\frac{\partial v}{\partial x}
-\right)
-\\[4pt]
-\frac{1}{2}
-\left(
-\frac{\partial u}{\partial y}
-+
-\frac{\partial v}{\partial x}
-\right)
-&
-\frac{\partial v}{\partial y}
+\mathbf{D} = \frac{1}{2}\left(\nabla\mathbf{u} + \nabla\mathbf{u}^{T}\right)
+= \begin{bmatrix}
+\dfrac{\partial u}{\partial x} &
+\dfrac{1}{2}\!\left(\dfrac{\partial u}{\partial y}+\dfrac{\partial v}{\partial x}\right) \\[6pt]
+\dfrac{1}{2}\!\left(\dfrac{\partial u}{\partial y}+\dfrac{\partial v}{\partial x}\right) &
+\dfrac{\partial v}{\partial y}
 \end{bmatrix}.
 ```
 
-### Generic viscoelastic constitutive structure
+### Viscoelastic constitutive equation
 
-A broad representation of the viscoelastic stress equation may be written as:
+The polymeric extra-stress tensor $\boldsymbol{\tau}$ evolves according to:
 
 ```math
 \mathrm{Wi}\,\mathcal{D}\boldsymbol{\tau}
-+
-\mathcal{F}
-\left(
-\boldsymbol{\tau},
-\nabla \mathbf{u}
-\right)
-=
-2(1-\beta)\mathbf{D}.
++ \mathcal{F}\!\left(\boldsymbol{\tau}, \nabla \mathbf{u}\right)
+= 2(1-\beta)\mathbf{D},
 ```
 
-Here:
-
-- $\boldsymbol{\tau}$ is the polymeric extra-stress tensor;
-- $\mathrm{Wi}$ is the Weissenberg number;
-- $\beta$ is the solvent-viscosity ratio;
-- $\mathcal{D}$ denotes a suitable material or objective derivative;
-- $\mathcal{F}$ depends on the chosen constitutive model.
-
-The thesis framework involves models such as:
-
-- UCM;
-- Oldroyd-B;
-- Giesekus;
-- LPTT.
-
-### Stress tensor components
+where $\mathrm{Wi}$ is the Weissenberg number, $\beta$ the solvent-viscosity
+ratio, $\mathcal{D}$ a suitable objective derivative, and $\mathcal{F}$ depends
+on the constitutive model. In two dimensions the stress tensor is:
 
 ```math
-\boldsymbol{\tau}
-=
-\begin{bmatrix}
-T_{xx} & T_{xy}
-\\
-T_{xy} & T_{yy}
-\end{bmatrix}.
+\boldsymbol{\tau} = \begin{bmatrix} T_{xx} & T_{xy} \\ T_{xy} & T_{yy} \end{bmatrix}.
 ```
 
 ---
 
 ## Method of Manufactured Solutions
 
-The **Method of Manufactured Solutions** is a rigorous technique for code verification. Instead of searching for a natural exact solution of the governing equations, one prescribes an artificial but smooth exact solution and computes the forcing terms that make it satisfy the equations exactly.
+The idea is to prescribe a smooth artificial exact solution and derive the
+source terms that make it satisfy the governing equations exactly. If the solver
+then converges to that solution at the expected rate, the implementation is
+verified.
 
-The manufactured state vector is:
+The manufactured state vector for Case 12 is:
 
 ```math
 \mathbf{q}_e(x,y,t)
-=
-\left(
-u_e,
-v_e,
-\psi_e,
-\omega_{z,e},
-T_{xx,e},
-T_{xy,e},
-T_{yy,e}
-\right).
+= \bigl(u_e,\; v_e,\; \psi_e,\; \omega_{z,e},\; T_{xx,e},\; T_{xy,e},\; T_{yy,e}\bigr).
 ```
 
-Substituting this manufactured field into the continuous governing equations gives:
+Substituting into the governing equations gives the MMS source vector:
 
 ```math
-\mathcal{L}
-\left(
-\mathbf{q}_e
-\right)
-=
-\mathbf{f}_{\mathrm{MMS}}.
+\mathcal{L}(\mathbf{q}_e) = \mathbf{f}_{\mathrm{MMS}}
+= \bigl(f_{\omega_z},\; f_{T_{xx}},\; f_{T_{xy}},\; f_{T_{yy}}\bigr).
 ```
 
-The manufactured source vector contains terms such as:
-
-```math
-\mathbf{f}_{\mathrm{MMS}}
-=
-\left(
-f_{\omega_z},
-f_{T_{xx}},
-f_{T_{xy}},
-f_{T_{yy}}
-\right).
-```
-
-In the original Fortran Case 12 implementation, these are represented by:
-
-```text
-tfwz
-tfTxx
-tfTxy
-tfTyy
-```
-
-The Python port keeps the same scientific meaning while using NumPy array convention:
-
-```text
-(ny, nx)
-```
+In the Fortran implementation these are `tfwz`, `tfTxx`, `tfTxy`, `tfTyy`.
+The Python port preserves the same scientific meaning with NumPy `(ny, nx)`
+array layout.
 
 ---
 
 ## Numerical verification
 
-Given a numerical approximation $\mathbf{q}_h$ on a grid of characteristic spacing $h$, the error is:
-
-```math
-\mathbf{e}_h
-=
-\mathbf{q}_h
--
-\mathbf{q}_e.
-```
-
-Typical norms include:
+Given a numerical approximation $\mathbf{q}_h$ on a grid of spacing $h$, the
+error is $\mathbf{e}_h = \mathbf{q}_h - \mathbf{q}_e$, measured in the norms:
 
 ```math
 \lVert e_h \rVert_{2}
-=
-\left(
-\frac{1}{N}
-\sum_{i=1}^{N}
-e_i^2
-\right)^{1/2},
+= \left(\frac{1}{N}\sum_{i=1}^{N} e_i^2\right)^{1/2}, \qquad
+\lVert e_h \rVert_{\infty} = \max_i |e_i|.
 ```
 
-and:
+The observed order of convergence is estimated from two successive grids:
 
 ```math
-\lVert e_h \rVert_{\infty}
-=
-\max_i |e_i|.
+p = \frac{\log(E_{h_1}/E_{h_2})}{\log(h_1/h_2)}.
 ```
 
-The observed order of convergence is estimated by:
-
-```math
-p
-=
-\frac{
-\log(E_{h1}/E_{h2})
-}{
-\log(h1/h2)
-}.
-```
-
-For a fourth-order method, the expected behavior is approximately:
-
-```math
-E_h = C h^4,
-\qquad
-p \approx 4.
-```
+For a fourth-order scheme the expected behavior is $E_h \approx C h^4$, so
+$p \approx 4$.
 
 ---
 
 ## Convergence results (Case 12)
 
-This section reports a concrete instance of the verification described above,
-applied to Case 12. It checks that the fourth-order compact operators in
+The table below verifies the fourth-order compact operators in
 [`numerics/derivatives.py`](src/mms_viscoelastic/numerics/derivatives.py)
 (`compact_derivative_x`/`compact_derivative_y`, ported from `coef_4a`/`rhsx_4a`
-in [`derivs.f`](src/fortran_original/4Order_LPOG_Euler/derivs.f)) reproduce
-the stream-function identities
+in [`derivs.f`](src/fortran_original/4Order_LPOG_Euler/derivs.f)) through the
+streamfunction identities $u = \partial\psi/\partial y$,
+$v = -\partial\psi/\partial x$, $w_z = \partial u/\partial y - \partial v/\partial x$.
 
-```math
-u = \frac{\partial \psi}{\partial y},
-\qquad
-v = -\frac{\partial \psi}{\partial x},
-\qquad
-w_z = \frac{\partial u}{\partial y} - \frac{\partial v}{\partial x}
-```
-
-at an order consistent with the thesis and the JNNFM paper, using
-[`run_convergence_study`](src/mms_viscoelastic/numerics/convergence.py). These
-three relations were verified symbolically with SymPy to hold exactly for the
-Case 12 manufactured solution - substituting the closed-form expressions for
-$u$, $v$, $\psi$ and $w_z$ and simplifying each residual gives `0` for
-arbitrary $x$, $y$, $t$ - so any nonzero error below is purely discretization
-error, not a defect in the manufactured fields.
-
-> **Sign convention.** The `wz` field used here, and in the original
-> `case_12.f`, equals $\partial u/\partial y - \partial v/\partial x =
-> +\nabla^2\psi$, which is the *negative* of the $\omega_z =
-> \partial v/\partial x - \partial u/\partial y = -\nabla^2\psi$ defined in
-> [Mathematical formulation](#mathematical-formulation). The Python port keeps
-> the convention of the original Fortran code so that field-by-field
-> comparisons against `case_12.f` remain direct. See
-> [`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md#12-a-note-on-the-sign-of-wz)
-> for the full discussion.
+> **Sign convention.** The `wz` field used here, and in the original `case_12.f`,
+> equals $\partial u/\partial y - \partial v/\partial x = +\nabla^2\psi$, which is
+> the *negative* of the $\omega_z$ defined above. The Python port follows the
+> Fortran convention so that field-by-field comparisons remain direct. See
+> [`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md#12-a-note-on-the-sign-of-wz).
 
 Results for grids $n = 8, 16, 32, 64$ ($h = 1/n$):
 
 | $n$ | $h$ | $L_2(u)$ | $L_\infty(u)$ | $L_2(v)$ | $L_\infty(v)$ | $L_2(w_z)$ | $L_\infty(w_z)$ |
-|----|----------|----------|----------|----------|----------|----------|----------|
-| 8  | 1.25e-01 | 5.65e-04 | 2.73e-03 | 4.39e-03 | 1.48e-02 | 6.02e-03 | 1.74e-02 |
-| 16 | 6.25e-02 | 1.82e-05 | 9.10e-05 | 2.11e-04 | 9.43e-04 | 2.91e-04 | 1.12e-03 |
-| 32 | 3.13e-02 | 9.46e-07 | 7.73e-06 | 9.12e-06 | 5.59e-05 | 1.97e-05 | 1.00e-04 |
-| 64 | 1.56e-02 | 4.93e-08 | 5.79e-07 | 3.95e-07 | 3.34e-06 | 1.06e-06 | 7.82e-06 |
+|-----|----------|----------|----------|----------|----------|----------|----------|
+| 8   | 1.25e-01 | 5.65e-04 | 2.73e-03 | 4.39e-03 | 1.48e-02 | 6.02e-03 | 1.74e-02 |
+| 16  | 6.25e-02 | 1.82e-05 | 9.10e-05 | 2.11e-04 | 9.43e-04 | 2.91e-04 | 1.12e-03 |
+| 32  | 3.13e-02 | 9.46e-07 | 7.73e-06 | 9.12e-06 | 5.59e-05 | 1.97e-05 | 1.00e-04 |
+| 64  | 1.56e-02 | 4.93e-08 | 5.79e-07 | 3.95e-07 | 3.34e-06 | 1.06e-06 | 7.82e-06 |
 
 Estimated order of accuracy (log-log fit across all four grids):
 
 | Quantity | $p$ ($L_2$) | $p$ ($L_\infty$) |
-|----------|----------|------------|
-| $u$      | 4.4715   | 4.0166     |
-| $v$      | 4.4856   | 4.0398     |
-| $w_z$    | 4.1318   | 3.6850     |
+|----------|-------------|------------------|
+| $u$      | 4.47        | 4.02             |
+| $v$      | 4.49        | 4.04             |
+| $w_z$    | 4.13        | 3.69             |
 
-All quantities converge above the formal order $p=4$ of the compact scheme,
-consistent with the orders reported in the thesis and the JNNFM paper. This
-is a pre-asymptotic effect of the next-order term in the error expansion
-($e(h) = C_4 h^4 + C_5 h^5 + \ldots$), not evidence of a fifth-order scheme;
-see [`docs/case-12-convergence-verification.md`](docs/case-12-convergence-verification.md#6-interpretation)
-for the derivation. $w_z$ converges slightly slower than $u$/$v$ in both
-norms, consistent with it being obtained from $\psi$ through two compact
-derivatives.
+All quantities converge above the formal order $p = 4$. This is a pre-asymptotic
+effect of the next-order term in the error expansion
+($e(h) = C_4 h^4 + C_5 h^5 + \cdots$), consistent with the orders reported in
+the thesis and the JNNFM paper. $w_z$ converges slightly slower than $u$/$v$
+because it is obtained from $\psi$ through two compact derivatives.
+Full derivations and the symbolic verification with SymPy are in
+[`docs/case-12-convergence-verification.md`](docs/case-12-convergence-verification.md).
 
 Reproduce with:
 
@@ -407,39 +228,28 @@ python examples\09_case12_convergence_verification.py
 python -m pytest tests\test_case12_convergence.py -v
 ```
 
-Full derivations (symbolic verification, truncation-error analysis) and the
-consolidated source-term validation results are in
-[`docs/case-12-convergence-verification.md`](docs/case-12-convergence-verification.md)
-and
-[`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md).
-A reproducible end-to-end notebook is available at
-[`examples/notebooks/Case12_MMS_Pipeline.ipynb`](examples/notebooks/Case12_MMS_Pipeline.ipynb).
-
 ---
 
-## Thesis figures in this README
+## Thesis figures
 
-The figures below come from the thesis/slides material. The original files were mostly EPS, converted to PNG only so GitHub can render them. The original thesis assets remain preserved separately.
+The figures below are from the thesis and presentation material. The originals
+were EPS; PNG versions are included here so GitHub can render them.
 
-Documentation for the selected figures is available in:
-
-```text
-docs/thesis-figures-used-in-readme.md
-```
-
-### Visual intuition
+### Flow field — streamlines
 
 <p align="center">
-  <img src="assets/thesis/case12/thesis_streamlines.png" width="70%" alt="Streamlines from thesis material">
+  <img src="assets/thesis/case12/thesis_streamlines.png" width="70%"
+       alt="Streamlines from thesis material">
 </p>
 
 ### MMS validation pipeline
 
 <p align="center">
-  <img src="assets/preview/mms_validation_pipeline.svg" width="90%" alt="MMS validation pipeline">
+  <img src="assets/preview/mms_validation_pipeline.svg" width="90%"
+       alt="MMS validation pipeline">
 </p>
 
-### Case 12 exact maps
+### Case 12 — exact fields
 
 | $\psi$ | $u$ |
 |---|---|
@@ -453,7 +263,7 @@ docs/thesis-figures-used-in-readme.md
 |---|---|---|
 | <img src="assets/thesis/case12/exact_map_txx.png" width="300"> | <img src="assets/thesis/case12/exact_map_txy.png" width="300"> | <img src="assets/thesis/case12/exact_map_tyy.png" width="300"> |
 
-### Case 12 exact surfaces
+### Case 12 — exact surfaces
 
 | $\psi$ | $u$ |
 |---|---|
@@ -463,7 +273,7 @@ docs/thesis-figures-used-in-readme.md
 |---|---|
 | <img src="assets/thesis/case12/exact_surface_wz.png" width="420"> | <img src="assets/thesis/case12/exact_surface_txx.png" width="420"> |
 
-### Convergence curves from thesis material
+### Convergence curves
 
 | $\psi$ | $u$ |
 |---|---|
@@ -483,117 +293,51 @@ docs/thesis-figures-used-in-readme.md
 |---|---|
 | <img src="assets/thesis/case12/slice_x_u.png" width="420"> | <img src="assets/thesis/case12/slice_y_wz.png" width="420"> |
 
-### Repository architecture and current source-term status
-
-<p align="center">
-  <img src="assets/preview/repository_architecture.svg" width="90%" alt="Repository architecture">
-</p>
-
-<p align="center">
-  <img src="assets/preview/case12_source_terms_status.svg" width="90%" alt="Case 12 source-term status">
-</p>
-
 ---
 
-## Current Python status
+## What is in this repository
+
+### Python package (`src/mms_viscoelastic/`)
 
 The Fortran-to-Python port of `src/fortran_original/4Order_LPOG_Euler/` is
-functionally complete as a validated library of pieces (see
-[`docs/fortran-code-map.md`](docs/fortran-code-map.md) for the file-by-file
-status). The Python modernization currently includes:
+functionally complete. The package includes:
 
-- package foundation under `src/mms_viscoelastic`;
-- grid utilities;
-- **all 14 MMS manufactured-solution cases** (`case_01`-`case_14`) ported
-  and validated against isolated Fortran reference programs. Case 12 is the
-  one used in the thesis and the JNNFM paper, with the most extensive
-  validation; Cases 13/14 are not MMS cases in the original Fortran (the
-  exact solution and source term are identically zero — they are physical
-  lid-driven-cavity benchmark configurations) and were ported as trivial
-  modules for structural parity, per `docs/case-13-14-port.md`;
-- numerical derivative, error and convergence utilities, including the
-  **fourth-order compact (Padé-type) derivatives and the Lele compact
-  filter** used by the thesis, validated against isolated Fortran reference
-  programs (see [Numerical verification](#numerical-verification));
-- the **log-conformation reformulation** (`conform.f`: eigendecomposition,
-  `T_to_Psi`/`Psi_to_T`, `kernel_conformation`) and its explicit-Euler time
-  step (`drv_Psi`, `solver_log_euler`), validated against an isolated
-  Fortran reference. This path is not discussed in the thesis text but is
-  ported for source-code fidelity, see
-  [`docs/case-12-log-conformation.md`](docs/case-12-log-conformation.md);
-- visualization utilities;
-- ML-ready dataset construction (exploratory extension, not part of the
-  thesis core scope — see
-  [Machine Learning preparation](#machine-learning-preparation));
-- source-term ports for all 14 cases, with Fortran-reference validation for
-  Case 12's four source terms;
-- grid-convergence verification for the stream-function identities;
-- constitutive models (UCM, Oldroyd-B), validated against closed-form steady
-  Couette solutions (see [Constitutive models](docs/constitutive-models.md));
-- a direct Poisson solver for `psi`, an explicit Euler time step for `wz` and
-  the stress tensor, and a full single/multi-step time-marching update for
-  Case 12, each validated against isolated Fortran reference programs (see
-  [Time-marching solver (Case 12)](#time-marching-solver-case-12));
-- regression tests with `pytest`;
-- examples and a reproducible notebook for Case 12.
+- **Grid utilities** — `Grid2D` with uniform spacing
+- **All 14 MMS manufactured-solution cases** (`case_01` through `case_14`),
+  each ported and validated against an isolated Fortran reference program.
+  Case 12 is the primary case from the thesis and the JNNFM paper. Cases 13
+  and 14 are not MMS cases in the original Fortran — their exact solution and
+  source term are identically zero (lid-driven-cavity benchmarks); they were
+  ported as trivial structural-parity modules (see
+  [`docs/case-13-14-port.md`](docs/case-13-14-port.md)).
+- **Fourth-order compact derivatives and Lele filter** — ports of `coef_4a`,
+  `rhsx_4a`, `rhsxx_4a` and the compact filter from `derivs.f`, validated
+  against isolated Fortran references.
+- **Log-conformation reformulation** — port of `conform.f`: closed-form 2×2
+  eigendecomposition (`decomp_matrix`), `T_to_Psi`/`Psi_to_T` conversions,
+  `kernel_conformation`, and the explicit-Euler time step (`drv_Psi`,
+  `solver_log_euler`). Validated to machine precision against an isolated
+  Fortran reference that uses the general Jacobi iteration (not the closed form),
+  making the comparison independent. This path is not discussed in the thesis
+  text; it is ported for source-code fidelity. See
+  [`docs/case-12-log-conformation.md`](docs/case-12-log-conformation.md).
+- **Source terms for all 14 cases**, with full Fortran-reference validation for
+  Case 12's four terms (`tfwz`, `tfTxx`, `tfTxy`, `tfTyy`).
+- **Constitutive models** (UCM, Oldroyd-B), validated against closed-form
+  steady Couette solutions.
+- **Grid-convergence verification** for the streamfunction identities (see
+  [Convergence results](#convergence-results-case-12)).
+- **Time-marching solver** for Case 12 (see
+  [Time-marching solver](#time-marching-solver-case-12)).
+- **Visualization utilities** and a **reproducible Jupyter notebook**
+  ([`examples/notebooks/Case12_MMS_Pipeline.ipynb`](examples/notebooks/Case12_MMS_Pipeline.ipynb)).
+- **ML dataset utilities** (exploratory extension — see
+  [Machine learning utilities](#machine-learning-utilities)).
 
-### Implemented source terms
+The file-by-file correspondence between Fortran routines and Python modules is
+documented in [`docs/fortran-code-map.md`](docs/fortran-code-map.md).
 
-```text
-Case 12: tfwz, tfTxx, tfTxy, tfTyy — ported and validated against Fortran reference
-Cases 01-11, 13, 14: ported (validated against isolated Fortran reference
-  per case; Cases 13/14 are identically zero by construction, see above)
-```
-
-### Pending work
-
-```text
-expanded datasets for ML workflows (exploratory, not part of the thesis)
-full temporal-evolution comparison against the original Fortran solver's
-  own time loop (full simulation horizon, finer grids) -- partially
-  explored in Etapa 17 (docs/case-12-4th-order-time-marching.md): the
-  explicit-Euler instability documented in docs/case-12-full-march-reference.md
-  persists with the real 4th-order + Lele-filter + multigrid-Poisson scheme
-  too, just at a different point in time, not eliminated by it
-RK4 time integration (solver_rk4, solver_log_rk4) and a full multi-step
-  log-conformation time-marching wrapper; only the Euler variants are
-  ported (see docs/case-12-log-conformation.md)
-presentation material for thesis defense
-```
-
----
-
-## Case 12 status
-
-Case 12 is currently the main Python modernization target.
-
-### Original reference
-
-```text
-src/fortran_original/4Order_LPOG_Euler/case_12.f
-```
-
-### Python modules
-
-```text
-src/mms_viscoelastic/manufactured_solutions/case_12.py
-src/mms_viscoelastic/source_terms/case_12.py
-src/mms_viscoelastic/validation/source_term_reference.py
-```
-
-### Exact fields
-
-```text
-u
-v
-psi
-wz
-txx
-txy
-tyy
-```
-
-### Source-term API
+### Quick API example
 
 ```python
 from mms_viscoelastic.grids import Grid2D
@@ -602,10 +346,26 @@ from mms_viscoelastic.source_terms import evaluate_case_12_source_terms
 grid = Grid2D.from_bounds(nx=65, ny=65)
 terms = evaluate_case_12_source_terms(grid)
 
-terms.tfwz
-terms.tfTxx
-terms.tfTxy
-terms.tfTyy
+terms.tfwz    # forcing for the vorticity equation
+terms.tfTxx   # forcing for T_xx
+terms.tfTxy   # forcing for T_xy
+terms.tfTyy   # forcing for T_yy
+```
+
+### What is still out of scope
+
+The following items are documented as explicitly deferred:
+
+```text
+RK4 time integration (solver_rk4, solver_log_rk4) and full multi-step
+  log-conformation time marching — only the Euler variants are ported.
+Full temporal-evolution comparison against the original Fortran time loop
+  on fine grids and long simulation horizons. Explored in Etapa 17
+  (docs/case-12-4th-order-time-marching.md): the explicit-Euler instability
+  documented in docs/case-12-full-march-reference.md persists with the real
+  4th-order + Lele-filter + multigrid-Poisson scheme, just at a different
+  point in time — the dissipation from the filter alone is not enough to
+  stabilize the explicit march at dt=1e-5 on coarse grids.
 ```
 
 ---
@@ -614,46 +374,28 @@ terms.tfTyy
 
 `src/mms_viscoelastic/numerics/` ports the building blocks of the Case 12
 time-marching loop from `src/fortran_original/4Order_LPOG_Euler/`, using the
-**real scheme** the original Fortran uses: the 4th-order LPOG compact
-derivative operators, the Lele compact filter (applied once per step,
-between the boundary re-imposition and the Poisson re-solve, matching
-`subroutine loop` in `main.f`), and a 4th-order compact multigrid V-cycle
-Poisson solver (`poi_psi4a`) -- not the pentadiagonal `band5_poi`/
-`banbk5_poi`, which turned out to be dead code, never called anywhere in
-the original Fortran source. Each step is validated against an isolated
-Fortran reference program written for this project (it does not modify the
-original thesis Fortran sources).
+**real scheme** the original Fortran uses: 4th-order LPOG compact derivatives,
+the Lele compact filter applied once per step between the boundary
+re-imposition and the Poisson re-solve (matching `subroutine loop` in
+`main.f`), and a 4th-order compact multigrid V-cycle Poisson solver
+(`poi_psi4a`). The pentadiagonal `band5_poi`/`banbk5_poi` routines in
+`solvers.f` are dead code — a repository-wide search confirms they are never
+called anywhere in the original Fortran.
+
+Each building block is validated against an isolated Fortran reference program
+written for this project, which does not touch the original thesis sources.
 
 | Step | Module | Documentation |
 |---|---|---|
-| 4th-order compact multigrid Poisson solve for `psi` (`laplacian(psi) = wz`, Dirichlet BCs) | [`numerics/poisson_multigrid.py`](src/mms_viscoelastic/numerics/poisson_multigrid.py) | [`docs/case-12-4th-order-time-marching.md`](docs/case-12-4th-order-time-marching.md) |
-| Explicit Euler step for `wz`, `Txx`, `Txy`, `Tyy` (compact derivatives) | [`numerics/time_stepping.py`](src/mms_viscoelastic/numerics/time_stepping.py) | [`docs/case-12-euler-step-comparison.md`](docs/case-12-euler-step-comparison.md) |
-| Full step: Euler update + boundary conditions at `t+dt` + Lele filter + Poisson re-solve + `u`,`v` recomputation | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_time_step`) | [`docs/case-12-time-marching-comparison.md`](docs/case-12-time-marching-comparison.md) |
-| Multi-step march (`n_steps` chained full steps) | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) (`case12_multistep_march`) | [`docs/case-12-multistep-marching-comparison.md`](docs/case-12-multistep-marching-comparison.md) |
+| 4th-order compact multigrid Poisson solve for `psi` | [`numerics/poisson_multigrid.py`](src/mms_viscoelastic/numerics/poisson_multigrid.py) | [`docs/case-12-4th-order-time-marching.md`](docs/case-12-4th-order-time-marching.md) |
+| Explicit Euler step for `wz`, `Txx`, `Txy`, `Tyy` | [`numerics/time_stepping.py`](src/mms_viscoelastic/numerics/time_stepping.py) | [`docs/case-12-euler-step-comparison.md`](docs/case-12-euler-step-comparison.md) |
+| Full step: Euler + BCs + Lele filter + Poisson + `u`,`v` recomputation | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) | [`docs/case-12-time-marching-comparison.md`](docs/case-12-time-marching-comparison.md) |
+| Multi-step march (`n_steps` chained full steps) | [`numerics/time_marching.py`](src/mms_viscoelastic/numerics/time_marching.py) | [`docs/case-12-multistep-marching-comparison.md`](docs/case-12-multistep-marching-comparison.md) |
 
 All steps agree with their Fortran references to within machine precision
-(`~1e-15`, exact bit-for-bit for the Poisson solver alone). A separate
-2nd-order direct Poisson solve
-([`numerics/poisson.py`](src/mms_viscoelastic/numerics/poisson.py),
-[`docs/case-12-poisson-solver.md`](docs/case-12-poisson-solver.md)) remains
-as an independent, still-validated utility, no longer used by this
-pipeline. The one-sided `wz`-boundary stencil
-(`boundarie_vorticity_cavity_flow.f`) remains out of scope (a documented
-deviation, see `docs/case-12-time-marching-comparison.md`). A full
-temporal-evolution comparison against the original Fortran solver's own
-time loop was explored in Etapa 17
-([`docs/case-12-4th-order-time-marching.md`](docs/case-12-4th-order-time-marching.md)):
-the explicit-Euler instability at `dt=1e-5` documented in
-[`docs/case-12-full-march-reference.md`](docs/case-12-full-march-reference.md)
-persists with the real, dissipative scheme too, just at a different point
-in time.
-
-The **log-conformation reformulation** (`conform.f`) of the same Case 12
-problem has its own explicit-Euler step, also validated to machine precision
-against an isolated Fortran reference; see
-[`docs/case-12-log-conformation.md`](docs/case-12-log-conformation.md). This
-path is not discussed in the thesis text and its RK4 variant and full
-multi-step marching remain unported.
+(~1e-15; bit-for-bit for the Poisson solver). A second-order direct Poisson
+solve ([`numerics/poisson.py`](src/mms_viscoelastic/numerics/poisson.py))
+remains as an independent utility but is no longer part of the main pipeline.
 
 ---
 
@@ -665,63 +407,40 @@ multi-step marching remain unported.
 ├── CITATION.cff
 ├── src/
 │   ├── fortran_original/
-│   │   └── 4Order_LPOG_Euler/
-│   │       └── case_12.f
-│   │
-│   ├── mathematica_original/
-│   │
+│   │   └── 4Order_LPOG_Euler/        ← original Fortran solver (read-only)
+│   ├── mathematica_original/         ← symbolic derivations (read-only)
 │   └── mms_viscoelastic/
 │       ├── grids.py
 │       ├── fields.py
 │       ├── parameters.py
-│       ├── manufactured_solutions/  (case_01.py-case_14.py, all 14 MMS cases)
-│       ├── source_terms/            (case_01.py-case_14.py)
-│       ├── models/                  (ucm.py, oldroyd_b.py, log_conformation.py)
-│       ├── numerics/                (derivatives, filters, poisson, time_stepping[_log], time_marching)
+│       ├── manufactured_solutions/   (case_01.py – case_14.py)
+│       ├── source_terms/             (case_01.py – case_14.py)
+│       ├── models/                   (ucm.py, oldroyd_b.py, log_conformation.py)
+│       ├── numerics/                 (derivatives, filters, poisson, time_stepping[_log], time_marching)
 │       ├── validation/
 │       ├── visualization/
-│       ├── ml/                      (exploratory extension, not thesis core)
+│       ├── ml/                       (exploratory extension — not thesis core)
 │       └── io/
-│
-├── Thesis/
-│   ├── LICENSE
-│   ├── OrganistaJ_Thesis.tex
-│   ├── tex/
-│   ├── Slides/
-│   └── figures/
-│
-├── Papers/
-│   └── <journal-submission-folder>/
-│
+├── Thesis/                           ← thesis LaTeX source and figures (read-only)
+├── Papers/                           ← journal submission material (read-only)
 ├── validation/
-│   ├── fortran_reference/
-│   └── reference_data/
-│
+│   ├── fortran_reference/            ← isolated Fortran reference programs + build scripts
+│   └── reference_data/               ← reference CSVs (committed, regenerable)
 ├── examples/
 ├── tests/
 ├── docs/
 ├── scripts/
-├── assets/
-│   ├── preview/
-│   └── thesis/
-│       └── case12/
-└── outputs/        (generated, not tracked)
+└── assets/
+    ├── preview/                      ← diagrams committed to the repo
+    └── thesis/case12/                ← thesis figures committed to the repo
 ```
 
-The following folders are scientific reference material and should not be edited casually:
-
-```text
-src/fortran_original/
-src/mathematica_original/
-Thesis/
-Papers/
-```
+The folders `src/fortran_original/`, `src/mathematica_original/`, `Thesis/`
+and `Papers/` are reference material and are not modified.
 
 ---
 
 ## Installation
-
-Recommended PowerShell workflow:
 
 ```powershell
 python -m venv .venv
@@ -743,17 +462,15 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
 ## Tests and validation
 
-### Compile check
-
-```powershell
-python -m compileall src\mms_viscoelastic
-```
-
 ### Full test suite
 
 ```powershell
 python -m pytest -q
 ```
+
+508 tests cover manufactured-solution fields, source terms, compact
+derivatives, the Lele filter, the multigrid Poisson solver, constitutive
+models, time-stepping building blocks, and Fortran-reference comparisons.
 
 ### Source-term reference validation
 
@@ -764,22 +481,10 @@ python examples\07_validate_case12_tfTxy_reference.py
 python examples\08_validate_case12_tfTyy_reference.py
 ```
 
-Expected result:
+Each script prints `passed: True` and the maximum absolute error against the
+Fortran reference.
 
-```text
-passed:        True
-```
-
-Current validation status:
-
-```text
-tfwz   validated
-tfTxx  validated
-tfTxy  validated
-tfTyy  validated
-```
-
-### Convergence verification
+### Grid-convergence verification
 
 ```powershell
 python examples\09_case12_convergence_verification.py
@@ -793,287 +498,79 @@ expected output.
 
 ## Examples
 
-### Smoke test
-
 ```powershell
-python examples\01_smoke_python_package.py
-```
-
-### Case 12 manufactured solution
-
-```powershell
-python examples\02_case12_manufactured_solution.py
-```
-
-### Case 12 visualization and ML dataset
-
-```powershell
+python examples\01_smoke_python_package.py            # package import check
+python examples\02_case12_manufactured_solution.py    # exact fields on a grid
 python examples\03_case12_visualization_and_ml_dataset.py
+python examples\04_case12_tfwz_source_term.py         # source terms → CSV
+python examples\09_case12_convergence_verification.py # convergence study
 ```
 
-### Case 12 source terms
-
-```powershell
-python examples\04_case12_tfwz_source_term.py
-```
-
-This exports:
-
-```text
-outputs/case12/source_terms/case12_ported_sources.csv
-```
-
-with columns:
-
-```text
-x
-y
-tfwz
-tfTxx
-tfTxy
-tfTyy
-```
-
-### Case 12 reference validation
-
-```powershell
-python examples\05_validate_case12_tfwz_reference.py
-python examples\06_validate_case12_tfTxx_reference.py
-python examples\07_validate_case12_tfTxy_reference.py
-python examples\08_validate_case12_tfTyy_reference.py
-```
-
-### Case 12 grid-convergence verification
-
-```powershell
-python examples\09_case12_convergence_verification.py
-```
-
-### Case 12 notebook pipeline
+For a reproducible end-to-end pipeline (exact fields → source-term validation
+→ convergence study):
 
 ```powershell
 jupyter nbconvert --to notebook --execute --inplace `
   examples\notebooks\Case12_MMS_Pipeline.ipynb
 ```
 
-This notebook runs the exact-field evaluation, source-term validation and
-grid-convergence study end to end; see
-[`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md)
-for the consolidated results.
+Consolidated results from this notebook are in
+[`docs/case-12-complete-validation-report.md`](docs/case-12-complete-validation-report.md).
 
 ---
 
-## Generated outputs
+## Machine learning utilities
 
-Generated outputs should remain outside version control:
-
-```text
-outputs/
-```
-
-Curated figures for the README should be copied to:
-
-```text
-assets/preview/
-assets/thesis/
-```
-
-Recommended rule:
-
-```text
-outputs/        → generated, not committed
-assets/preview/ → selected diagrams, committed
-assets/thesis/  → selected thesis figures, committed
-```
-
----
-
-## Machine Learning preparation
-
-> **Scope note.** This subpackage is an **exploratory extension, not part
-> of the thesis's core scope**. The thesis is a numerical-verification
-> work (MMS applied to high-order viscoelastic flow solvers); it is not
-> about machine learning. No surrogate model is trained anywhere in this
-> repository — only feature tables and train/validation/test splits are
-> built from the already-validated fields. The originally planned
-> surrogate-model phase (Etapa 11) was discontinued for this reason; see
-> `.claude/PLANEJAMENTO.md`.
-
-The package includes dataset utilities under:
+> **Scope note.** The `ml/` subpackage is an **exploratory extension, not part
+> of the thesis's core scope**. The thesis is a numerical-verification work; it
+> is not about machine learning. No surrogate model is trained anywhere in this
+> repository — the utilities only build pointwise feature tables and
+> train/validation/test splits from the already-validated manufactured fields.
+> The surrogate-model phase originally planned was discontinued; the decision
+> is recorded in the planning log.
 
 ```text
 src/mms_viscoelastic/ml/
 ```
 
-The goal is to prepare pointwise data from manufactured solutions and source terms for future supervised learning, surrogate modeling and Scientific Machine Learning.
-
-A typical dataset row may include:
-
-```text
-x
-y
-time
-beta
-u
-v
-psi
-wz
-txx
-txy
-tyy
-tfwz
-tfTxx
-tfTxy
-tfTyy
-```
-
-Potential future ML tasks:
-
-- learn source-term corrections;
-- train surrogate models for manufactured fields;
-- build error estimators;
-- classify numerical regimes;
-- compare physics-informed and data-driven approximations;
-- generate reduced-order representations.
-
----
-
-## GitHub workflow
-
-Every change goes through a pull request:
-
-```text
-main → branch → commits → push → PR on GitHub → merge via GitHub → main
-```
-
-### Start a new phase
-
-```powershell
-git checkout main
-git pull --ff-only origin main
-git checkout -b feat/name-of-phase
-```
-
-### Validate
-
-```powershell
-python -m compileall src\mms_viscoelastic
-python -m pytest -q
-```
-
-### Commit and push
-
-```powershell
-git status
-git diff --stat
-git add <files>
-git commit -m "feat: objective message"
-git push -u origin feat/name-of-phase
-```
-
-### Open, check and merge the pull request
-
-```powershell
-gh pr create --base main --fill
-gh pr checks --watch
-gh pr merge --merge --delete-branch
-```
-
-Commit messages use the prefixes `feat:` (new functionality), `fix:` (bug
-fix), `docs:` (documentation only), `chore:` (maintenance/infrastructure),
-`test:` (tests only) and `refactor:` (refactor without behavior change).
-
----
-
-## GitHub About
-
-The repository "About" section on GitHub is configured as follows.
-
-Short description:
-
-```text
-Doctoral thesis (USP): numerical verification of high-order solvers for
-incompressible viscoelastic flows via the Method of Manufactured Solutions.
-Fortran reference programs, Python library, and ML-ready datasets.
-```
-
-Topics:
-
-```text
-applied-mathematics
-compact-schemes
-computational-fluid-dynamics
-doctoral-thesis
-finite-differences
-fortran
-giesekus
-log-conformation
-lptt
-manufactured-solutions
-mms
-navier-stokes
-non-newtonian-fluids
-numerical-verification
-oldroyd-b
-python
-scientific-computing
-scientific-machine-learning
-ucm
-viscoelastic-flows
-```
+A typical dataset row includes coordinates, physical parameters
+($\beta$, Re, Wi), the seven manufactured fields ($u$, $v$, $\psi$, $\omega_z$,
+$T_{xx}$, $T_{xy}$, $T_{yy}$) and the four source terms
+($f_{\omega_z}$, $f_{T_{xx}}$, $f_{T_{xy}}$, $f_{T_{yy}}$). These datasets
+could serve as input to physics-informed networks, surrogate models, or
+error estimators in future work, but that is outside the scope of this thesis.
 
 ---
 
 ## Citation
 
-If this repository supports your work, cite the associated doctoral thesis and this repository.
-
-Recommended citation text:
+If this repository supports your research, please cite both the doctoral thesis
+and this repository:
 
 ```text
-Organista, J. Codes and numerical verification material associated with a doctoral thesis on high-order methods for incompressible viscoelastic flows using the Method of Manufactured Solutions.
+Organista, J. Numerical verification of high-order solvers for incompressible
+viscoelastic flows using the Method of Manufactured Solutions.
+Doctoral thesis, University of São Paulo (USP).
 ```
 
-Machine-readable citation metadata is kept in [`CITATION.cff`](CITATION.cff)
-at the repository root, which GitHub surfaces through its "Cite this
-repository" button on the repository home page.
+Machine-readable citation metadata is in [`CITATION.cff`](CITATION.cff), which
+GitHub surfaces through the "Cite this repository" button on the repository
+home page.
 
 ---
 
 ## License
 
-The new Python library, examples, tests and documentation in this
-repository are released under the [MIT License](LICENSE).
+The Python library, examples, tests and documentation in this repository are
+released under the [MIT License](LICENSE).
 
 The original Fortran and Mathematica reference material under
 `src/fortran_original/`, `src/mathematica_original/` and `Thesis/` keeps its
-own terms, described in [`Thesis/LICENSE`](Thesis/LICENSE) (BSD-3-Clause
-style, Copyright (c) 2015, Humberto Lidio Antonelli).
+own terms, described in [`Thesis/LICENSE`](Thesis/LICENSE)
+(BSD-3-Clause style, Copyright © 2015 Humberto Lidio Antonelli).
 
 ---
 
-## Author
-
-**Juniormar Organista**
-
-Applied and Computational Mathematics, computational fluid mechanics, viscoelastic flows, high-order finite differences, Method of Manufactured Solutions and scientific software modernization.
-
----
-
-## README maintenance rule
-
-This README must not be reduced in future phases.
-
-New phases may add sections, update status tables and improve explanations, but should not remove:
-
-- mathematical formulation;
-- MMS explanation;
-- verification equations;
-- thesis figures;
-- installation commands;
-- validation commands;
-- Git workflow;
-- roadmap;
-- project structure.
-
-If a section becomes too long, move the expanded discussion to `docs/` and keep a summarized version here with a link. Never replace the README with a minimal placeholder.
+**Juniormar Organista** — Applied and Computational Mathematics, USP.
+Computational fluid mechanics, viscoelastic flows, high-order finite differences,
+Method of Manufactured Solutions.
