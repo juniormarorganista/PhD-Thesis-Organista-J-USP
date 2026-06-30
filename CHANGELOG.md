@@ -14,6 +14,15 @@ numeração não é monotonicamente crescente ao longo do histórico abaixo.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-06-29
+
+Primeira versão estável do pacote `mms_viscoelastic`. Consolida todas as 17
+etapas de portagem e verificação: os 14 casos MMS completos, o esquema compacto
+de 4ª ordem + filtro de Lele, o solver multigrid V-cycle FAS (`poi_psi4a`) e o
+caminho log-conformation (variante Euler). Toda a suite de testes (508 casos)
+passa com limpeza em ruff e mypy. Esta release marca o repositório como pronto
+para publicação pública.
+
 ## [0.3.1] - 2026-06-29
 
 Consolida a Etapa 17: marcha temporal de 4ª ordem real com multigrid V-cycle FAS
