@@ -407,8 +407,8 @@ remains as an independent utility but is no longer part of the main pipeline.
 ├── CITATION.cff
 ├── src/
 │   ├── fortran_original/
-│   │   └── 4Order_LPOG_Euler/        ← original Fortran solver (read-only)
-│   ├── mathematica_original/         ← symbolic derivations (read-only)
+│   │   └── 4Order_LPOG_Euler/        <- original Fortran solver (read-only)
+│   ├── mathematica_original/         <- symbolic derivations (read-only)
 │   └── mms_viscoelastic/
 │       ├── grids.py
 │       ├── fields.py
@@ -421,18 +421,18 @@ remains as an independent utility but is no longer part of the main pipeline.
 │       ├── visualization/
 │       ├── ml/                       (exploratory extension - not thesis core)
 │       └── io/
-├── Thesis/                           ← thesis LaTeX source and figures (read-only)
-├── Papers/                           ← journal submission material (read-only)
+├── Thesis/                           <- thesis LaTeX source and figures (read-only)
+├── Papers/                           <- journal submission material (read-only)
 ├── validation/
-│   ├── fortran_reference/            ← isolated Fortran reference programs + build scripts
-│   └── reference_data/               ← reference CSVs (committed, regenerable)
+│   ├── fortran_reference/            <- isolated Fortran reference programs + build scripts
+│   └── reference_data/               <- reference CSVs (committed, regenerable)
 ├── examples/
 ├── tests/
 ├── docs/
 ├── scripts/
 └── assets/
-    ├── preview/                      ← diagrams committed to the repo
-    └── thesis/case12/                ← thesis figures committed to the repo
+    ├── preview/                      <- diagrams committed to the repo
+    └── thesis/case12/                <- thesis figures committed to the repo
 ```
 
 The folders `src/fortran_original/`, `src/mathematica_original/`, `Thesis/`
