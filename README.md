@@ -573,4 +573,4 @@ own terms, described in [`Thesis/LICENSE`](Thesis/LICENSE)
 
 **Juniormar Organista** - Applied and Computational Mathematics, USP.
 Computational fluid mechanics, viscoelastic flows, high-order finite differences,
-Method of Manufactured Solutions.
+Method of Manufactured Solutions (MMS).
