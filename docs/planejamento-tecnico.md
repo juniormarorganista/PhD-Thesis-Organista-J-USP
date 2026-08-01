@@ -21,7 +21,7 @@
 | Relatório científico do Case 12 | ✅ `docs/case-12-complete-validation-report.md` |
 | Notebook científico | ✅ `examples/notebooks/Case12_MMS_Pipeline.ipynb` |
 | CI/CD (GitHub Actions) | ✅ pytest em 3.10/3.11/3.12 + lint (ruff + mypy) |
-| Versão do pacote | [0.2.0](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/tree/v0.2.0) |
+| Versão do pacote | [0.2.0](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/tree/v0.2.0) |
 | Comparação Fortran x Python - campos exatos do Case 12 (t=0) | ✅ `validation/solver_comparison.py`, ver `docs/case-12-solver-comparison.md` |
 | Solver time-marching Python (`case12_time_step`, `case12_multistep_march`) | ✅ Poisson (Etapa 8) + Euler (Etapa 9) + passo completo (Etapa 10) + marcha multi-passo (Etapa 11), validados a erro de arredondamento vs referências Fortran isoladas (grade 9x9, 10 passos) |
 | Marcha temporal completa (malhas maiores, comparação com `solver_euler`) | em andamento - FASE IX (Etapa 12 ✅: referência 2ª ordem diverge em t≈4.5506 em vez de convergir; Etapas 13-15 re-escopadas para horizonte estável) |
@@ -63,7 +63,7 @@
 | Adicionar ruff ao CI | `.github/workflows/tests.yml` | `chore/lint-and-type-check` |
 | PR + merge via GitHub | - | - |
 
-**Status:** [PR #7](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/7) mergeada. `ruff check` e `mypy src/` limpos; job `lint` adicionado ao CI.
+**Status:** [PR #7](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/7) mergeada. `ruff check` e `mypy src/` limpos; job `lint` adicionado ao CI.
 
 ---
 
@@ -83,7 +83,7 @@
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/case-12-convergence-verification.md` | idem |
 | PR + merge via GitHub | - | - |
 
-**Status:** [PR #8](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/8) mergeada. Identidades `u = d(psi)/dy`, `v = -d(psi)/dx`, `wz = d(u)/dy - d(v)/dx` verificadas simbolicamente (SymPy) e numericamente: ordem L2 ≈ 2.00-2.12 para grids 8→16→32→64.
+**Status:** [PR #8](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/8) mergeada. Identidades `u = d(psi)/dy`, `v = -d(psi)/dx`, `wz = d(u)/dy - d(v)/dx` verificadas simbolicamente (SymPy) e numericamente: ordem L2 ≈ 2.00-2.12 para grids 8→16→32→64.
 
 ---
 
@@ -101,7 +101,7 @@
 
 > **Regra do `escritor`:** redigir na voz do pesquisador. Evitar fraseado genérico de IA. Citar a tese e os papers originais quando mencionar equações.
 
-**Status:** [PR #10](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/10) mergeada. Relatório consolidado em `docs/case-12-complete-validation-report.md` (solução exata, validação dos 4 termos fonte vs. Fortran, estudo de convergência e nota sobre a convenção de sinal de `wz`); notebook `examples/notebooks/Case12_MMS_Pipeline.ipynb` executado com saídas reais; README atualizado com a seção "Convergence results (Case 12)" e status do `tfTyy` corrigido para validado.
+**Status:** [PR #10](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/10) mergeada. Relatório consolidado em `docs/case-12-complete-validation-report.md` (solução exata, validação dos 4 termos fonte vs. Fortran, estudo de convergência e nota sobre a convenção de sinal de `wz`); notebook `examples/notebooks/Case12_MMS_Pipeline.ipynb` executado com saídas reais; README atualizado com a seção "Convergence results (Case 12)" e status do `tfTyy` corrigido para validado.
 
 ---
 
@@ -118,7 +118,7 @@
 | Testes para datasets e splits | `tests/test_ml_parametric.py`, `tests/test_ml_splits.py` | idem |
 | PR + merge via GitHub | - | - |
 
-**Status:** [PR #12](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/12) mergeada. `build_case12_parametric_dataset` varre combinações de `(Re, Wi, beta, t)`, combina os campos exatos do Case 12 com os quatro termos fonte em uma única tabela por combinação e retorna um `ParametricDatasetBundle`; `ml/splits.py` adiciona `stratified_train_validation_test_split`, garantindo que train/validation/test contenham amostras de cada `case_id`.
+**Status:** [PR #12](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/12) mergeada. `build_case12_parametric_dataset` varre combinações de `(Re, Wi, beta, t)`, combina os campos exatos do Case 12 com os quatro termos fonte em uma única tabela por combinação e retorna um `ParametricDatasetBundle`; `ml/splits.py` adiciona `stratified_train_validation_test_split`, garantindo que train/validation/test contenham amostras de cada `case_id`.
 
 ---
 
@@ -139,7 +139,7 @@
 | Documentar equações com rigor (skill `doutor-em-matematica`) | `docs/constitutive-models.md` | idem |
 | PR + merge via GitHub | - | - |
 
-**Status:** [PR #14](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/14) mergeada. `models/ucm.py` implementa a derivada upper-convected em forma de componentes, o resíduo `ucm_residual` e a solução analítica `ucm_steady_simple_shear`; `models/oldroyd_b.py` decompõe `tau = tau_p + tau_s` com `solvent_stress`, `total_stress`, `oldroyd_b_residual` e `oldroyd_b_steady_simple_shear`. `docs/constitutive-models.md` documenta a derivação completa, e os testes verificam as soluções de Couette e o resíduo nulo (`atol=1e-12`) para uma grade de `(Wi, beta, shear_rate)`, incluindo `beta=0` e `beta=1`.
+**Status:** [PR #14](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/14) mergeada. `models/ucm.py` implementa a derivada upper-convected em forma de componentes, o resíduo `ucm_residual` e a solução analítica `ucm_steady_simple_shear`; `models/oldroyd_b.py` decompõe `tau = tau_p + tau_s` com `solvent_stress`, `total_stress`, `oldroyd_b_residual` e `oldroyd_b_steady_simple_shear`. `docs/constitutive-models.md` documenta a derivação completa, e os testes verificam as soluções de Couette e o resíduo nulo (`atol=1e-12`) para uma grade de `(Wi, beta, shear_rate)`, incluindo `beta=0` e `beta=1`.
 
 ---
 
@@ -156,7 +156,7 @@
 | Criar tag `v0.2.0` no GitHub | - | - |
 | PR + merge via GitHub | - | - |
 
-**Status:** [PR #16](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/16) mergeada. Versão `0.2.0` em `pyproject.toml`, `_version.py` e `CITATION.cff`; entradas de `[Unreleased]` movidas para `[0.2.0] - 2026-06-13` no `CHANGELOG.md`; `ruff` e `mypy` já estavam habilitados no job `lint` do CI desde a Fase I. Tag [`v0.2.0`](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/tree/v0.2.0) criada.
+**Status:** [PR #16](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/16) mergeada. Versão `0.2.0` em `pyproject.toml`, `_version.py` e `CITATION.cff`; entradas de `[Unreleased]` movidas para `[0.2.0] - 2026-06-13` no `CHANGELOG.md`; `ruff` e `mypy` já estavam habilitados no job `lint` do CI desde a Fase I. Tag [`v0.2.0`](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/tree/v0.2.0) criada.
 
 ---
 
@@ -173,7 +173,7 @@
 | Documentar divergências e justificar tolerâncias | `docs/case-12-solver-comparison.md` | idem |
 | PR + merge via GitHub | - | - |
 
-**Status:** [PR #18](https://github.com/juniormarorganista/PhDs-Thesis-Organista-J-USP/pull/18) mergeada, com **escopo reduzido**: o pacote `mms_viscoelastic` ainda não possui um solver time-marching (sem solver de Poisson para `psi`, sem integração temporal da vorticidade e do tensor extra-tensão), então a comparação solver-level completa não era viável nesta fase. Em vez disso, foi implementada a comparação dos **campos exatos do Case 12 no instante inicial t=0**: um programa Fortran isolado (`validation/fortran_reference/case12_fields/case12_fields_reference.f90`) porta verbatim `exact_solutions_case_12(t)` e é comparado contra `evaluate_case_12_exact` para os sete campos (`u, v, wz, psi, txx, txy, tyy`), com erro de arredondamento de ponto flutuante (~1e-16 a 1e-21). A comparação completa do solver time-marching fica para a Fase VIII.
+**Status:** [PR #18](https://github.com/juniormarorganista/PhD-Thesis-Organista-J-USP/pull/18) mergeada, com **escopo reduzido**: o pacote `mms_viscoelastic` ainda não possui um solver time-marching (sem solver de Poisson para `psi`, sem integração temporal da vorticidade e do tensor extra-tensão), então a comparação solver-level completa não era viável nesta fase. Em vez disso, foi implementada a comparação dos **campos exatos do Case 12 no instante inicial t=0**: um programa Fortran isolado (`validation/fortran_reference/case12_fields/case12_fields_reference.f90`) porta verbatim `exact_solutions_case_12(t)` e é comparado contra `evaluate_case_12_exact` para os sete campos (`u, v, wz, psi, txx, txy, tyy`), com erro de arredondamento de ponto flutuante (~1e-16 a 1e-21). A comparação completa do solver time-marching fica para a Fase VIII.
 
 ---
 
