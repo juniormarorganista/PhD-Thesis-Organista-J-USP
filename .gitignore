@@ -1,27 +1,50 @@
-# Claude Code
-CLAUDE.md
-CLAUDE.local.md
+# .gitignore — organizado por categoria
+# Padroes preexistentes foram preservados; excecoes (!) ficam no fim,
+# onde o gitignore garante que prevalecem.
 
-# Generated outputs
-outputs/
+# Ferramentas de IA — nunca versionar
+.claude/
+.claudesignignore
+.cline/
+.cline_history/
+.codex/
+.cursor/
+.cursorignore
+.cursorrules
+.worktrees/
+AGENTS.md
+CLAUDE.local.md
+CLAUDE.md
+Cursor.md
+GEMINI.md
+PROMPTS.md
+
+# Ambientes virtuais
+.venv/
+env/
+venv/
 
 # Python
-__pycache__/
-*.py[cod]
 *.egg-info/
 .eggs/
-.pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.venv/
-venv/
-env/
-
-# Build/distribution
+__pycache__/
 build/
 dist/
 
-# LaTeX build artifacts
+# Testes e cobertura
+.pytest_cache/
+
+# Jupyter e notebooks
+.ipynb_checkpoints/
+
+# Dados, modelos e saidas
+*.joblib
+*.pkl
+outputs/
+
+# LaTeX
 *.aux
 *.bbl
 *.blg
@@ -30,47 +53,22 @@ dist/
 *.synctex.gz
 *.toc
 
-# Data and models
-*.pkl
-*.joblib
+# Bancos de dados locais
+Thumbs.db
 
-# Jupyter
-.ipynb_checkpoints/
+# IDEs e editores
+.idea/
+.vscode/
 
-# AI local tools
-.claude/
-.codex/
+# Sistema operacional
+.DS_Store
 
-# Temporary generated phase scripts - not part of repository anymore
+# Especifico do projeto
+*.py[cod]
 criar_*.py
 corrigir_*.py
 reorganizar_*.ps1
 cleanup_repository_phase*.py
-
-# Old README backups
 README.before-*.md
 README.backup*.md
 README.old*.md
-
-# OS/editor
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# ---------------------------------------------------
-# Configurações e Logs de Inteligência Artificial
-# ---------------------------------------------------
-.claudesignignore
-CLAUDE.md
-CLAUDE.local.md
-.claude/
-.codex/
-.cursorignore
-.cursor/
-.cursorrules
-Cursor.md
-.cline/
-.cline_history/
-AGENTS.md
-PROMPTS.md
