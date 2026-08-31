@@ -25,6 +25,7 @@ env/
 venv/
 
 # Python
+*.egg
 *.egg-info/
 .eggs/
 .mypy_cache/
