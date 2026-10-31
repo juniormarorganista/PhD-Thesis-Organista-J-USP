@@ -43,7 +43,8 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.6",
     "mypy>=1.10",
-    "build>=1.2"
+    "build>=1.2",
+    "matplotlib>=3.8"  # tests/test_case12_visualization.py
 ]
 ml = [
     "scikit-learn>=1.4",
