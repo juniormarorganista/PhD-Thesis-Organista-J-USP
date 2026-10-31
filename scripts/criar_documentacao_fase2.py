@@ -592,7 +592,7 @@ Use:
 ```powershell
 cd C:\
 mkdir dev
-cd C:\dev
+cd D:\Juniormar_Projetos_Github
 git clone URL_DO_REPOSITORIO tese
 cd tese
 ```
